@@ -134,7 +134,7 @@ class FullYearCalendar {
         var divWeekRow; //Container representing the weeks, applied so the pluging could be somewhat responsive
         var divDayNumber; //Container for the number of the day
 
-        this.calendar.daysInMonths[currentMonth] = [];
+        this.calendarDOM.daysInMonths[currentMonth] = [];
 
         //Creates the containers for the days of the actual days
         for (var iDay = 0; iDay <= this.calendar.totalNumberOfDays; iDay++) {
@@ -166,17 +166,17 @@ class FullYearCalendar {
 
             divDaysNumbers.appendChild(divWeekRow);
 
-            divDayNumber = [divDayNumber];
+            //divDayNumber = [divDayNumber];
 
             //TODO: Click events aren't working at the moment
             //Creates the events for the days
-            typeof this.calendar.OnDayClick === 'function' ? this._addDayEvent(divDayNumber[0], 'click', '_dayClick', this.calendar, divDayNumber) : null;
+            typeof this.calendar.OnDayClick === 'function' ? this._addDayEvent(divDayNumber, 'click', '_dayClick', this.calendar, divDayNumber) : null;
             //Creates the events for the days
-            typeof this.calendar.OnDayMouseOver === 'function' ? this._addDayEvent(divDayNumber[0], 'mouseover', '_dayMouseOver', this.calendar, divDayNumber) : null;
+            typeof this.calendar.OnDayMouseOver === 'function' ? this._addDayEvent(divDayNumber, 'mouseover', '_dayMouseOver', this.calendar, divDayNumber) : null;
 
-            this.calendar.daysInMonths[currentMonth].push(divDayNumber);
+            this.calendarDOM.daysInMonths[currentMonth].push({ dayDOMElement: divDayNumber, value: null });
         }
-        divDaysNumbers.style.height = divDayNumber[0].offsetHeight + 'px'; //Set the height of the row for the days numbers
+        divDaysNumbers.style.height = divDayNumber.offsetHeight + 'px'; //Set the height of the row for the days numbers
     }
 
     // PRIVATE FUNCTIONS
@@ -215,11 +215,16 @@ class FullYearCalendar {
             customDates: config && config.customDates || {},
         }
 
-        // Fixed props
+        // Calculated properties
         this.calendar.totalNumberOfDays = 37; //Total number of days. It's set to 37 + 4 (To fill gap on mobile view) because it's the maximum possible value to attain with the gap between starting and end of days in the month
         this.calendar.weekStartDayNumber = this._getWeekDayNumberFromName(this.calendar.weekStartDay); //TODO: Function now doesn't receive param
         this._setTotalCalendarWidth(); //TODO: Function now doesn't receive param
         this.calendar.daysInMonths = [];
+
+
+        this.calendarDOM = {
+            daysInMonths: []
+        }
     }
 
     _createMainContainer(domElement) {
@@ -263,30 +268,30 @@ class FullYearCalendar {
         var lastDayOfMonth = new Date(this.calendar.selectedYear, currentMonth + 1, 1, -1).getDate();
 
         //Loops through all the days cell created previously and changes it's content accordingly
-        for (var iDayCell = 0; iDayCell < this.calendar.daysInMonths[currentMonth].length; iDayCell++) {
+        for (var iDayCell = 0; iDayCell < this.calendarDOM.daysInMonths[currentMonth].length; iDayCell++) {
 
             //If it's an actual day for the current month then adds the correct day if not then adds an empty string
             var dayCellContent = iDayCell >= firstDayOfMonth && iDayCell < firstDayOfMonth + lastDayOfMonth ? iDayCell - firstDayOfMonth + 1 : '';
 
             //Stores the Year, Month and Day no the calendar object as [yyyy, month, day]
-            this.calendar.daysInMonths[currentMonth][iDayCell][1] = dayCellContent ? [this.calendar.selectedYear, currentMonth + 1, iDayCell - firstDayOfMonth + 1] : '';
+            this.calendarDOM.daysInMonths[currentMonth][iDayCell].value = dayCellContent ? [this.calendar.selectedYear, currentMonth + 1, iDayCell - firstDayOfMonth + 1] : null;
             //Adds the content to the actual Html cell
-            this.calendar.daysInMonths[currentMonth][iDayCell][0].innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? '0' + dayCellContent : dayCellContent;
+            this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? '0' + dayCellContent : dayCellContent;
             //Reapply the default Css class for the day
-            this.calendar.daysInMonths[currentMonth][iDayCell][0].className = this.calendar.cssClassDefaultDay;
+            this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className = this.calendar.cssClassDefaultDay;
 
             //Applies Customer dates style to the calendar
             if (dayCellContent !== '') {
-                var yearValue = this.calendar.daysInMonths[currentMonth][iDayCell][1][0]; //Year index
-                var monthValue = this.calendar.daysInMonths[currentMonth][iDayCell][1][1]; //Month index
-                var dayValue = this.calendar.daysInMonths[currentMonth][iDayCell][1][2]; //Day index
+                var yearValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[0]; //Year index
+                var monthValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[1]; //Month index
+                var dayValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[2]; //Day index
 
                 var currentDate = new Date(yearValue, monthValue - 1, dayValue); //Uses the previously stored date information
-                this.calendar.daysInMonths[currentMonth][iDayCell][0].className += this._applyCustomDateStyle(this.calendar.customDates, currentDate);
+                this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += this._applyCustomDateStyle(this.calendar.customDates, currentDate);
             } else {
                 //Add the class hideInMobile to the DayCell above and equal to 35 because if that cell is empty then the entire row can be hidden
-                if (iDayCell >= 35 && this.calendar.daysInMonths[currentMonth][35][0].innerText === '')
-                    this.calendar.daysInMonths[currentMonth][iDayCell][0].className += ' hideInMobile'; //This class will be used to hide these cell when in Mobile mode                    
+                if (iDayCell >= 35 && this.calendarDOM.daysInMonths[currentMonth][35].dayDOMElement.innerText === '')
+                    this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += ' hideInMobile'; //This class will be used to hide these cell when in Mobile mode                    
             }
         }
     }
