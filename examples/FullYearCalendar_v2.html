@@ -105,10 +105,11 @@
     <script type="text/javascript">
         // Create the instance for the calendar
         const divFullYearCalendar1 = document.getElementById('divFullYearCalendar1')
-        const configObj = {
+        const configObj1 = {
             dayWidth: 20,
             showNavigationToolBar: true,
             showLegend: true,
+            selectedYear: 2019,
             customDates: {
                 vacations: [
                     { start: '2019-01-15', end: '2019-01-25' },
@@ -134,14 +135,17 @@
                 weekend: 'Weekends'
             },
         }
-        const fullYearCalendar1 = new FullYearCalendar(divFullYearCalendar1, configObj);
+        const fullYearCalendar1 = new FullYearCalendar(divFullYearCalendar1, configObj1);
 
-        // // Create the instance for the calendar
-        // const divFullYearCalendar2 = document.getElementById('divFullYearCalendar2')
-        // //const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, {dayWidth: 30});
-        // FullYearCalendar.Init({
-        //     ContainerElementId: 'divFullYearCalendar2'
-        // })
+        // Create the instance for the calendar
+        const divFullYearCalendar2 = document.getElementById('divFullYearCalendar2');
+        const configObj2 = {
+            dayWidth: 20,
+            selectedYear: 2020,
+            showNavigationToolBar: true,
+        }
+        const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, configObj2);
+        
 
     </script>
 </body>

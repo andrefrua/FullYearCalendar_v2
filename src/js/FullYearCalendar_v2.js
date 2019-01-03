@@ -6,7 +6,9 @@ class FullYearCalendar {
 
         this._createMainContainer(domElement);
 
-        //calendar.over = typeof (calendar.MouseOver) == 'function' ? calendar.OnClick : false;
+        //this.calendar.over = typeof (this.calendar.MouseOver) == 'function' ? this.calendar.OnClick : false;
+
+
 
         for (var iMonth = 0; iMonth < 12; iMonth++) {
             this.CreateCalendar(iMonth);
@@ -16,14 +18,12 @@ class FullYearCalendar {
 
         if (this.calendar.showNavigationToolBar === true) this._addNavigationToolBar();
 
-        // FullYearCalendar['fyc' + calendar.ContainerElementId] = calendar; //Stores the current calendar so we don'eventType have to recreate everything when changing the year
-        
         this._setSelectedYear(this.calendar.selectedYear);
 
-        // this._initEventHandlers(calendar); //Inits the needed handlers for resize
+        if (this.calendar.showLegend === true) this._addLegend(); //Adds the legend
 
-         this._addLegend(); //Adds the legend
-
+        //TODO: Change the way the fitting of the calendar on the screen is handled
+        //this._initEventHandlers(); //Inits the needed handlers for resize
         // TODO THIS IS NOT WORKING 
         //this._fitToContainer(this._setTotalCalendarWidth()); //Fits the calendar to the container
     }
@@ -173,7 +173,7 @@ class FullYearCalendar {
             typeof this.calendar.OnDayClick === 'function' ? this._addDayEvent(divDayNumber[0], 'click', '_dayClick', this.calendar, divDayNumber) : null;
             //Creates the events for the days
             typeof this.calendar.OnDayMouseOver === 'function' ? this._addDayEvent(divDayNumber[0], 'mouseover', '_dayMouseOver', this.calendar, divDayNumber) : null;
-            
+
             this.calendar.daysInMonths[currentMonth].push(divDayNumber);
         }
         divDaysNumbers.style.height = divDayNumber[0].offsetHeight + 'px'; //Set the height of the row for the days numbers
@@ -235,7 +235,7 @@ class FullYearCalendar {
      * @param {Object} calendar - Represents the Calendar initial object
      * @param {Number} currentYear - Value of the year to be used
      */
-    _setSelectedYear(newSelectedYear) {        
+    _setSelectedYear(newSelectedYear) {
         this.calendar.selectedYear = newSelectedYear;
 
         for (var iMonth = 0; iMonth < 12; iMonth++) {
@@ -668,12 +668,13 @@ class FullYearCalendar {
      * Initializes the needed event handlers for the calendar
      * @param {Object} calendar - Represents the Calendar initial object
      */
-    _initEventHandlers(calendar) {
+    _initEventHandlers() {
+        const currentInstance = this;
         this._setTotalCalendarWidth();
 
         jQuery(document).ready(function () {
             jQuery(window).resize(function () {
-                this._fitToContainer(); //Resizes the calendar to the container                
+                currentInstance._fitToContainer(); //Resizes the calendar to the container                
             });
         });
     }
