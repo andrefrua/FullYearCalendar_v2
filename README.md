@@ -1,1 +1,2 @@
-FullYearCalendar_v2
+# FullYearCalendar
+Yearly calendar to show import days for the selected year. Like vacations, holidays, etc...
