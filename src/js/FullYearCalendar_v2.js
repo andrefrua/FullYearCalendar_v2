@@ -16,13 +16,12 @@ class FullYearCalendar {
 
         if (this.calendar.showLegend === true) this._addLegend(); //Adds the legend
 
-        this._setTotalCalendarWidth();
-
+        this._fitToContainer();
         this.registerEventHandlers();
     }
 
 
-    onResize() {
+    onResize() {        
         this._fitToContainer();
     }
 
@@ -89,12 +88,6 @@ class FullYearCalendar {
 
 
 
-
-
-
-
-
-
         for (var iMonth = 0; iMonth < 12; iMonth++) {
             //Creation of the containers
             var divMonthInformation = document.createElement('div'); //Container where the number of days will be added
@@ -114,7 +107,7 @@ class FullYearCalendar {
             divMonthName.innerHTML = this.calendar.monthNames[iMonth];
             divMonthName.style.fontSize = parseInt(this.calendar.dayWidth / 2) + 'px';
             divMonthName.style.height = this.calendar.dayWidth + 'px';
-            divMonthName.style.minWidth = 80 + 'px';
+            divMonthName.style.minWidth = this.calendar.monthNameWidth + 'px';
 
             divMonthNameContainer.appendChild(divMonthName);
             this.calendar.mainContainer.appendChild(divMonthNameContainer);
@@ -215,8 +208,8 @@ class FullYearCalendar {
             cssClassNavButtonNextYear: config && config.cssClassNavButtonNextYear || 'fyc_NavButtonNextYear',
             cssClassNavIconPreviousYear: config && config.cssClassNavIconPreviousYear || 'fyc_IconPreviousYear',
             cssClassNavIconNextYear: config && config.cssClassNavIconNextYear || 'fyc_IconNextYear',
-            captionNavButtonPreviousYear: config && config.captionNavButtonPreviousYear || 'Previous',
-            captionNavButtonNextYear: config && config.captionNavButtonNextYear || 'Next',
+            captionNavButtonPreviousYear:  config || typeof config.captionNavButtonPreviousYear === 'undefined' ? config.captionNavButtonPreviousYear : 'Previous',
+            captionNavButtonNextYear: config || typeof config.captionNavButtonNextYear === 'undefined' ? config.captionNavButtonNextYear : 'Next',
             //Custom dates
             customDates: config && config.customDates || {},
         }
@@ -226,7 +219,8 @@ class FullYearCalendar {
         this.calendar.totalNumberOfDays = 37; //Total number of days. It's set to 37 + 4 (To fill gap on mobile view) because it's the maximum possible value to attain with the gap between starting and end of days in the month
         this.calendar.weekStartDayNumber = this._getWeekDayNumberFromName(this.calendar.weekStartDay); //TODO: Function now doesn't receive param        
         this.calendar.daysInMonths = [];
-
+        this.calendar.monthNameWidth = this.calendar.dayWidth * 4;
+        this.calendar.totalCalendarWidth = this.calendar.monthNameWidth  + (this.calendar.dayWidth * 38); //Total ammount of days drawn     
 
         this.calendarDOM = {
             daysInMonths: []
@@ -429,7 +423,7 @@ class FullYearCalendar {
             //Fills the left container and adds it to the Main div
             divLeftContainer.className = this.calendar.cssClassMonthName;
             divLeftContainer.style.float = 'left';
-            divLeftContainer.style.minWidth = 80 + 'px';
+            divLeftContainer.style.minWidth = this.calendar.monthNameWidth + 'px';
             divLeftContainer.innerHTML = '&nbsp;';
             divWeekDayNames.appendChild(divLeftContainer);
 
@@ -627,11 +621,11 @@ class FullYearCalendar {
      */
     _fitToContainer() {
         const currentContainerWidth = this.calendar.mainContainer.offsetWidth;
-
+      
         // If the current width of the container is lower than the total width of the calendar we need to swith views
         if (currentContainerWidth < this.calendar.totalCalendarWidth) {
             //const defaulDayElements = this.calendar.mainContainer.querySelectorAll("[fyc_defaultday]");
-
+            
             //This was changed because the original calc didn't work with firefox, so now it used the cantainer total width divided by six (because there are 6 weeks)
             jQuery(this.calendar.mainContainer).find('[fyc_defaultday], .has-fyc_defaultday').css('width', jQuery(this.calendar.mainContainer).width() / 6 + 'px');
             jQuery(this.calendar.mainContainer).find('[fyc_weekdayname], .has-fyc_weekdayname').css('width', jQuery(this.calendar.mainContainer).width() / 6 + 'px');
@@ -641,40 +635,33 @@ class FullYearCalendar {
             //Shows the dummy days because on small format they are needed - NOTE: The order between the hideInMobile and IsDummyDay can't be changed or it won't work
             jQuery(this.calendar.mainContainer).find('[isdummyday], .has-isdummyday').css('display', 'table-cell');
 
-            jQuery('.hideInMobile').css('display', 'none');
+            jQuery(this.calendar.mainContainer).find('.hideInMobile').css('display', 'none');
 
             //WeekDays names handling
-            jQuery('.divWeekDayNamesMonthly').css('display', 'block');
-            jQuery('.divWeekDayNamesYearly').css('display', 'none');
+            jQuery(this.calendar.mainContainer).find('.divWeekDayNamesMonthly').css('display', 'block');
+            jQuery(this.calendar.mainContainer).find('.divWeekDayNamesYearly').css('display', 'none');
 
-            jQuery('.monthName').css('text-align', 'left');
+            jQuery(this.calendar.mainContainer).find('.monthName').css('text-align', 'left');
         }
         else {
             jQuery(this.calendar.mainContainer).find('[fyc_defaultday], .has-fyc_defaultday').css({ 'width': this.calendar.dayWidth + 'px' });
             jQuery(this.calendar.mainContainer).find('[fyc_weekdayname], .has-fyc_weekdayname').css({ 'width': this.calendar.dayWidth + 'px' });
-            jQuery('.weekContainer.weekDay:nth-child(n+2)').css({ 'display': 'block' });
+            jQuery(this.calendar.mainContainer).find('.weekContainer.weekDay:nth-child(n+2)').css({ 'display': 'block' });
             //Hides the dummy days because on big format they aren't needed - NOTE: The order between the hideInMobile and IsDummyDay can't be changed or it won't work
-            jQuery('.hideInMobile').css('display', 'table-cell');
+            jQuery(this.calendar.mainContainer).find('.hideInMobile').css('display', 'table-cell');
             jQuery(this.calendar.mainContainer).find('[isdummyday], .has-isdummyday').css('display', 'none');
 
             //WeekDays names handling
             if (!this.calendar.showWeekDaysNameEachMonth) {
-                jQuery('.divWeekDayNamesMonthly').css('display', 'none');
+                jQuery(this.calendar.mainContainer).find('.divWeekDayNamesMonthly').css('display', 'none');
             }
-            jQuery('.divWeekDayNamesYearly').css('display', 'block');
+            jQuery(this.calendar.mainContainer).find('.divWeekDayNamesYearly').css('display', 'block');
 
-            jQuery('.monthName').css('text-align', 'right');
+            jQuery(this.calendar.mainContainer).find('.monthName').css('text-align', 'right');
         }
     }
-    /** TODO: REWRITE
-     * Calculate the total width of the calendar using the elements width
-     * @param {Object} calendar - Represents the Calendar initial object
-     */
-    _setTotalCalendarWidth() {
-        this.calendar.totalCalendarWidth = this.calendar.mainContainer.querySelector("[fyc_monthname]").offsetWidth +
-            this.calendar.dayWidth * 38; //Total ammount of days drawn            
-    }
-   
+  
+
     /**
      * Associates an event to a specific day, any type of event can be added here
      * @param {Object} sender - Element of the Day to which the event should be associated
