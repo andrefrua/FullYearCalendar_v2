@@ -10,91 +10,24 @@ class FullYearCalendar {
     constructor(domElement, config = {}) {
         this._setDefaultConfigurations(domElement, config);
 
-        //this.calendar.over = typeof (this.calendar.MouseOver) == 'function' ? this.calendar.OnClick : false;
-
         this._render();
 
-        this._addWeekDayNamesRow();
-
         if (this.calendar.showNavigationToolBar === true) this._addNavigationToolBar();
-
-        this._setSelectedYear(this.calendar.selectedYear);
-
         if (this.calendar.showLegend === true) this._addLegend(); //Adds the legend
 
+        this._setSelectedYear(this.calendar.selectedYear);
         this._fitToContainer();
-        this.registerEventHandlers();
+        this._registerEventHandlers();
     }
 
-    onResize() {
-        console.log("hello");
-        this._fitToContainer();
-    }
+    // PRIVATE FUNCTIONS
 
-    registerEventHandlers() {
-        window.addEventListener('resize', this.onResize.bind(this));
-        //window.onresize = this.onResize.bind(this);
-    }
-
-
-    _render() {
-        //Creates the main container and adds it to the domElement
-        this._createMainContainer();
-
-        this._createCalendarStructure();
-    }
-
-    // PUBLIC FUNCTIONS
-
-    /**
-     * Changes the current selected year to the next one.
-     */
-    GoToNextYear() {
-        this._setSelectedYear(this.calendar.selectedYear + 1);
-    }
-
-    /**
-     * Changes the current selected year to the previous one.
-     */
-    GoToPreviousYear() {
-        this._setSelectedYear(this.calendar.selectedYear - 1);
-    }
-
-    /**
-     * Changes the current selected year to the received one, as long as it is greater than 1970.
-     * @param {Number} yearToShow - Year to navigate to.
-     */
-    GoToYear(yearToShow) {
-        yearToShow = typeof yearToShow === 'number' && yearToShow > 1970 ? yearToShow : null;
-
-        yearToShow ? this._setSelectedYear(yearToShow) : null;
-    }
-
-
-
-
-
-
-
-    /**
-     * Gets an array of all selected days
-     * @param {String} calendarElementId - Id of the Html element where the calendar is created
-     * @returns {Array} Selected days
-     */
-    GetSelectedDays(calendarElementId) {
-        var calendar = FullYearCalendar['fyc' + calendarElementId];
-        return calendar._selectedDaysList ? calendar._selectedDaysList : new Array();
-    }
     /** TODO: REWRITE
-     * Creates the row for the received month
-     * @param {Object} calendar - Object of the representing the calendar
-     * @param {Object} currentMonth - Month to create the row for. The value starts at 0 to 11
-     */
+       * Creates the row for the received month
+       * @param {Object} calendar - Object of the representing the calendar
+       * @param {Object} currentMonth - Month to create the row for. The value starts at 0 to 11
+       */
     _createCalendarStructure() {
-
-
-
-
         for (var iMonth = 0; iMonth < 12; iMonth++) {
             //Creation of the containers
             var divMonthInformation = document.createElement('div'); //Container where the number of days will be added
@@ -169,10 +102,9 @@ class FullYearCalendar {
 
                 divDaysNumbers.appendChild(divWeekRow);
 
-                //divDayNumber = [divDayNumber];
-
                 //TODO: Click events aren't working at the moment
                 //Creates the events for the days
+                this._addDayEvent(divDayNumber, 'click', '_dayClick', this.calendar, divDayNumber);
                 typeof this.calendar.OnDayClick === 'function' ? this._addDayEvent(divDayNumber, 'click', '_dayClick', this.calendar, divDayNumber) : null;
                 //Creates the events for the days
                 typeof this.calendar.OnDayMouseOver === 'function' ? this._addDayEvent(divDayNumber, 'mouseover', '_dayMouseOver', this.calendar, divDayNumber) : null;
@@ -180,10 +112,17 @@ class FullYearCalendar {
                 this.calendarDOM.daysInMonths[iMonth].push({ dayDOMElement: divDayNumber, value: null });
             }
         }
-        //divDaysNumbers.style.height = divDayNumber.offsetHeight + 'px'; //Set the height of the row for the days numbers
     }
 
-    // PRIVATE FUNCTIONS
+    
+
+
+
+
+
+
+
+
 
     /** TODO: REWRITE
      * Creates the calendar object using default values or the values received from the user
@@ -797,6 +736,70 @@ class FullYearCalendar {
 
 
 
+
+
+
+
+    onResize() {
+        this._fitToContainer();
+    }
+
+    _registerEventHandlers() {
+        window.addEventListener('resize', this.onResize.bind(this));
+        //window.onresize = this.onResize.bind(this);
+    }
+
+
+    _render() {
+        //Creates the main container and adds it to the domElement
+        this._createMainContainer();
+
+        this._createCalendarStructure();
+
+        this._addWeekDayNamesRow();
+    }
+
+    // PUBLIC FUNCTIONS
+
+    /**
+     * Changes the current selected year to the next one.
+     */
+    GoToNextYear() {
+        this._setSelectedYear(this.calendar.selectedYear + 1);
+    }
+
+    /**
+     * Changes the current selected year to the previous one.
+     */
+    GoToPreviousYear() {
+        this._setSelectedYear(this.calendar.selectedYear - 1);
+    }
+
+    /**
+     * Changes the current selected year to the received one, as long as it is greater than 1970.
+     * @param {Number} yearToShow - Year to navigate to.
+     */
+    GoToYear(yearToShow) {
+        yearToShow = typeof yearToShow === 'number' && yearToShow > 1970 ? yearToShow : null;
+
+        yearToShow ? this._setSelectedYear(yearToShow) : null;
+    }
+
+
+
+
+
+
+
+    /**
+     * Gets an array of all selected days
+     * @param {String} calendarElementId - Id of the Html element where the calendar is created
+     * @returns {Array} Selected days
+     */
+    GetSelectedDays(calendarElementId) {
+        var calendar = FullYearCalendar['fyc' + calendarElementId];
+        return calendar._selectedDaysList ? calendar._selectedDaysList : new Array();
+    }
 
 
 

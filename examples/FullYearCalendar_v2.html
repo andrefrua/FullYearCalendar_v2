@@ -171,7 +171,9 @@
             },
         }
         const fullYearCalendar1 = new FullYearCalendar(divFullYearCalendar1, configObj1);
-
+        fullYearCalendar1.OnDayClick = function (clickedDayContainer, clickedDate) {
+            document.getElementById('divClickedDay').innerHTML = '<b>Clicked on:</b> ' + clickedDate.toISOString().slice(0, 10);
+        };
         // Create the instance for the calendar
         const divFullYearCalendar2 = document.getElementById('divFullYearCalendar2');
         const configObj2 = {
