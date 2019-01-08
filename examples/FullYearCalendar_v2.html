@@ -101,11 +101,11 @@
 <body>
     <div class="divControls">
         <input type="number" id="inputYearNumber1" value="2019" />
-        <input type="button" value="Go" onmouseup="fullYearCalendar1.GoToYear(parseInt(document.getElementById('inputYearNumber1').value));" />
-        <input type="button" value="< Previous Year" onmouseup="fullYearCalendar1.GoToPreviousYear();" />
-        <input type="button" value="Next Year >" onmouseup="fullYearCalendar1.GoToNextYear();" />
-        <input type="button" value="Go to current year" onmouseup="fullYearCalendar1.GoToYear(new Date().getFullYear());" />
-        <!-- <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays').html(JSON.stringify(FullYearCalendar.GetSelectedDays('divFullYearCalendar')));" /> -->
+        <input type="button" value="Go" onmouseup="fullYearCalendar1.goToYear(parseInt(document.getElementById('inputYearNumber1').value));" />
+        <input type="button" value="< Previous Year" onmouseup="fullYearCalendar1.goToPreviousYear();" />
+        <input type="button" value="Next Year >" onmouseup="fullYearCalendar1.goToNextYear();" />
+        <input type="button" value="Go to current year" onmouseup="fullYearCalendar1.goToYear(new Date().getFullYear());" />
+        <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays1').html(JSON.stringify(fullYearCalendar1.getSelectedDays()));" />
     </div>
 
     <div id="divYear1"></div>
@@ -118,11 +118,11 @@
     <hr />
     <div class="divControls">
         <input type="number" id="inputYearNumber2" value="2020" />
-        <input type="button" value="Go" onmouseup="fullYearCalendar2.GoToYear(parseInt(document.getElementById('inputYearNumber2').value));" />
-        <input type="button" value="< Previous Year" onmouseup="fullYearCalendar2.GoToPreviousYear();" />
-        <input type="button" value="Next Year >" onmouseup="fullYearCalendar2.GoToNextYear();" />
-        <input type="button" value="Go to current year" onmouseup="fullYearCalendar2.GoToYear(new Date().getFullYear());" />
-        <!-- <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays').html(JSON.stringify(FullYearCalendar.GetSelectedDays('divFullYearCalendar')));" /> -->
+        <input type="button" value="Go" onmouseup="fullYearCalendar2.goToYear(parseInt(document.getElementById('inputYearNumber2').value));" />
+        <input type="button" value="< Previous Year" onmouseup="fullYearCalendar2.goToPreviousYear();" />
+        <input type="button" value="Next Year >" onmouseup="fullYearCalendar2.goToNextYear();" />
+        <input type="button" value="Go to current year" onmouseup="fullYearCalendar2.goToYear(new Date().getFullYear());" />
+        <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays2').html(JSON.stringify(fullYearCalendar2.getSelectedDays()));" />
     </div>
     <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
 
