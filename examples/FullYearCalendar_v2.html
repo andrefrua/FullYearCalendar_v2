@@ -95,6 +95,27 @@
             background-color: lightcoral;
             border: 1px solid lightcoral;
         }
+
+        /* NOT FULL CALENDAR RELATED */
+        .divControls {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding: 5px;
+        }
+        .divControls > div,
+        .divControls > input {         
+            flex: 1 1 auto;
+            margin: 5px;
+        }
+        .divControls > input:read-only {         
+            cursor: not-allowed;
+           text-align: center;
+        }
+        .divControls > b {         
+            flex: 10px auto;
+            margin: 5px;
+        }
     </style>
 </head>
 
@@ -105,16 +126,15 @@
         <input type="button" value="< Previous Year" onmouseup="fullYearCalendar1.goToPreviousYear();" />
         <input type="button" value="Next Year >" onmouseup="fullYearCalendar1.goToNextYear();" />
         <input type="button" value="Go to current year" onmouseup="fullYearCalendar1.goToYear(new Date().getFullYear());" />
-        <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays1').html(JSON.stringify(fullYearCalendar1.getSelectedDays()));" />
+        <input type="button" value="Get all selected days" onmouseup="document.getElementById('divListSelectedDays1').innerHTML = JSON.stringify(fullYearCalendar1.getSelectedDays());" />
     </div>
-
-    <div id="divYear1"></div>
+    <div class="divControls">
+        <b>Cliked on:</b><input type="text" id="inputClickedDay1" readonly />
+        <b>Mouse overed on:</b><input type="text" id="inputHoveredDay1" readonly />
+        <div id="divListSelectedDays1"></div>
+    </div>
     <div class="divFullYearCalendar" id="divFullYearCalendar1"></div>
-    <div id="divHoveredDay1"></div>
-    <div id="divClickedDay1"></div>
-    <div id="divListSelectedDays1"></div>
 
-    
     <hr />
     <div class="divControls">
         <input type="number" id="inputYearNumber2" value="2020" />
@@ -122,7 +142,6 @@
         <input type="button" value="< Previous Year" onmouseup="fullYearCalendar2.goToPreviousYear();" />
         <input type="button" value="Next Year >" onmouseup="fullYearCalendar2.goToNextYear();" />
         <input type="button" value="Go to current year" onmouseup="fullYearCalendar2.goToYear(new Date().getFullYear());" />
-        <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays2').html(JSON.stringify(fullYearCalendar2.getSelectedDays()));" />
     </div>
     <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
 
@@ -131,7 +150,7 @@
         const divFullYearCalendar1 = document.getElementById('divFullYearCalendar1')
         const configObj1 = {
             selectedYear: new Date().getFullYear(),
-            dayWidth: 24,
+            dayWidth: 25,
             cssClassMonthRow: 'monthRow',
             cssClassMonthName: 'monthName',
             cssClassWeekDayName: 'weekDayName',
@@ -139,8 +158,8 @@
             cssClassSelectedDay: 'selectedDay',
             showWeekDaysNameEachMonth: false,
             monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            weekDayNames: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-            weekStartDay: 'Sun',
+            weekDayNames: ['Su', 'Mo', 'Th', 'We', 'Tu', 'Fr', 'Sa'],
+            weekStartDay: 'Fri',
             alignInContainer: 'center',
             showLegend: true,
             legendStyle: 'Inline',
@@ -178,11 +197,11 @@
         }
         const fullYearCalendar1 = new FullYearCalendar(divFullYearCalendar1, configObj1);
         fullYearCalendar1.OnDayClick = function (clickedDayContainer, clickedDate) {
-            document.getElementById('divClickedDay1').innerHTML = '<b>Clicked on:</b> ' + clickedDate.toISOString().slice(0, 10);
+            document.getElementById('inputClickedDay1').value = clickedDate.toISOString().slice(0, 10);
         };
         fullYearCalendar1.OnDayMouseOver = function (clickedDayContainer, clickedDate) {
-            document.getElementById('divHoveredDay1').innerHTML = '<b>Mouse over on:</b> ' + clickedDate.toISOString().slice(0, 10);
-        };    
+            document.getElementById('inputHoveredDay1').value = clickedDate.toISOString().slice(0, 10);
+        };
 
         // Create the instance for the calendar
         const divFullYearCalendar2 = document.getElementById('divFullYearCalendar2');
@@ -191,6 +210,7 @@
             selectedYear: 2020,
             showNavigationToolBar: true,
             showWeekDaysNameEachMonth: true,
+            weekStartDay: 'Sat',
         }
         const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, configObj2);
     </script>

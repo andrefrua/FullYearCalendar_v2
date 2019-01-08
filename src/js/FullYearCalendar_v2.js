@@ -14,7 +14,7 @@
  * @attribute {number}  dayWidth - Width in pixels that should be applied to each day cell
  * @attribute {boolean} showWeekDaysNameEachMonth - Shows the Week days names on each month. If false only shows one row at the top with the days names.
  * @attribute {Array} monthNames - Array of string with the names to give to the Months (Ex: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']).
- * @attribute {Array} weekDayNames - Array of string with the names to give to the week days (Ex: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']).
+ * @attribute {Array} weekDayNames - Array of string with the names to give to the week days (Ex: ['S', 'M', 'T', 'W', 'T', 'F', 'S']). Must start with Sunday.
  * @attribute {string} alignInContainer - Aligns the calendar in the container according to the attribute. ('left', 'center', 'right').
  * @attribute {string} selectedYear - Year which the calendar will be started with.
  * @attribute {string} weekStartDay - Name of the day to start the week with. Possibilities 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'. If not provided it will start on Sunday.
@@ -132,57 +132,7 @@ class FullYearCalendar {
         this._registerEventHandlers();
     }
 
-    // PRIVATE FUNCTIONS
-
-    /**
-     * Initializes the configuration objects in order to work properly, the provided configurations will be used instead of the
-     * default ones.
-     * @param {HTMLElement} domElement - DOM element that will be used as the container.
-     * @param {Object} config - Configuration object with the properties to be used to override the default options.
-     */
-    _setDefaultConfigurations(domElement, config) {
-        this.calendar = {
-            // Configurable props
-            dayWidth: config && config.dayWidth || 30,
-            showWeekDaysNameEachMonth: config && config.showWeekDaysNameEachMonth || false,
-            monthNames: config && config.monthNames || ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            weekDayNames: config && config.weekDayNames || ["S", "M", "T", "W", "T", "F", "S"],
-            alignInContainer: config && config.alignInContainer || "center",
-            selectedYear: config && config.selectedYear || new Date().getFullYear(),
-            weekStartDay: config && config.weekStartDay || "Sun",
-            showLegend: config && config.showLegend || false,
-            legendStyle: config && config.legendStyle || "Inline", // Inline | Block,
-            showNavigationToolBar: config && config.showNavigationToolBar || false,
-            //Default class names if they are not supplied
-            cssClassMonthRow: config && config.cssClassMonthRow || "fyc_MonthRow",
-            cssClassMonthName: config && config.cssClassMonthName || "fyc_MonthName",
-            cssClassWeekDayName: config && config.cssClassWeekDayName || "fyc_WeekDayName",
-            cssClassDefaultDay: config && config.cssClassDefaultDay || "fyc_DefaultDay",
-            cssClassSelectedDay: config && config.cssClassSelectedDay || "fyc_SelectedDay",
-            //Navigation toolbar defaults
-            cssClassNavButtonPreviousYear: config && config.cssClassNavButtonPreviousYear || "fyc_NavButtonPreviousYear",
-            cssClassNavButtonNextYear: config && config.cssClassNavButtonNextYear || "fyc_NavButtonNextYear",
-            cssClassNavIconPreviousYear: config && config.cssClassNavIconPreviousYear || "fyc_IconPreviousYear",
-            cssClassNavIconNextYear: config && config.cssClassNavIconNextYear || "fyc_IconNextYear",
-            captionNavButtonPreviousYear: config && typeof config.captionNavButtonPreviousYear !== "undefined" ? config.captionNavButtonPreviousYear : "Previous",
-            captionNavButtonNextYear: config && typeof config.captionNavButtonNextYear !== "undefined" ? config.captionNavButtonNextYear : "Next",
-            //Custom dates
-            customDates: config && config.customDates || {},
-            customDatesCaption: config && config.customDatesCaption || {}
-        }
-        // Calculated properties
-        //NOTE: The 37 is 0 based, so there are actually 38
-        this._calendarVM.totalNumberOfDays = 37; //Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
-        this._calendarVM.weekStartDayNumber = this._getWeekDayNumberFromName(this._calendarVM.weekStartDay);
-        this._calendarVM.monthNameWidth = this._calendarVM.dayWidth * 4;
-        this._calendarVM.totalCalendarWidth = this._calendarVM.monthNameWidth + (this._calendarVM.dayWidth * 38); //Total ammount of days drawn     
-
-        // Initializes the object to store DOM elements related to the calendar
-        this.calendarDOM = {
-            domElement: domElement,
-            daysInMonths: []
-        }
-    }
+    // PRIVATE FUNCTIONS    
 
     /**
      * Adds the DOM elements needed to to render the calendar
@@ -428,7 +378,8 @@ class FullYearCalendar {
     _createDOMElementDayName(currentDay) {
         const dayNameElement = document.createElement("div");
 
-        dayNameElement.innerHTML = this._calendarVM.weekDayNames[currentDay % 7];
+        //Current day + starting week day number - 1 (because of the zero index)
+        dayNameElement.innerHTML = this._calendarVM.weekDayNames[(currentDay + this._calendarVM.weekStartDayNumber) % 7];
         dayNameElement.className = this._calendarVM.cssClassWeekDayName;
         dayNameElement.setAttribute("fyc_weekdayname", "true");
         dayNameElement.style.height = this._calendarVM.dayWidth + "px";
