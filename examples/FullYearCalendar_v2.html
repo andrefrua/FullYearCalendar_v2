@@ -108,7 +108,13 @@
         <!-- <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays').html(JSON.stringify(FullYearCalendar.GetSelectedDays('divFullYearCalendar')));" /> -->
     </div>
 
+    <div id="divYear1"></div>
     <div class="divFullYearCalendar" id="divFullYearCalendar1"></div>
+    <div id="divHoveredDay1"></div>
+    <div id="divClickedDay1"></div>
+    <div id="divListSelectedDays1"></div>
+
+    
     <hr />
     <div class="divControls">
         <input type="number" id="inputYearNumber2" value="2020" />
@@ -134,7 +140,7 @@
             showWeekDaysNameEachMonth: false,
             monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             weekDayNames: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-            weekStartDay: 'Mon',
+            weekStartDay: 'Sun',
             alignInContainer: 'center',
             showLegend: true,
             legendStyle: 'Inline',
@@ -172,14 +178,19 @@
         }
         const fullYearCalendar1 = new FullYearCalendar(divFullYearCalendar1, configObj1);
         fullYearCalendar1.OnDayClick = function (clickedDayContainer, clickedDate) {
-            document.getElementById('divClickedDay').innerHTML = '<b>Clicked on:</b> ' + clickedDate.toISOString().slice(0, 10);
+            document.getElementById('divClickedDay1').innerHTML = '<b>Clicked on:</b> ' + clickedDate.toISOString().slice(0, 10);
         };
+        fullYearCalendar1.OnDayMouseOver = function (clickedDayContainer, clickedDate) {
+            document.getElementById('divHoveredDay1').innerHTML = '<b>Mouse over on:</b> ' + clickedDate.toISOString().slice(0, 10);
+        };    
+
         // Create the instance for the calendar
         const divFullYearCalendar2 = document.getElementById('divFullYearCalendar2');
         const configObj2 = {
-            dayWidth: 25,
+            dayWidth: 20,
             selectedYear: 2020,
             showNavigationToolBar: true,
+            showWeekDaysNameEachMonth: true,
         }
         const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, configObj2);
     </script>
