@@ -1,27 +1,133 @@
 /**
  * CURRENT ISSUES / DOUBTS:
- * - 
- * - Using JSDoc what"s the best object type when handling html object parameters (DOM Elements)?
- * - I"m not really sure about the best way to bind events to DOM elements created inside the class and expose those events to the outside
  * 
  * GENERAL TODOs:
- * - Change the name of public methods to camel case;
  * - Create two separate classes, Model and View in order to separate concerns;
+ * - Create a dispose for the classes;
  */
 
 "use strict";
 
-// TODO: Add the object configuration documentation
+/**
+ * Class used to instanciate the configuration object for the FullYearCalendar
+ *  
+ * @attribute {number}  dayWidth - Width in pixels that should be applied to each day cell
+ * @attribute {boolean} showWeekDaysNameEachMonth - Shows the Week days names on each month. If false only shows one row at the top with the days names.
+ * @attribute {Array} monthNames - Array of string with the names to give to the Months (Ex: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']).
+ * @attribute {Array} weekDayNames - Array of string with the names to give to the week days (Ex: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']).
+ * @attribute {string} alignInContainer - Aligns the calendar in the container according to the attribute. ('left', 'center', 'right').
+ * @attribute {string} selectedYear - Year which the calendar will be started with.
+ * @attribute {string} weekStartDay - Name of the day to start the week with. Possibilities 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'. If not provided it will start on Sunday.
+ * @attribute {boolean} showLegend - Show a legend with all the attributes defined on the CustomDates object.
+ * @attribute {string} legendStyle - Changes the style of the legend between inline or listed ('Inline' / 'Block').
+ * @attribute {boolean} showNavigationToolBar - Show the toolbar with built in navigation between year and currently selected year as well.
+ * @attribute {string} cssClassMonthRow - Name of the Css Class to be applied to the row of the month (With the days numbers).
+ * @attribute {string} cssClassMonthName - Name of the Css Class to be applied to the cell of the Month name.
+ * @attribute {string} cssClassWeekDayName - Name of the Css Class to be applied to the Week day name.
+ * @attribute {string} cssClassDefaultDay - Name of the Css Class to be applied to all the days as a default.
+ * @attribute {string} cssClassSelectedDay - Name of the Css Class to be applied to a selected day.
+ * @attribute {string} cssClassNavButtonPreviousYear - Css class to be applied to the Previous year navigation button.
+ * @attribute {string} cssClassNavButtonNextYear - Css class to be applied to the next year navigation button.
+ * @attribute {string} cssClassNavIconPreviousYear - Css class to be applied to the previous icon navigation button.
+ * @attribute {string} cssClassNavIconNextYear - Css class to be applied to the next icon navigation button.
+ * @attribute {string} captionNavButtonPreviousYear - Text to be added to the previous year navigation button.
+ * @attribute {string} captionNavButtonNextYear - Text to be added to the next year navigation button.
+ * @attribute {Array} customDates - Array of Objects TODO: Add documentation for this property
+ * @attribute {Array} customDatesCaption - Array of Objects TODO: Add documentation for this property
+ */
+class FullYearCalendarViewModel {
+    constructor(config) {
+        // Configurable props
+        this.dayWidth = config && config.dayWidth || 30;
+        this.showWeekDaysNameEachMonth = config && config.showWeekDaysNameEachMonth || false;
+        this.monthNames = config && config.monthNames || ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        this.weekDayNames = config && config.weekDayNames || ["S", "M", "T", "W", "T", "F", "S"];
+        this.alignInContainer = config && config.alignInContainer || "center";
+        this.selectedYear = config && config.selectedYear || new Date().getFullYear();
+        this.weekStartDay = config && config.weekStartDay || "Sun";
+        this.showLegend = config && config.showLegend || false;
+        this.legendStyle = config && config.legendStyle || "Inline"; // Inline | Block;
+        this.showNavigationToolBar = config && config.showNavigationToolBar || false;
+        //Default class names if they are not supplied
+        this.cssClassMonthRow = config && config.cssClassMonthRow || "fyc_MonthRow";
+        this.cssClassMonthName = config && config.cssClassMonthName || "fyc_MonthName";
+        this.cssClassWeekDayName = config && config.cssClassWeekDayName || "fyc_WeekDayName";
+        this.cssClassDefaultDay = config && config.cssClassDefaultDay || "fyc_DefaultDay";
+        this.cssClassSelectedDay = config && config.cssClassSelectedDay || "fyc_SelectedDay";
+        //Navigation toolbar defaults
+        this.cssClassNavButtonPreviousYear = config && config.cssClassNavButtonPreviousYear || "fyc_NavButtonPreviousYear";
+        this.cssClassNavButtonNextYear = config && config.cssClassNavButtonNextYear || "fyc_NavButtonNextYear";
+        this.cssClassNavIconPreviousYear = config && config.cssClassNavIconPreviousYear || "fyc_IconPreviousYear";
+        this.cssClassNavIconNextYear = config && config.cssClassNavIconNextYear || "fyc_IconNextYear";
+        this.captionNavButtonPreviousYear = config && typeof config.captionNavButtonPreviousYear !== "undefined" ? config.captionNavButtonPreviousYear : "Previous";
+        this.captionNavButtonNextYear = config && typeof config.captionNavButtonNextYear !== "undefined" ? config.captionNavButtonNextYear : "Next";
+        //Custom dates
+        this.customDates = config && config.customDates || {};
+        this.customDatesCaption = config && config.customDatesCaption || {};
+        // Calculated properties
+        //NOTE: The 37 is 0 based, so there are actually 38
+        this.totalNumberOfDays = 37; //Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
+        this.weekStartDayNumber = this._getWeekDayNumberFromName(this.weekStartDay);
+        this.monthNameWidth = this.dayWidth * 4;
+        this.totalCalendarWidth = this.monthNameWidth + (this.dayWidth * 38); //Total ammount of days drawn     
+    }
+
+    /**
+     * UTILS
+     */
+
+    /**
+     * Gets the week day number from the received name
+     * @param {String} weekDayName - Name of day of the week ("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+     * @return {Number} Number representing the Week day
+     */
+    _getWeekDayNumberFromName(weekDayName) {
+        switch (weekDayName) {
+            case "Sun":
+                return 0;
+            case "Mon":
+                return 1;
+            case "Tue":
+                return 2;
+            case "Wed":
+                return 3;
+            case "Thu":
+                return 4;
+            case "Fri":
+                return 5;
+            case "Sat":
+                return 6;
+            default:
+                return 0;
+        }
+    }
+}
+
+class FullYearCalendarDOM {
+    constructor(domElement) {
+        this.domElement = domElement;
+        this.daysInMonths = [];
+    }
+}
+
+
+/**
+ * FullYearCalendar
+ * Used to highlight important events for specific days throughout a specified year.
+ */
 class FullYearCalendar {
     constructor(domElement, config = {}) {
-        this._setDefaultConfigurations(domElement, config);
+        this._calendarVM = new FullYearCalendarViewModel(config);
+        this._calendarDOM = new FullYearCalendarDOM(domElement);
+
+        //this._setDefaultConfigurations(domElement, config);
 
         this._render();
 
-        if (this.calendar.showNavigationToolBar === true) this._addNavigationToolBar();
-        if (this.calendar.showLegend === true) this._addLegend();
+        if (this._calendarVM.showNavigationToolBar === true) this._addNavigationToolBar();
+        if (this._calendarVM.showLegend === true) this._addLegend();
 
-        this._setSelectedYear(this.calendar.selectedYear);
+        this._setSelectedYear(this._calendarVM.selectedYear);
         this._fitToContainer();
         this._registerEventHandlers();
     }
@@ -66,10 +172,10 @@ class FullYearCalendar {
         }
         // Calculated properties
         //NOTE: The 37 is 0 based, so there are actually 38
-        this.calendar.totalNumberOfDays = 37; //Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
-        this.calendar.weekStartDayNumber = this._getWeekDayNumberFromName(this.calendar.weekStartDay);
-        this.calendar.monthNameWidth = this.calendar.dayWidth * 4;
-        this.calendar.totalCalendarWidth = this.calendar.monthNameWidth + (this.calendar.dayWidth * 38); //Total ammount of days drawn     
+        this._calendarVM.totalNumberOfDays = 37; //Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
+        this._calendarVM.weekStartDayNumber = this._getWeekDayNumberFromName(this._calendarVM.weekStartDay);
+        this._calendarVM.monthNameWidth = this._calendarVM.dayWidth * 4;
+        this._calendarVM.totalCalendarWidth = this._calendarVM.monthNameWidth + (this._calendarVM.dayWidth * 38); //Total ammount of days drawn     
 
         // Initializes the object to store DOM elements related to the calendar
         this.calendarDOM = {
@@ -85,19 +191,17 @@ class FullYearCalendar {
         this._createMainContainer();
 
         this._addDOMMonth();
-
-        //this._addDOMWeeDayNames();
     }
 
     /**
      * Creates the main container for the calendar and adds it to the received DOM element object.
      */
     _createMainContainer() {
-        this.calendarDOM.mainContainer = document.createElement("div");
-        this.calendarDOM.mainContainer.style.display = "inline-block";
+        this._calendarDOM.mainContainer = document.createElement("div");
+        this._calendarDOM.mainContainer.style.display = "inline-block";
 
-        this.calendarDOM.domElement.appendChild(this.calendarDOM.mainContainer);
-        this.calendarDOM.domElement.style.textAlign = this.calendar.alignInContainer;
+        this._calendarDOM.domElement.appendChild(this._calendarDOM.mainContainer);
+        this._calendarDOM.domElement.style.textAlign = this._calendarVM.alignInContainer;
     }
 
     /**
@@ -121,12 +225,12 @@ class FullYearCalendar {
             this._addDOMDay(iMonth, monthContainer);
 
             this._addDOMElement(monthNameContainer, this._createDOMElementMonthName(iMonth));
-            this._addDOMElement(this.calendarDOM.mainContainer, monthNameContainer);
+            this._addDOMElement(this._calendarDOM.mainContainer, monthNameContainer);
 
-            this._addDOMElement(this.calendarDOM.mainContainer, monthContainer);
-            this._addDOMElement(this.calendarDOM.mainContainer, clearFixElement);
+            this._addDOMElement(this._calendarDOM.mainContainer, monthContainer);
+            this._addDOMElement(this._calendarDOM.mainContainer, clearFixElement);
         }
-        if (!this.calendar.showWeekDaysNameEachMonth) {
+        if (!this._calendarVM.showWeekDaysNameEachMonth) {
             this._addDOMWeekDayNameOnTop();
         }
     }
@@ -142,7 +246,7 @@ class FullYearCalendar {
         let weekElement = null;
 
         // Add an element for each day.
-        for (let iDay = 0; iDay <= this.calendar.totalNumberOfDays; iDay++) {
+        for (let iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
             //Creates a new container at the start of each week
             if (iDay % 7 === 0) {
                 weekElement = this._createDOMElementWeek();
@@ -164,7 +268,7 @@ class FullYearCalendar {
         let weekElement = null;
 
         // Add an element for each day.
-        for (var iDay = 0; iDay <= this.calendar.totalNumberOfDays; iDay++) {
+        for (var iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
             //Creates a new container at the start of each week
             if (iDay % 7 === 0) {
                 weekElement = this._createDOMElementWeek(true);
@@ -184,7 +288,7 @@ class FullYearCalendar {
         const weekDayNamesContainer = document.createElement("div");
         weekDayNamesContainer.className = isMonthly ? "divWeekDayNamesMonthly" : "divWeekDayNamesYearly";
         // Hides the container if we just want to have one container with the week names at the top.
-        if (!this.calendar.showWeekDaysNameEachMonth && !isMonthly) {
+        if (!this._calendarVM.showWeekDaysNameEachMonth && !isMonthly) {
             weekDayNamesContainer.style.display = "none";
         }
         return weekDayNamesContainer;
@@ -199,15 +303,15 @@ class FullYearCalendar {
 
         // Container that will be on top of the Months names
         var monthNameContainer = document.createElement("div");
-        monthNameContainer.className = this.calendar.cssClassMonthName;
+        monthNameContainer.className = this._calendarVM.cssClassMonthName;
         monthNameContainer.style.float = "left";
-        monthNameContainer.style.minWidth = this.calendar.monthNameWidth + "px";
+        monthNameContainer.style.minWidth = this._calendarVM.monthNameWidth + "px";
         // Needs an empty space so that the container actual grows.
         monthNameContainer.innerHTML = "&nbsp;";
 
         // Container that will actually have the Week days names
         var monthContainer = document.createElement("div");
-        monthContainer.className = this.calendar.cssClassMonthRow;
+        monthContainer.className = this._calendarVM.cssClassMonthRow;
         monthContainer.style.float = "left";
         // Adds the week days name container to the month container
         const weekDayNamesContainer = this._createDOMElementWeekDayNamesContainer(false);
@@ -220,7 +324,7 @@ class FullYearCalendar {
         this._addDOMElement(weekDayNamesOnTopContainer, this._createDOMClearFixElement());
 
         //Adds the names to the top of the main Calendar container
-        this._addDOMElementOnTop(this.calendarDOM.mainContainer, weekDayNamesOnTopContainer);
+        this._addDOMElementOnTop(this._calendarDOM.mainContainer, weekDayNamesOnTopContainer);
     }
 
     /**
@@ -231,14 +335,14 @@ class FullYearCalendar {
      */
     _createDOMElementMonthName(currentMonth) {
         const monthNameElement = document.createElement("div");
-        monthNameElement.className = this.calendar.cssClassMonthName;
+        monthNameElement.className = this._calendarVM.cssClassMonthName;
         monthNameElement.setAttribute("fyc_monthname", "true");
         monthNameElement.style.display = "table-cell";
         monthNameElement.style.verticalAlign = "middle";
-        monthNameElement.innerHTML = this.calendar.monthNames[currentMonth];
-        monthNameElement.style.fontSize = parseInt(this.calendar.dayWidth / 2) + "px";
-        monthNameElement.style.height = this.calendar.dayWidth + "px";
-        monthNameElement.style.minWidth = this.calendar.monthNameWidth + "px";
+        monthNameElement.innerHTML = this._calendarVM.monthNames[currentMonth];
+        monthNameElement.style.fontSize = parseInt(this._calendarVM.dayWidth / 2) + "px";
+        monthNameElement.style.height = this._calendarVM.dayWidth + "px";
+        monthNameElement.style.minWidth = this._calendarVM.monthNameWidth + "px";
 
         return monthNameElement;
     }
@@ -252,7 +356,7 @@ class FullYearCalendar {
     _createDOMElementMonthContainer() {
         const monthContainer = document.createElement("div");
         monthContainer.style.position = "relative";
-        monthContainer.className = this.calendar.cssClassMonthRow;
+        monthContainer.className = this._calendarVM.cssClassMonthRow;
         monthContainer.setAttribute("fyc_monthrow", "true");
         monthContainer.style.float = "left";
 
@@ -284,9 +388,9 @@ class FullYearCalendar {
         const dayElement = document.createElement("div");
 
         dayElement.setAttribute("fyc_defaultday", "true");
-        dayElement.style.height = this.calendar.dayWidth + "px";
-        dayElement.style.minWidth = this.calendar.dayWidth + "px";
-        dayElement.style.fontSize = parseInt(this.calendar.dayWidth / 2.1) + "px";
+        dayElement.style.height = this._calendarVM.dayWidth + "px";
+        dayElement.style.minWidth = this._calendarVM.dayWidth + "px";
+        dayElement.style.fontSize = parseInt(this._calendarVM.dayWidth / 2.1) + "px";
         dayElement.style.display = "table-cell";
         dayElement.style.textAlign = "center";
         dayElement.style.verticalAlign = "middle";
@@ -307,10 +411,10 @@ class FullYearCalendar {
         this._addDayEvent(dayElement, "mouseover", "_dayMouseOver", dayInfo);
 
         // Store each one of the days inside the calendarDOM object.
-        if (typeof this.calendarDOM.daysInMonths[currentMonth] === "undefined") {
-            this.calendarDOM.daysInMonths[currentMonth] = [];
+        if (typeof this._calendarDOM.daysInMonths[currentMonth] === "undefined") {
+            this._calendarDOM.daysInMonths[currentMonth] = [];
         }
-        this.calendarDOM.daysInMonths[currentMonth].push(dayInfo);
+        this._calendarDOM.daysInMonths[currentMonth].push(dayInfo);
 
         return dayElement;
     }
@@ -324,12 +428,12 @@ class FullYearCalendar {
     _createDOMElementDayName(currentDay) {
         const dayNameElement = document.createElement("div");
 
-        dayNameElement.innerHTML = this.calendar.weekDayNames[currentDay % 7];
-        dayNameElement.className = this.calendar.cssClassWeekDayName;
+        dayNameElement.innerHTML = this._calendarVM.weekDayNames[currentDay % 7];
+        dayNameElement.className = this._calendarVM.cssClassWeekDayName;
         dayNameElement.setAttribute("fyc_weekdayname", "true");
-        dayNameElement.style.height = this.calendar.dayWidth + "px";
-        dayNameElement.style.minWidth = this.calendar.dayWidth + "px";
-        dayNameElement.style.fontSize = parseInt(this.calendar.dayWidth / 2.1) + "px";
+        dayNameElement.style.height = this._calendarVM.dayWidth + "px";
+        dayNameElement.style.minWidth = this._calendarVM.dayWidth + "px";
+        dayNameElement.style.fontSize = parseInt(this._calendarVM.dayWidth / 2.1) + "px";
         dayNameElement.style.display = "table-cell";
         dayNameElement.style.textAlign = "center";
         dayNameElement.style.verticalAlign = "middle";
@@ -404,19 +508,19 @@ class FullYearCalendar {
         if (!dayInfo.value || typeof this.OnDayClick !== "function") return;
 
         //Checked if there is already a list of selected days
-        if (this.calendar._selectedDaysList) {
-            var selectedDayIndex = this.calendar._selectedDaysList.indexOf(new Date(dayInfo.value).toISOString().slice(0, 10));
+        if (this._calendarVM._selectedDaysList) {
+            var selectedDayIndex = this._calendarVM._selectedDaysList.indexOf(new Date(dayInfo.value).toISOString().slice(0, 10));
             if (selectedDayIndex > -1) {
-                this.calendar._selectedDaysList.splice(selectedDayIndex, 1);
-                dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className.replace(" " + this.calendar.cssClassSelectedDay, "");
+                this._calendarVM._selectedDaysList.splice(selectedDayIndex, 1);
+                dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className.replace(" " + this._calendarVM.cssClassSelectedDay, "");
             } else {
                 HTMLElement
-                this.calendar._selectedDaysList.push(new Date(dayInfo.value).toISOString().slice(0, 10)); HTMLElement
-                dayInfo.dayDOMElement.className += " " + this.calendar.cssClassSelectedDay;
+                this._calendarVM._selectedDaysList.push(new Date(dayInfo.value).toISOString().slice(0, 10)); HTMLElement
+                dayInfo.dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
             }
         } else {
-            this.calendar._selectedDaysList = new Array(new Date(dayInfo.value).toISOString().slice(0, 10));
-            dayInfo.dayDOMElement.className += " " + this.calendar.cssClassSelectedDay;
+            this._calendarVM._selectedDaysList = new Array(new Date(dayInfo.value).toISOString().slice(0, 10));
+            dayInfo.dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
         }
         this.OnDayClick(dayInfo.dayDOMElement, new Date(dayInfo.value));
     }
@@ -437,8 +541,8 @@ class FullYearCalendar {
             var captionToAdd = "";
             var dayCssClasses = dayInfo.dayDOMElement.className.split(" ");
             dayCssClasses.forEach(function (cssClass) {
-                if (_this.calendar.customDatesCaption[cssClass] !== undefined) {
-                    captionToAdd += _this.calendar.customDatesCaption[cssClass] + "\n";
+                if (_this._calendarVM.customDatesCaption[cssClass] !== undefined) {
+                    captionToAdd += _this._calendarVM.customDatesCaption[cssClass] + "\n";
                 }
             })
             dayInfo.dayDOMElement.title = captionToAdd;
@@ -457,10 +561,10 @@ class FullYearCalendar {
         const divBlockNavLeftButton = document.createElement("div");
         divBlockNavLeftButton.className = "fyc_NavToolbarContainer";
         const btnPreviousYear = document.createElement("button");
-        btnPreviousYear.className = this.calendar.cssClassNavButtonPreviousYear;
-        btnPreviousYear.innerText = this.calendar.captionNavButtonPreviousYear;
+        btnPreviousYear.className = this._calendarVM.cssClassNavButtonPreviousYear;
+        btnPreviousYear.innerText = this._calendarVM.captionNavButtonPreviousYear;
         const iconPreviousYear = document.createElement("i");
-        iconPreviousYear.className = this.calendar.cssClassNavIconPreviousYear;
+        iconPreviousYear.className = this._calendarVM.cssClassNavIconPreviousYear;
         btnPreviousYear.appendChild(iconPreviousYear);
         divBlockNavLeftButton.appendChild(btnPreviousYear);
 
@@ -469,17 +573,17 @@ class FullYearCalendar {
         divBlockNavCurrentYear.className = "fyc_NavToolbarContainer";
         const spanSelectedYear = document.createElement("span");
         spanSelectedYear.className = "fyc_NavToolbarSelectedYear";
-        spanSelectedYear.innerText = this.calendar.selectedYear;
+        spanSelectedYear.innerText = this._calendarVM.selectedYear;
         divBlockNavCurrentYear.appendChild(spanSelectedYear);
 
         //Next year button navigation
         const divBlockNavRightButton = document.createElement("div");
         divBlockNavRightButton.className = "fyc_NavToolbarContainer";
         const btnNextYear = document.createElement("button");
-        btnNextYear.className = this.calendar.cssClassNavButtonNextYear; "";
-        btnNextYear.innerText = this.calendar.captionNavButtonNextYear;
+        btnNextYear.className = this._calendarVM.cssClassNavButtonNextYear; "";
+        btnNextYear.innerText = this._calendarVM.captionNavButtonNextYear;
         const iconNextYear = document.createElement("i");
-        iconNextYear.className = this.calendar.cssClassNavIconNextYear;
+        iconNextYear.className = this._calendarVM.cssClassNavIconNextYear;
         btnNextYear.appendChild(iconNextYear);
         divBlockNavRightButton.appendChild(btnNextYear);
 
@@ -505,24 +609,24 @@ class FullYearCalendar {
         navToolbarWrapper.appendChild(divBlockNavCurrentYear);
         navToolbarWrapper.appendChild(divBlockNavRightButton);
 
-        this.calendarDOM.mainContainer.insertBefore(navToolbarWrapper, this.calendarDOM.mainContainer.firstChild);
+        this._calendarDOM.mainContainer.insertBefore(navToolbarWrapper, this._calendarDOM.mainContainer.firstChild);
     }
 
     /**
      * Adds the legend to the FullYearCalendar according to each propoerty defined on the CustomDates object.    
      */
     _addLegend() {
-        if (this.calendar.showLegend !== true) return;
+        if (this._calendarVM.showLegend !== true) return;
 
         const legendContainer = document.createElement("div");
         legendContainer.className = "fyc_legendContainer";
 
-        for (let property in this.calendar.customDates) {
+        for (let property in this._calendarVM.customDates) {
             //DefaultDay container that will look similar to the Day cell on the calendar
             const divPropertyDefaultDay = document.createElement("div");
             divPropertyDefaultDay.className = property;
-            divPropertyDefaultDay.style.width = this.calendar.dayWidth + "px";
-            divPropertyDefaultDay.style.height = this.calendar.dayWidth + "px";
+            divPropertyDefaultDay.style.width = this._calendarVM.dayWidth + "px";
+            divPropertyDefaultDay.style.height = this._calendarVM.dayWidth + "px";
 
             //Default Day container
             const divPropertyDefaultDayContainer = document.createElement("div");
@@ -536,21 +640,21 @@ class FullYearCalendar {
             const divPropertyCaption = document.createElement("div");
             divPropertyCaption.className = "fyc_legendPropertyCaption";
 
-            divPropertyCaption.innerText = this.calendar.customDatesCaption && this.calendar.customDatesCaption[property] ? this.calendar.customDatesCaption[property] : property;
+            divPropertyCaption.innerText = this._calendarVM.customDatesCaption && this._calendarVM.customDatesCaption[property] ? this._calendarVM.customDatesCaption[property] : property;
 
             divPropertyCaption.style.display = "table-cell";
             divPropertyCaption.style.verticalAlign = "middle";
 
             legendContainer.appendChild(divPropertyCaption);
 
-            if (this.calendar.legendStyle === "Block") {
+            if (this._calendarVM.legendStyle === "Block") {
                 const divClearBoth = document.createElement("div");
                 divClearBoth.className = "fyc_legendVerticalClear";
                 divClearBoth.style.clear = "both";
                 legendContainer.appendChild(divClearBoth);
             }
         }
-        this.calendarDOM.mainContainer.appendChild(legendContainer);
+        this._calendarDOM.mainContainer.appendChild(legendContainer);
     }
 
     /**
@@ -559,18 +663,18 @@ class FullYearCalendar {
      * @param {Number} currentYear - Year to be rendered.
      */
     _setSelectedYear(newSelectedYear) {
-        this.calendar.selectedYear = newSelectedYear;
+        this._calendarVM.selectedYear = newSelectedYear;
 
         for (var iMonth = 0; iMonth < 12; iMonth++) {
             this._setMonth(iMonth);
         }
 
-        if (this.calendar.showNavigationToolBar === true) {
+        if (this._calendarVM.showNavigationToolBar === true) {
             // TODO: Add these controls to the DOM and update them directly.
-            this.calendarDOM.mainContainer.querySelector(".fyc_NavToolbarSelectedYear").innerText = this.calendar.selectedYear;
+            this._calendarDOM.mainContainer.querySelector(".fyc_NavToolbarSelectedYear").innerText = this._calendarVM.selectedYear;
         }
 
-        typeof this.calendar.OnYearChanged === "function" ? this.calendar.OnYearChanged(this.calendar.selectedYear) : null;
+        typeof this._calendarVM.OnYearChanged === "function" ? this._calendarVM.OnYearChanged(this._calendarVM.selectedYear) : null;
     }
 
 
@@ -581,37 +685,37 @@ class FullYearCalendar {
      */
     _setMonth(currentMonth) {
         //Gets the first day of the month so we know in which cell the month should start
-        var firstDayOfMonth = new Date(this.calendar.selectedYear, currentMonth, 1).getDay() - this.calendar.weekStartDayNumber;
+        var firstDayOfMonth = new Date(this._calendarVM.selectedYear, currentMonth, 1).getDay() - this._calendarVM.weekStartDayNumber;
         firstDayOfMonth = firstDayOfMonth < 0 ? 7 + firstDayOfMonth : firstDayOfMonth;
 
         //Calculate the last day of the month
-        var lastDayOfMonth = new Date(this.calendar.selectedYear, currentMonth + 1, 1, -1).getDate();
+        var lastDayOfMonth = new Date(this._calendarVM.selectedYear, currentMonth + 1, 1, -1).getDate();
 
         //Loops through all the days cell created previously and changes it"s content accordingly
-        for (var iDayCell = 0; iDayCell < this.calendarDOM.daysInMonths[currentMonth].length; iDayCell++) {
+        for (var iDayCell = 0; iDayCell < this._calendarDOM.daysInMonths[currentMonth].length; iDayCell++) {
 
             //If it"s an actual day for the current month then adds the correct day if not then adds an empty string
             var dayCellContent = iDayCell >= firstDayOfMonth && iDayCell < firstDayOfMonth + lastDayOfMonth ? iDayCell - firstDayOfMonth + 1 : "";
 
             //Stores the Year, Month and Day no the calendar object as [yyyy, month, day]
-            this.calendarDOM.daysInMonths[currentMonth][iDayCell].value = dayCellContent ? [this.calendar.selectedYear, currentMonth + 1, iDayCell - firstDayOfMonth + 1] : null;
+            this._calendarDOM.daysInMonths[currentMonth][iDayCell].value = dayCellContent ? [this._calendarVM.selectedYear, currentMonth + 1, iDayCell - firstDayOfMonth + 1] : null;
             //Adds the content to the actual Html cell
-            this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? "0" + dayCellContent : dayCellContent;
+            this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? "0" + dayCellContent : dayCellContent;
             //Reapply the default Css class for the day
-            this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className = this.calendar.cssClassDefaultDay;
+            this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className = this._calendarVM.cssClassDefaultDay;
 
             //Applies Customer dates style to the calendar
             if (dayCellContent !== "") {
-                var yearValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[0]; //Year index
-                var monthValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[1]; //Month index
-                var dayValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[2]; //Day index
+                var yearValue = this._calendarDOM.daysInMonths[currentMonth][iDayCell].value[0]; //Year index
+                var monthValue = this._calendarDOM.daysInMonths[currentMonth][iDayCell].value[1]; //Month index
+                var dayValue = this._calendarDOM.daysInMonths[currentMonth][iDayCell].value[2]; //Day index
 
                 var currentDate = new Date(yearValue, monthValue - 1, dayValue); //Uses the previously stored date information
-                this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += this._applyCustomDateStyle(this.calendar.customDates, currentDate);
+                this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += this._applyCustomDateStyle(this._calendarVM.customDates, currentDate);
             } else {
                 //Add the class hideInMobile to the DayCell above and equal to 35 because if that cell is empty then the entire row can be hidden
-                if (iDayCell >= 35 && this.calendarDOM.daysInMonths[currentMonth][35].dayDOMElement.innerText === "")
-                    this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += " hideInMobile"; //This class will be used to hide these cell when in Mobile mode                    
+                if (iDayCell >= 35 && this._calendarDOM.daysInMonths[currentMonth][35].dayDOMElement.innerText === "")
+                    this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += " hideInMobile"; //This class will be used to hide these cell when in Mobile mode                    
             }
         }
     }
@@ -709,74 +813,74 @@ class FullYearCalendar {
      * to mobile view mode.
      */
     _fitToContainer() {
-        const currentContainerWidth = this.calendarDOM.mainContainer.offsetWidth;
+        const currentContainerWidth = this._calendarDOM.mainContainer.offsetWidth;
 
         // If the current width of the container is lower than the total width of the calendar we need to swith views
-        if (currentContainerWidth < this.calendar.totalCalendarWidth) {
+        if (currentContainerWidth < this._calendarVM.totalCalendarWidth) {
             // Total width divided by six because the month container can have up to 6 weeks
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
+                this._calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
                 "width", currentContainerWidth / 6 + "px");
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
+                this._calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
                 "width", currentContainerWidth / 6 + "px");
 
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
+                this._calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
                 "display", "none");
 
             // Shows the dummy days because on small format they are needed - 
             // NOTE: The order between the hideInMobile and IsDummyDay can"t be changed or it won"t work
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
+                this._calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
                 "display", "table-cell");
 
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".hideInMobile",
+                this._calendarDOM.mainContainer, ".hideInMobile",
                 "display", "none");
 
             //WeekDays names handling
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
+                this._calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
                 "display", "block");
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".divWeekDayNamesYearly",
+                this._calendarDOM.mainContainer, ".divWeekDayNamesYearly",
                 "display", "none");
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".monthName",
+                this._calendarDOM.mainContainer, ".monthName",
                 "text-align", "left");
         }
         else {
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
-                "width", this.calendar.dayWidth + "px");
+                this._calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
+                "width", this._calendarVM.dayWidth + "px");
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
-                "width", this.calendar.dayWidth + "px");
+                this._calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
+                "width", this._calendarVM.dayWidth + "px");
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
+                this._calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
                 "display", "block");
 
             // Hides the dummy days because on big format they aren"t needed.
             // NOTE: The order between the hideInMobile and IsDummyDay can"t be changed or it won"t work
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".hideInMobile",
+                this._calendarDOM.mainContainer, ".hideInMobile",
                 "display", "table-cell");
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
+                this._calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
                 "display", "none");
 
             //WeekDays names handling
-            if (!this.calendar.showWeekDaysNameEachMonth) {
+            if (!this._calendarVM.showWeekDaysNameEachMonth) {
                 this._updateElementsStylePropertyBySelector(
-                    this.calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
+                    this._calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
                     "display", "none");
             }
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".divWeekDayNamesYearly",
+                this._calendarDOM.mainContainer, ".divWeekDayNamesYearly",
                 "display", "block");
             this._updateElementsStylePropertyBySelector(
-                this.calendarDOM.mainContainer, ".monthName",
+                this._calendarDOM.mainContainer, ".monthName",
                 "text-align", "right");
         }
     }
@@ -816,14 +920,14 @@ class FullYearCalendar {
      * Changes the current selected year to the next one.
      */
     goToNextYear() {
-        this._setSelectedYear(this.calendar.selectedYear + 1);
+        this._setSelectedYear(this._calendarVM.selectedYear + 1);
     }
 
     /**
      * Changes the current selected year to the previous one.
      */
     goToPreviousYear() {
-        this._setSelectedYear(this.calendar.selectedYear - 1);
+        this._setSelectedYear(this._calendarVM.selectedYear - 1);
     }
 
     /**
@@ -841,37 +945,9 @@ class FullYearCalendar {
      * 
      * @returns {Array} Selected days
      */
-    getSelectedDays() {        
-        return this.calendar._selectedDaysList ? this.calendar._selectedDaysList : new Array();
+    getSelectedDays() {
+        return this._calendarVM._selectedDaysList ? this._calendarVM._selectedDaysList : new Array();
     }
 
-    /**
-     * UTILS
-     */
 
-    /**
-     * Gets the week day number from the received name
-     * @param {String} weekDayName - Name of day of the week ("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
-     * @return {Number} Number representing the Week day
-     */
-    _getWeekDayNumberFromName(weekDayName) {
-        switch (weekDayName) {
-            case "Sun":
-                return 0;
-            case "Mon":
-                return 1;
-            case "Tue":
-                return 2;
-            case "Wed":
-                return 3;
-            case "Thu":
-                return 4;
-            case "Fri":
-                return 5;
-            case "Sat":
-                return 6;
-            default:
-                return 0;
-        }
-    }
 }
