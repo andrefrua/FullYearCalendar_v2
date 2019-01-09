@@ -73,18 +73,28 @@ class FullYearCalendarViewModel {
     _update(config) {
         let updated = false;
         for (let property in config) {
-            if (config.hasOwnProperty(property) && this.hasOwnProperty(property)) {
+            if (config.hasOwnProperty(property) && this.hasOwnProperty(property) && this[property] !== config[property]) {
                 this[property] = config[property];
                 updated = true;
             }
         }
+
         if (updated) {
-            // NOTE: The 37 is 0 based, so there are actually 38
-            this.totalNumberOfDays = 37; // Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
             this.weekStartDayNumber = this._getWeekDayNumberFromName(this.weekStartDay);
             this.monthNameWidth = this.dayWidth * 4;
-            this.totalCalendarWidth = this.monthNameWidth + (this.dayWidth * 38); //Total ammount of days drawn  
+            // Total ammount of days drawn
+            this.totalCalendarWidth = this.monthNameWidth + (this.dayWidth * 38);
         }
+    }
+
+    // TODO doc
+    _updateCustomDates(newCustomDates) {
+        this.customDates = Object.assign(this.customDates, newCustomDates);       
+    }
+    
+    // TODO doc
+    _replaceCustomDates(newCustomDates) {
+        this.customDates = newCustomDates;
     }
 
     /**
@@ -161,7 +171,7 @@ class FullYearCalendarDOM {
         }
         this.daysInMonths = [];
     }
-//TODO doc
+    //TODO doc
     dispose() {
         var container = this.mainContainer;
         while (container.firstChild) {
@@ -515,8 +525,8 @@ class FullYearCalendar {
      * @param {Object} dayInfo - Object representing the day that was clicked.
      */
     _dayClick(dayInfo) {
-        //Exits right away if it"s not a valid day or there is so function for the day clicked event.
-        if (!dayInfo.value || typeof this.onDayClick !== "function") return;
+        //Exits right away if it"s not a valid day.
+        if (!dayInfo.value) return;
 
         //Checked if there is already a list of selected days
         if (this._calendarVM._selectedDaysList) {
@@ -533,7 +543,10 @@ class FullYearCalendar {
             this._calendarVM._selectedDaysList = new Array(new Date(dayInfo.value).toISOString().slice(0, 10));
             dayInfo.dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
         }
-        this.onDayClick(dayInfo.dayDOMElement, new Date(dayInfo.value));
+        // If the onDayClick function is defined then trigger the call
+        if (typeof this.onDayClick === "function") {
+            this.onDayClick(dayInfo.dayDOMElement, new Date(dayInfo.value));
+        }
     }
 
     /**
@@ -544,7 +557,7 @@ class FullYearCalendar {
      */
     _dayMouseOver(dayInfo) {
         // Exits right away if it's not a valid day or there is so function for the day MouseOver event.
-        if (!dayInfo.value || typeof this.onDayMouseOver !== "function") return;
+        if (!dayInfo.value) return;
 
         if (dayInfo.value) {
             const _this = this;
@@ -567,7 +580,10 @@ class FullYearCalendar {
                 }
             })
             dayInfo.dayDOMElement.title = captionToAdd;
-            this.onDayMouseOver(dayInfo.dayDOMElement, new Date(dayInfo.value));
+            // If the onDayMouseOver function is defined then trigger the call
+            if (typeof this.onDayMouseOver === "function") {
+                this.onDayMouseOver(dayInfo.dayDOMElement, new Date(dayInfo.value));
+            }
         }
     }
 
@@ -1000,9 +1016,9 @@ class FullYearCalendar {
 
     // TODO: Add doc
     refresh(config) {
-        this._calendarVM._update(config);        
+        this._calendarVM._update(config);
         this._calendarDOM.clear();
-        
+
         this._render();
 
         if (this._calendarVM.showNavigationToolBar === true) this._addNavigationToolBar();
@@ -1011,5 +1027,11 @@ class FullYearCalendar {
         this._setSelectedYear(this._calendarVM.selectedYear);
         this._fitToContainer();
         this._registerEventHandlers();
+    }
+
+    //TODO add doc
+    refreshCustomDates(customDates, keepPrevious = true) {
+        this._calendarVM._updateCustomDates(customDates);
+        this._setSelectedYear(this._calendarVM.selectedYear);
     }
 }

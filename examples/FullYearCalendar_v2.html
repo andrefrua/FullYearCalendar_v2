@@ -78,6 +78,11 @@
             border: 1px solid lightcoral;
         }
 
+        .selectedDay2 {
+            background-color: rgb(201, 236, 73);
+            border: 1px solid rgb(201, 236, 73);
+        }
+        
         /* NOT FULL CALENDAR RELATED */
         .calendarContainer{
             margin-bottom: 5px;
@@ -118,7 +123,8 @@
             <input type="button" value="< Previous Year" onmouseup="fullYearCalendar1.goToPreviousYear();" />
             <input type="button" value="Next Year >" onmouseup="fullYearCalendar1.goToNextYear();" />
             <input type="button" value="Go to current year" onmouseup="fullYearCalendar1.goToYear(new Date().getFullYear());" />
-            <input type="button" value="Get all selected days" onmouseup="document.getElementById('divListSelectedDays1').innerHTML = JSON.stringify(fullYearCalendar1.getSelectedDays());" />
+            <input type="button" id="btnUpdateSelectedDays" value="Update selected days"/>
+            <input type="button" id="btnReplaceSelectedDays" value="Replace selected days"/>
         </div>
         <div class="divControls">
             <b>Cliked on:</b><input type="text" id="inputClickedDay1" readonly />
@@ -240,9 +246,27 @@
         //Create the instance for the calendar
         const divFullYearCalendar2 = document.getElementById('divFullYearCalendar2');
         const configObj2 = {
-           
+            selectedYear: 2019,
+            cssClassSelectedDay: 'selectedDay2',
         }
         const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, configObj2);
+
+        btnUpdateSelectedDays.onclick = function(e) {
+            let selectedDays = fullYearCalendar1.getSelectedDays();
+
+            let customDates = {
+                selectedDays: {
+                    caption: "Selected days",
+                    cssClass: "selectedDay2",
+                    values: selectedDays
+                },
+            }
+
+            fullYearCalendar2.refreshCustomDates(customDates);
+        }
+        
+
+
     </script>
 </body>
 
