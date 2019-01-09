@@ -49,26 +49,8 @@
             .defaultDay:last-child {
                 border-right: 1px solid #DDD;
             }
-
-            .defaultDay:nth-child(7n+0) {
-                border-right: 1px solid #BBB;
-            }
-
-
-        /* Full example Css */
-        .divFullYearCalendar {
-            margin: 0 15px;
-        }
-
-        .divControls {
-            margin: 10px 10px 0 10px;
-        }
-
-        .divYear {
-            padding: 5px;
-            text-align: left;
-            margin-left: 50px;
-        }
+    
+   
         /* Custom dates styles */
         .vacations {
             background-color: lightgreen;
@@ -97,6 +79,11 @@
         }
 
         /* NOT FULL CALENDAR RELATED */
+        .calendarContainer{
+            margin-bottom: 5px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ccc;
+        }
         .divControls {
             display: flex;
             flex-direction: row;
@@ -104,9 +91,10 @@
             padding: 5px;
         }
         .divControls > div,
-        .divControls > input {         
+        .divControls > input,
+        .divControls > span {         
             flex: 1 1 auto;
-            margin: 5px;
+            margin: 5px;            
         }
         .divControls > input:read-only {         
             cursor: not-allowed;
@@ -115,35 +103,62 @@
         .divControls > b {         
             flex: 10px auto;
             margin: 5px;
+        } 
+        label {
+            font-weight: 100;
         }
     </style>
 </head>
 
 <body>
-    <div class="divControls">
-        <input type="number" id="inputYearNumber1" value="2019" />
-        <input type="button" value="Go" onmouseup="fullYearCalendar1.goToYear(parseInt(document.getElementById('inputYearNumber1').value));" />
-        <input type="button" value="< Previous Year" onmouseup="fullYearCalendar1.goToPreviousYear();" />
-        <input type="button" value="Next Year >" onmouseup="fullYearCalendar1.goToNextYear();" />
-        <input type="button" value="Go to current year" onmouseup="fullYearCalendar1.goToYear(new Date().getFullYear());" />
-        <input type="button" value="Get all selected days" onmouseup="document.getElementById('divListSelectedDays1').innerHTML = JSON.stringify(fullYearCalendar1.getSelectedDays());" />
+    <div class="calendarContainer">
+        <div class="divControls">
+            <input type="number" id="inputYearNumber1" value="2019" />
+            <input type="button" value="Go" onmouseup="fullYearCalendar1.goToYear(parseInt(document.getElementById('inputYearNumber1').value));" />
+            <input type="button" value="< Previous Year" onmouseup="fullYearCalendar1.goToPreviousYear();" />
+            <input type="button" value="Next Year >" onmouseup="fullYearCalendar1.goToNextYear();" />
+            <input type="button" value="Go to current year" onmouseup="fullYearCalendar1.goToYear(new Date().getFullYear());" />
+            <input type="button" value="Get all selected days" onmouseup="document.getElementById('divListSelectedDays1').innerHTML = JSON.stringify(fullYearCalendar1.getSelectedDays());" />
+        </div>
+        <div class="divControls">
+            <b>Cliked on:</b><input type="text" id="inputClickedDay1" readonly />
+            <b>Mouse overed on:</b><input type="text" id="inputHoveredDay1" readonly />
+            <span>Year changed <span id="inputYearChanged1"> 0 </span> times.</span>
+            <div id="divListSelectedDays1"></div>
+        </div>
+        <div class="divControls">
+            <span class="textAlignLeft"> Day width: <input type="number" id="inputDayWidth1" value="25" onchange="fullYearCalendar1.refresh({dayWidth: this.value})" /></span>
+            <span>
+                <label>
+                    <input type="checkbox" onchange="fullYearCalendar1.refresh({showWeekDaysNameEachMonth: this.checked})">
+                    Show day name on each month
+                </label>
+            </span>
+            <span>
+                Week start day
+                <select onchange="fullYearCalendar1.refresh({weekStartDay: this.value})">
+                    <option value="Sun">Sunday</option>
+                    <option value="Mon">Monday</option>
+                    <option value="Tue">Tuesday</option>
+                    <option value="Wed">Wednesday</option>
+                    <option value="Thu">Thursday</option>
+                    <option value="Fri">Friday</option>
+                    <option value="Sat">Saturday</option>
+                </select>
+            </span>
+        </div>
+        <div class="divFullYearCalendar" id="divFullYearCalendar1"></div>
     </div>
-    <div class="divControls">
-        <b>Cliked on:</b><input type="text" id="inputClickedDay1" readonly />
-        <b>Mouse overed on:</b><input type="text" id="inputHoveredDay1" readonly />
-        <div id="divListSelectedDays1"></div>
+    <div class="calendarContainer">
+        <div class="divControls">
+            <input type="number" id="inputYearNumber2" value="2020" />
+            <input type="button" value="Go" onmouseup="fullYearCalendar2.goToYear(parseInt(document.getElementById('inputYearNumber2').value));" />
+            <input type="button" value="< Previous Year" onmouseup="fullYearCalendar2.goToPreviousYear();" />
+            <input type="button" value="Next Year >" onmouseup="fullYearCalendar2.goToNextYear();" />
+            <input type="button" value="Go to current year" onmouseup="fullYearCalendar2.goToYear(new Date().getFullYear());" />
+        </div>
+        <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
     </div>
-    <div class="divFullYearCalendar" id="divFullYearCalendar1"></div>
-
-    <hr />
-    <div class="divControls">
-        <input type="number" id="inputYearNumber2" value="2020" />
-        <input type="button" value="Go" onmouseup="fullYearCalendar2.goToYear(parseInt(document.getElementById('inputYearNumber2').value));" />
-        <input type="button" value="< Previous Year" onmouseup="fullYearCalendar2.goToPreviousYear();" />
-        <input type="button" value="Next Year >" onmouseup="fullYearCalendar2.goToNextYear();" />
-        <input type="button" value="Go to current year" onmouseup="fullYearCalendar2.goToYear(new Date().getFullYear());" />
-    </div>
-    <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
 
     <script type="text/javascript">
         // Create the instance for the calendar
@@ -151,19 +166,19 @@
         const configObj1 = {
             selectedYear: new Date().getFullYear(),
             dayWidth: 25,
+            showWeekDaysNameEachMonth: false,
+            monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            weekDayNames: ['Su', 'Mo', 'Th', 'We', 'Tu', 'Fr', 'Sa'],
+            weekStartDay: 'Sun',
+            alignInContainer: 'center',
+            showLegend: true,
+            legendStyle: 'Inline',
+            showNavigationToolBar: true,
             cssClassMonthRow: 'monthRow',
             cssClassMonthName: 'monthName',
             cssClassWeekDayName: 'weekDayName',
             cssClassDefaultDay: 'defaultDay',
             cssClassSelectedDay: 'selectedDay',
-            showWeekDaysNameEachMonth: false,
-            monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            weekDayNames: ['Su', 'Mo', 'Th', 'We', 'Tu', 'Fr', 'Sa'],
-            weekStartDay: 'Fri',
-            alignInContainer: 'center',
-            showLegend: true,
-            legendStyle: 'Inline',
-            showNavigationToolBar: true,
             cssClassNavButtonPreviousYear: 'btn btn-default btn-sm',
             cssClassNavButtonNextYear: 'btn btn-default btn-sm',
             cssClassNavIconPreviousYear: 'fa fa-chevron-left',
@@ -209,21 +224,23 @@
             }
         }
         const fullYearCalendar1 = new FullYearCalendar(divFullYearCalendar1, configObj1);
-        fullYearCalendar1.OnDayClick = function (clickedDayContainer, clickedDate) {
+        fullYearCalendar1.onDayClick = function (clickedDayContainer, clickedDate) {
             document.getElementById('inputClickedDay1').value = clickedDate.toISOString().slice(0, 10);
         };
-        fullYearCalendar1.OnDayMouseOver = function (clickedDayContainer, clickedDate) {
+        fullYearCalendar1.onDayMouseOver = function (clickedDayContainer, clickedDate) {
             document.getElementById('inputHoveredDay1').value = clickedDate.toISOString().slice(0, 10);
         };
+        fullYearCalendar1.onYearChanged = function (selectedYear) {
+            let inputYearChanged1 = document.getElementById('inputYearChanged1');
+            inputYearChanged1.innerText = !isNaN(inputYearChanged1.innerText) ? parseInt(inputYearChanged1.innerText) + 1 : 0;
+        };
 
-        // Create the instance for the calendar
+        //fullYearCalendar1.dispose();
+
+        //Create the instance for the calendar
         const divFullYearCalendar2 = document.getElementById('divFullYearCalendar2');
         const configObj2 = {
-            dayWidth: 20,
-            selectedYear: 2020,
-            showNavigationToolBar: true,
-            showWeekDaysNameEachMonth: true,
-            weekStartDay: 'Sat',
+           
         }
         const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, configObj2);
     </script>
