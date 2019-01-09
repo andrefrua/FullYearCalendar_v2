@@ -3,9 +3,7 @@
  * 
  * GENERAL TODOs:
  * - Create two separate classes, Model and View in order to separate concerns;
- * - Create a dispose for the classes;
- * - Try to add a single addEventListeren function for all types
- * - Remove the customDateCaption object
+ * - Create a dispose for the classes; 
  */
 
 "use strict";
@@ -35,7 +33,6 @@
  * @attribute {string} captionNavButtonPreviousYear - Text to be added to the previous year navigation button.
  * @attribute {string} captionNavButtonNextYear - Text to be added to the next year navigation button.
  * @attribute {Array} customDates - Array of Objects TODO: Add documentation for this property
- * @attribute {Array} customDatesCaption - Array of Objects TODO: Add documentation for this property
  */
 class FullYearCalendarViewModel {
     constructor(config) {
@@ -65,7 +62,6 @@ class FullYearCalendarViewModel {
         this.captionNavButtonNextYear = config && typeof config.captionNavButtonNextYear !== "undefined" ? config.captionNavButtonNextYear : "Next";
         // Custom dates
         this.customDates = config && config.customDates || {};
-        this.customDatesCaption = config && config.customDatesCaption || {};
         // Calculated properties
         // NOTE: The 37 is 0 based, so there are actually 38
         this.totalNumberOfDays = 37; // Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
@@ -366,8 +362,8 @@ class FullYearCalendar {
         }
 
         // Add the events to be associated to each day.
-        this._addDayEvent(dayElement, "click", "_dayClick", dayInfo);
-        this._addDayEvent(dayElement, "mouseover", "_dayMouseOver", dayInfo);
+        this._addEventListerenToElement(dayElement, "click", "_dayClick", dayInfo);
+        this._addEventListerenToElement(dayElement, "mouseover", "_dayMouseOver", dayInfo);
 
         // Store each one of the days inside the calendarDOM object.
         if (typeof this._calendarDOM.daysInMonths[currentMonth] === "undefined") {
@@ -439,22 +435,22 @@ class FullYearCalendar {
     }
 
     /**
-     * Adds an event listener of the provided type to the DOM element of a day.
+     * Adds an event listener of the provided type to the specified element.
      * 
-     * @param {Object} sender - Element of the Day to which the event should be associated to.
+     * @param {Object} sender - Element to which the event should be associated to.
      * @param {String} eventType - Event type (click, mouseover, or any other possible type).
      * @param {String} functionToCall - Name of the function that should be called when the event is fired.
-     * @param {Object} objectInfo - Information that should be sent has a parameter into the function.
+     * @param {Object} params - Parameters that should be sent to the function.
      */
-    _addDayEvent(sender, eventType, functionToCall, objectInfo) {
+    _addEventListerenToElement(sender, eventType, functionToCall, params) {
         var _this = this;
         // For newers browsers
         if (sender.addEventListener) {
-            sender.addEventListener(eventType, function (e) { return _this[functionToCall](objectInfo); }, false);
+            sender.addEventListener(eventType, function () { return _this[functionToCall](params); }, false);
         }
-         // For older browsers
+        // For older browsers
         else if (sender.attachEvent) {
-            sender.attachEvent("on" + eventType, function (e) { return _this[functionToCall](objectInfo); });
+            sender.attachEvent("on" + eventType, function () { return _this[functionToCall](params); });
         }
     }
 
@@ -493,7 +489,7 @@ class FullYearCalendar {
      * @param {Object} dayInfo - Object representing the day that was clicked.
      */
     _dayMouseOver(dayInfo) {
-        // Exits right away if it"s not a valid day or there is so function for the day MouseOver event.
+        // Exits right away if it's not a valid day or there is so function for the day MouseOver event.
         if (!dayInfo.value || typeof this.OnDayMouseOver !== "function") return;
 
         if (dayInfo.value) {
@@ -502,8 +498,18 @@ class FullYearCalendar {
             let captionToAdd = "";
             const dayCssClasses = dayInfo.dayDOMElement.className.split(" ");
             dayCssClasses.forEach(function (cssClass) {
-                if (_this._calendarVM.customDatesCaption[cssClass] !== undefined) {
-                    captionToAdd += _this._calendarVM.customDatesCaption[cssClass] + "\n";
+                const customDates = _this._calendarVM.customDates;
+                for (let property in customDates) {
+                    // Just to confirm that the object actually has the property.
+                    if (customDates.hasOwnProperty(property)) {
+                        // Checks if all the needed properties exist in the object and if the css class is the same.
+                        if (customDates[property] &&
+                            customDates[property].cssClass && customDates[property].cssClass.constructor === String &&
+                            customDates[property].caption && customDates[property].caption.constructor === String &&
+                            cssClass === customDates[property].cssClass) {
+                            captionToAdd += customDates[property].caption + "\n";
+                        }
+                    }
                 }
             })
             dayInfo.dayDOMElement.title = captionToAdd;
@@ -549,23 +555,9 @@ class FullYearCalendar {
         btnNextYear.appendChild(iconNextYear);
         divBlockNavRightButton.appendChild(btnNextYear);
 
-        const _this = this;
-        // Adds the event click to the previous year button
-        if (btnPreviousYear.addEventListener) {  // all browsers except IE before version 9
-            btnPreviousYear.addEventListener("click", function () { _this.goToPreviousYear(); }, false);
-        } else {
-            if (btnPreviousYear.attachEvent) {   // IE before version 9
-                btnPreviousYear.attachEvent("click", _this.goToPreviousYear());
-            }
-        }
-        // Adds the event click to the Next year button
-        if (btnNextYear.addEventListener) {  // all browsers except IE before version 9
-            btnNextYear.addEventListener("click", function () { _this.goToNextYear(); }, false);
-        } else {
-            if (btnNextYear.attachEvent) {   // IE before version 9
-                btnNextYear.attachEvent("click", _this.goToNextYear());
-            }
-        }
+        // Adds the event listeners to the previous and next buttons.
+        this._addEventListerenToElement(btnPreviousYear, "click", "goToPreviousYear");
+        this._addEventListerenToElement(btnNextYear, "click", "goToNextYear");
 
         navToolbarWrapper.appendChild(divBlockNavLeftButton);
         navToolbarWrapper.appendChild(divBlockNavCurrentYear);
@@ -602,7 +594,11 @@ class FullYearCalendar {
             const divPropertyCaption = document.createElement("div");
             divPropertyCaption.className = "fyc_legendPropertyCaption";
 
-            divPropertyCaption.innerText = this._calendarVM.customDatesCaption && this._calendarVM.customDatesCaption[property] ? this._calendarVM.customDatesCaption[property] : property;
+            if (this._calendarVM.customDates && this._calendarVM.customDates[property] && this._calendarVM.customDates[property].caption) {
+                divPropertyCaption.innerText = this._calendarVM.customDates[property].caption;
+            } else {
+                divPropertyCaption.innerText = property;
+            }
 
             divPropertyCaption.style.display = "table-cell";
             divPropertyCaption.style.verticalAlign = "middle";
@@ -647,7 +643,7 @@ class FullYearCalendar {
      */
     _setMonth(currentMonth) {
         // Gets the first day of the month so we know in which cell the month should start
-        const firstDayOfMonth = new Date(this._calendarVM.selectedYear, currentMonth, 1).getDay() - this._calendarVM.weekStartDayNumber;
+        let firstDayOfMonth = new Date(this._calendarVM.selectedYear, currentMonth, 1).getDay() - this._calendarVM.weekStartDayNumber;
         firstDayOfMonth = firstDayOfMonth < 0 ? 7 + firstDayOfMonth : firstDayOfMonth;
 
         // Calculate the last day of the month
@@ -889,7 +885,7 @@ class FullYearCalendar {
      * Register the event handlers that are needed.
      */
     _registerEventHandlers() {
-        window.addEventListener("resize", this._onResize.bind(this));
+        this._addEventListerenToElement(window, "resize", "_onResize", this);
     }
 
     /**
