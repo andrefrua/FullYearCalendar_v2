@@ -3,6 +3,8 @@
  * 
  * GENERAL TODOs:
  * - Create two separate classes, Model and View in order to separate concerns;
+ * - There is an issue when selecting the days on the first calendar and then deselecting again the second calendar will have the object updated, and I 
+ * have no idea how it's happening.
  */
 
 "use strict";
@@ -61,6 +63,9 @@ class FullYearCalendarViewModel {
         this.captionNavButtonNextYear = config && typeof config.captionNavButtonNextYear !== "undefined" ? config.captionNavButtonNextYear : "Next";
         // Custom dates
         this.customDates = config && config.customDates || {};
+        this.selectedDates = {
+            values: []
+        }
         // Calculated properties
         // NOTE: The 37 is 0 based, so there are actually 38
         this.totalNumberOfDays = 37; // Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
@@ -89,9 +94,23 @@ class FullYearCalendarViewModel {
 
     // TODO doc
     _updateCustomDates(newCustomDates) {
-        this.customDates = Object.assign(this.customDates, newCustomDates);       
+        let updated = false;
+        for (let property in newCustomDates) {
+            if (newCustomDates.hasOwnProperty(property) && this.customDates.hasOwnProperty(property) &&
+                newCustomDates[property] !== this.customDates[property]) {
+
+                this.customDates[property] = newCustomDates[property];
+                updated = true;
+            } else {
+                this.customDates[property] = newCustomDates[property];
+            }
+        }
+
+
+        let _this = this;
+        //this.customDates = Object.assign(this.customDates, newCustomDates);
+
     }
-    
     // TODO doc
     _replaceCustomDates(newCustomDates) {
         this.customDates = newCustomDates;
@@ -154,6 +173,10 @@ class FullYearCalendarViewModel {
             }
         }
         return false;
+    }
+    //TODO DOC
+    _convertDateToISOWihoutTimezone(dateToConvert) {
+        return new Date(dateToConvert.getTime() - (dateToConvert.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
     }
 }
 //TODO doc
@@ -525,24 +548,21 @@ class FullYearCalendar {
      * @param {Object} dayInfo - Object representing the day that was clicked.
      */
     _dayClick(dayInfo) {
-        //Exits right away if it"s not a valid day.
+        // Exits right away if it"s not a valid day.
         if (!dayInfo.value) return;
 
-        //Checked if there is already a list of selected days
-        if (this._calendarVM._selectedDaysList) {
-            const selectedDayIndex = this._calendarVM._selectedDaysList.indexOf(new Date(dayInfo.value).toISOString().slice(0, 10));
-            if (selectedDayIndex > -1) {
-                this._calendarVM._selectedDaysList.splice(selectedDayIndex, 1);
-                dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className.replace(" " + this._calendarVM.cssClassSelectedDay, "");
-            } else {
-                HTMLElement
-                this._calendarVM._selectedDaysList.push(new Date(dayInfo.value).toISOString().slice(0, 10)); HTMLElement
-                dayInfo.dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
-            }
+        const dayValue = this._calendarVM._convertDateToISOWihoutTimezone(new Date(dayInfo.value));
+        const selectedDayIndex = this._calendarVM.selectedDates.values.indexOf(dayValue);
+
+        // Selects the day if it wasn't already selected and unselects if it was selected
+        if (selectedDayIndex > -1) {
+            this._calendarVM.selectedDates.values.splice(selectedDayIndex, 1);
+            dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className.split(" " + this._calendarVM.cssClassSelectedDay).join("");
         } else {
-            this._calendarVM._selectedDaysList = new Array(new Date(dayInfo.value).toISOString().slice(0, 10));
+            this._calendarVM.selectedDates.values.push(dayValue);
             dayInfo.dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
         }
+
         // If the onDayClick function is defined then trigger the call
         if (typeof this.onDayClick === "function") {
             this.onDayClick(dayInfo.dayDOMElement, new Date(dayInfo.value));
@@ -848,6 +868,19 @@ class FullYearCalendar {
                         }
                     });
                 }
+
+                // 5 - Apply the styles to the selected days
+                this._calendarVM.selectedDates.values.forEach(function (auxDate) {
+                    auxDate = new Date(auxDate);
+
+                    // Validates if the value is an actual date
+                    if (auxDate instanceof Date && !isNaN(auxDate.valueOf())) {
+                        if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
+                            cssClassToApply += " " + _this._calendarVM.cssClassSelectedDay;
+                        }
+                    }
+                });
+
             }
         }
         return cssClassToApply;
@@ -928,7 +961,7 @@ class FullYearCalendar {
      * @returns {Array} Selected days
      */
     getSelectedDays() {
-        return this._calendarVM._selectedDaysList ? this._calendarVM._selectedDaysList : new Array();
+        return this._calendarVM.selectedDates.values;
     }
 
     // TODO: Add doc

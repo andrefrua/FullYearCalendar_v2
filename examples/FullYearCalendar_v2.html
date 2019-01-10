@@ -73,6 +73,11 @@
             border: 1px solid  #DDD;
         }
 
+        .birthday {
+            background-color: rgb(255, 0, 0);
+            border: 1px solid rgb(255, 0, 0);
+        }
+
         .selectedDay {
             background-color: lightcoral;
             border: 1px solid lightcoral;
@@ -81,6 +86,12 @@
         .selectedDay2 {
             background-color: rgb(201, 236, 73);
             border: 1px solid rgb(201, 236, 73);
+        }
+
+        .importedDay {
+            background-color: rgb(4, 0, 255);
+            border: 1px solid rgb(4, 0, 255);
+            color: white;
         }
         
         /* NOT FULL CALENDAR RELATED */
@@ -123,8 +134,8 @@
             <input type="button" value="< Previous Year" onmouseup="fullYearCalendar1.goToPreviousYear();" />
             <input type="button" value="Next Year >" onmouseup="fullYearCalendar1.goToNextYear();" />
             <input type="button" value="Go to current year" onmouseup="fullYearCalendar1.goToYear(new Date().getFullYear());" />
-            <input type="button" id="btnUpdateSelectedDays" value="Update selected days"/>
-            <input type="button" id="btnReplaceSelectedDays" value="Replace selected days"/>
+            <input type="button" id="btnUpdateSelectedDays" value="Update selected days" />
+            <input type="button" id="btnReplaceSelectedDays" value="Replace selected days" />
         </div>
         <div class="divControls">
             <b>Cliked on:</b><input type="text" id="inputClickedDay1" readonly />
@@ -171,7 +182,7 @@
         const divFullYearCalendar1 = document.getElementById('divFullYearCalendar1')
         const configObj1 = {
             selectedYear: new Date().getFullYear(),
-            dayWidth: 25,
+            dayWidth: 20,
             showWeekDaysNameEachMonth: false,
             monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             weekDayNames: ['Su', 'Mo', 'Th', 'We', 'Tu', 'Fr', 'Sa'],
@@ -248,23 +259,42 @@
         const configObj2 = {
             selectedYear: 2019,
             cssClassSelectedDay: 'selectedDay2',
+            showLegend: true,
+            customDates: {
+                birthday: {
+                    recurring: true,
+                    caption: "Birthday",
+                    cssClass: "birthday",
+                    values: [
+                        '2019-03-14'
+                    ]
+                }
+            }
         }
         const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, configObj2);
 
-        btnUpdateSelectedDays.onclick = function(e) {
-            let selectedDays = fullYearCalendar1.getSelectedDays();
+        btnUpdateSelectedDays.onclick = function (e) {
+            const selectedDays1 = fullYearCalendar1.getSelectedDays();
 
-            let customDates = {
+            const customDates = {
+                birthday: {
+                    recurring: true,
+                    caption: "Birthday",
+                    cssClass: "birthday",
+                    values: [
+                        '2019-03-20'
+                    ]
+                },
                 selectedDays: {
                     caption: "Selected days",
-                    cssClass: "selectedDay2",
-                    values: selectedDays
+                    cssClass: "importedDay",
+                    values: selectedDays1
                 },
             }
 
             fullYearCalendar2.refreshCustomDates(customDates);
         }
-        
+
 
 
     </script>
