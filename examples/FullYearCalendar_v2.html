@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+﻿<!DOCTYPE html>
+<html>
 
 <head>
     <title>FullYearCalendar - Basic example</title>
@@ -11,7 +11,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
 
-    <script src="../src/js/FullYearCalendar_v2.js"></script>
     <link href="../src/css/FullYearCalendar.css" rel="stylesheet" media="screen" />
     <script src="https://use.fontawesome.com/cc54a83773.js"></script>
 
@@ -124,6 +123,8 @@
             font-weight: 100;
         }
     </style>
+
+
 </head>
 
 <body>
@@ -177,7 +178,8 @@
         <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
     </div>
 
-    <script type="text/javascript">
+    <script type="module">
+        import View from "../src/js/View.js";
         // Create the instance for the calendar
         const divFullYearCalendar1 = document.getElementById('divFullYearCalendar1')
         const configObj1 = {
@@ -240,7 +242,7 @@
                 }
             }
         }
-        const fullYearCalendar1 = new FullYearCalendar(divFullYearCalendar1, configObj1);
+        const fullYearCalendar1 = new View(divFullYearCalendar1, configObj1);
         fullYearCalendar1.onDayClick = function (clickedDayContainer, clickedDate) {
             document.getElementById('inputClickedDay1').value = clickedDate.toISOString().slice(0, 10);
         };
@@ -271,7 +273,7 @@
                 }
             }
         }
-        const fullYearCalendar2 = new FullYearCalendar(divFullYearCalendar2, configObj2);
+        const fullYearCalendar2 = new View(divFullYearCalendar2, configObj2);
 
         btnUpdateSelectedDays.onclick = function (e) {
             const selectedDays1 = fullYearCalendar1.getSelectedDays();

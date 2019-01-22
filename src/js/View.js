@@ -6,223 +6,32 @@
  * - There is an issue when selecting the days on the first calendar and then deselecting again the second calendar will have the object updated, and I 
  * have no idea how it's happening.
  * 
- * TODO:
- * - Break classes into sepatare files (use imports and exports)
- * - Normalize CustomDates object
- * - Update attributes with correct name (property)
- * - Create the posibility to merge customdates series
- * - Create setters for the VM configutaion object
+ * TODO: 
+ * - Break classes into separate files (use imports and exports) 
+ * - Normalize CustomDates object 
+ * - Update attributes with correct name (property) 
+ * - Create the possibility to merge customdates series 
+ * - Create setters for the VM configuration object
  * 
- *
+ * - Abrev. -
+ * - DOM    - Dom 
+ * - Id.    -
+ * - BI     -
+ * - JS     - J
  */
 
 "use strict";
 
-/**
- * Class used to instanciate the configuration object for the FullYearCalendar
- *  
- * @attribute {number}  dayWidth - Width in pixels that should be applied to each day cell
- * @attribute {boolean} showWeekDaysNameEachMonth - Shows the Week days names on each month. If false only shows one row at the top with the days names.
- * @attribute {Array} monthNames - Array of string with the names to give to the Months (Ex: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']).
- * @attribute {Array} weekDayNames - Array of string with the names to give to the week days (Ex: ['S', 'M', 'T', 'W', 'T', 'F', 'S']). Must start with Sunday.
- * @attribute {string} alignInContainer - Aligns the calendar in the container according to the attribute. ('left', 'center', 'right').
- * @attribute {string} selectedYear - Year which the calendar will be started with.
- * @attribute {string} weekStartDay - Name of the day to start the week with. Possibilities 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'. If not provided it will start on Sunday.
- * @attribute {boolean} showLegend - Show a legend with all the attributes defined on the CustomDates object.
- * @attribute {string} legendStyle - Changes the style of the legend between inline or listed ('Inline' / 'Block').
- * @attribute {boolean} showNavigationToolBar - Show the toolbar with built in navigation between year and currently selected year as well.
- * @attribute {string} cssClassMonthRow - Name of the Css Class to be applied to the row of the month (With the days numbers).
- * @attribute {string} cssClassMonthName - Name of the Css Class to be applied to the cell of the Month name.
- * @attribute {string} cssClassWeekDayName - Name of the Css Class to be applied to the Week day name.
- * @attribute {string} cssClassDefaultDay - Name of the Css Class to be applied to all the days as a default.
- * @attribute {string} cssClassSelectedDay - Name of the Css Class to be applied to a selected day.
- * @attribute {string} cssClassNavButtonPreviousYear - Css class to be applied to the Previous year navigation button.
- * @attribute {string} cssClassNavButtonNextYear - Css class to be applied to the next year navigation button.
- * @attribute {string} cssClassNavIconPreviousYear - Css class to be applied to the previous icon navigation button.
- * @attribute {string} cssClassNavIconNextYear - Css class to be applied to the next icon navigation button.
- * @attribute {string} captionNavButtonPreviousYear - Text to be added to the previous year navigation button.
- * @attribute {string} captionNavButtonNextYear - Text to be added to the next year navigation button.
- * @attribute {Array} customDates - Array of Objects TODO: Add documentation for this property
- */
-class FullYearCalendarViewModel {
-    constructor(config) {
-        // Configurable props
-        this.dayWidth = config && config.dayWidth || 25;
-        this.showWeekDaysNameEachMonth = config && config.showWeekDaysNameEachMonth || false;
-        this.monthNames = config && config.monthNames || ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        this.weekDayNames = config && config.weekDayNames || ["S", "M", "T", "W", "T", "F", "S"];
-        this.alignInContainer = config && config.alignInContainer || "center";
-        this.selectedYear = config && config.selectedYear || new Date().getFullYear();
-        this.weekStartDay = config && config.weekStartDay || "Sun";
-        this.showLegend = config && config.showLegend || false;
-        this.legendStyle = config && config.legendStyle || "Inline"; // Inline | Block;
-        this.showNavigationToolBar = config && config.showNavigationToolBar || false;
-        // Default class names if they are not supplied
-        this.cssClassMonthRow = config && config.cssClassMonthRow || "fyc_MonthRow";
-        this.cssClassMonthName = config && config.cssClassMonthName || "fyc_MonthName";
-        this.cssClassWeekDayName = config && config.cssClassWeekDayName || "fyc_WeekDayName";
-        this.cssClassDefaultDay = config && config.cssClassDefaultDay || "fyc_DefaultDay";
-        this.cssClassSelectedDay = config && config.cssClassSelectedDay || "fyc_SelectedDay";
-        // Navigation toolbar defaults
-        this.cssClassNavButtonPreviousYear = config && config.cssClassNavButtonPreviousYear || "fyc_NavButtonPreviousYear";
-        this.cssClassNavButtonNextYear = config && config.cssClassNavButtonNextYear || "fyc_NavButtonNextYear";
-        this.cssClassNavIconPreviousYear = config && config.cssClassNavIconPreviousYear || "fyc_IconPreviousYear";
-        this.cssClassNavIconNextYear = config && config.cssClassNavIconNextYear || "fyc_IconNextYear";
-        this.captionNavButtonPreviousYear = config && config.captionNavButtonPreviousYear !== undefined ? config.captionNavButtonPreviousYear : "Previous";
-        this.captionNavButtonNextYear = config && config.captionNavButtonNextYear !== undefined ? config.captionNavButtonNextYear : "Next";
-        
-        // Custom dates
-        this.customDates = config && config.customDates || {};
-        this.selectedDates = {
-            values: []
-        }
-        // Calculated properties
-        // NOTE: The 37 is 0 based, so there are actually 38
-        this.totalNumberOfDays = 37; // Total number of days. It"s set to 37 + 4 (To fill gap on mobile view) because it"s the maximum possible value to attain with the gap between starting and end of days in the month
-        this.weekStartDayNumber = this._getWeekDayNumberFromName(this.weekStartDay);
-        this.monthNameWidth = this.dayWidth * 4;
-        this.totalCalendarWidth = this.monthNameWidth + (this.dayWidth * 38); //Total ammount of days drawn     
-    }
-
-    //TODO: Add doc
-    _update(config) {
-        let updated = false;
-        for (let property in config) {
-            if (config.hasOwnProperty(property) && this.hasOwnProperty(property) && this[property] !== config[property]) {
-                this[property] = config[property];
-                updated = true;
-            }
-        }
-
-        if (updated) {
-            this.weekStartDayNumber = this._getWeekDayNumberFromName(this.weekStartDay);
-            this.monthNameWidth = this.dayWidth * 4;
-            // Total ammount of days drawn
-            this.totalCalendarWidth = this.monthNameWidth + (this.dayWidth * 38);
-        }
-    }
-
-    // TODO doc
-    _updateCustomDates(newCustomDates) {
-        let updated = false;
-        for (let property in newCustomDates) {
-            if (newCustomDates.hasOwnProperty(property) && this.customDates.hasOwnProperty(property) &&
-                newCustomDates[property] !== this.customDates[property]) {
-
-                this.customDates[property] = newCustomDates[property];
-                updated = true;
-            } else {
-                this.customDates[property] = newCustomDates[property];
-            }
-        }
-
-
-        let _this = this;
-        //this.customDates = Object.assign(this.customDates, newCustomDates);
-
-    }
-    // TODO doc
-    _replaceCustomDates(newCustomDates) {
-        this.customDates = newCustomDates;
-    }
-
-    /**
-     * UTILS
-     */
-
-    /**
-     * Gets the week day number from the received name
-     * @param {String} weekDayName - Name of the day of the week. The name must be the first 3 letters of the name in English. Ex: ("Sun","Mon","Tue","Wed","Thu","Fri","Sat").
-     * @return {Number} Number representing the Week day
-     */
-    _getWeekDayNumberFromName(weekDayName) {
-        switch (weekDayName) {
-            case "Sun":
-                return 0;
-            case "Mon":
-                return 1;
-            case "Tue":
-                return 2;
-            case "Wed":
-                return 3;
-            case "Thu":
-                return 4;
-            case "Fri":
-                return 5;
-            case "Sat":
-                return 6;
-            default:
-                return 0;
-        }
-    }
-
-    /**
-     * Change the year of the received date to the specified year.
-     * @param {Date} date - Date to be changed.
-     * @param {Number} year - Year to be used as the new year.
-     */
-    _changeYearOnDate(date, year) {
-        return new Date(date.setFullYear(year));
-    }
-
-    /**
-     * 
-     * @param {Date} startDate 
-     * @param {Date} endDate 
-     * @param {Date} dateToCheck 
-     * @param {boolean} isRecurring 
-     */
-    _isDateInPeriod(startDate, endDate, dateToCheck, isRecurring) {
-        if (isRecurring) {
-            startDate = this._changeYearOnDate(startDate, this.selectedYear);
-            endDate = this._changeYearOnDate(endDate, this.selectedYear);
-        }
-        if (startDate instanceof Date && !isNaN(startDate.valueOf()) && endDate instanceof Date && !isNaN(endDate.valueOf())) {
-            if (dateToCheck >= startDate.setHours(0, 0, 0, 0) && dateToCheck <= endDate.setHours(0, 0, 0, 0)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    //TODO DOC
-    _convertDateToISOWihoutTimezone(dateToConvert) {
-        return new Date(dateToConvert.getTime() - (dateToConvert.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
-    }
-}
-//TODO doc
-class FullYearCalendarDOM {
-    constructor(domElement) {
-        this.domElement = domElement;
-        this.daysInMonths = [];
-    }
-
-    //TODO doc
-    clear() {
-        var container = this.mainContainer;
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-        this.daysInMonths = [];
-    }
-    //TODO doc
-    dispose() {
-        var container = this.mainContainer;
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-        delete this;
-    }
-}
-
-
+import ViewModel from "./ViewModel.js";
+import Dom from "./Dom.js";
 /**
  * FullYearCalendar
  * Used to highlight important events for specific days throughout a specified year.
  */
-class FullYearCalendar {
+export default class View {
     constructor(domElement, config = {}) {
-        this._calendarVM = new FullYearCalendarViewModel(config);
-        this._calendarDOM = new FullYearCalendarDOM(domElement);
+        this._calendarVM = new ViewModel(config);
+        this._calendarDOM = new Dom(domElement);
 
         this._render();
 
@@ -1077,4 +886,4 @@ class FullYearCalendar {
         this._calendarVM._updateCustomDates(customDates);
         this._setSelectedYear(this._calendarVM.selectedYear);
     }
-}
+} 
