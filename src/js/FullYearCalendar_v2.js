@@ -5,6 +5,15 @@
  * - Create two separate classes, Model and View in order to separate concerns;
  * - There is an issue when selecting the days on the first calendar and then deselecting again the second calendar will have the object updated, and I 
  * have no idea how it's happening.
+ * 
+ * TODO:
+ * - Break classes into sepatare files (use imports and exports)
+ * - Normalize CustomDates object
+ * - Update attributes with correct name (property)
+ * - Create the posibility to merge customdates series
+ * - Create setters for the VM configutaion object
+ * 
+ *
  */
 
 "use strict";
@@ -59,8 +68,9 @@ class FullYearCalendarViewModel {
         this.cssClassNavButtonNextYear = config && config.cssClassNavButtonNextYear || "fyc_NavButtonNextYear";
         this.cssClassNavIconPreviousYear = config && config.cssClassNavIconPreviousYear || "fyc_IconPreviousYear";
         this.cssClassNavIconNextYear = config && config.cssClassNavIconNextYear || "fyc_IconNextYear";
-        this.captionNavButtonPreviousYear = config && typeof config.captionNavButtonPreviousYear !== "undefined" ? config.captionNavButtonPreviousYear : "Previous";
-        this.captionNavButtonNextYear = config && typeof config.captionNavButtonNextYear !== "undefined" ? config.captionNavButtonNextYear : "Next";
+        this.captionNavButtonPreviousYear = config && config.captionNavButtonPreviousYear !== undefined ? config.captionNavButtonPreviousYear : "Previous";
+        this.captionNavButtonNextYear = config && config.captionNavButtonNextYear !== undefined ? config.captionNavButtonNextYear : "Next";
+        
         // Custom dates
         this.customDates = config && config.customDates || {};
         this.selectedDates = {
@@ -961,7 +971,7 @@ class FullYearCalendar {
      * @returns {Array} Selected days
      */
     getSelectedDays() {
-        return this._calendarVM.selectedDates.values;
+        return this._calendarVM.selectedDates.values.slice();
     }
 
     // TODO: Add doc
