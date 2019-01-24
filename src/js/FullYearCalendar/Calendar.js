@@ -1,18 +1,14 @@
 /**
  * CURRENT ISSUES / DOUBTS:
  * 
- * GENERAL TODOs:
- * - Create two separate classes, Model and View in order to separate concerns;
- * - There is an issue when selecting the days on the first calendar and then deselecting again the second calendar will have the object updated, and I 
- * have no idea how it's happening.
- * 
  * TODO: 
- * - Break classes into separate files (use imports and exports) 
+ * - Break classes into separate files (use imports and exports) - OK
  * - Normalize CustomDates object 
- * - Update attributes with correct name (property) 
+ * - Update attributes with correct name (property)  - OK
  * - Create the possibility to merge customdates series 
- * - Create setters for the VM configuration object
- * 
+ * - Create setters for the VM configuration object - OK
+ *
+ * Naming convention
  * - Abrev. -
  * - DOM    - Dom 
  * - Id.    -
@@ -28,19 +24,12 @@ import Dom from "./Dom.js";
  * FullYearCalendar
  * Used to highlight important events for specific days throughout a specified year.
  */
-export default class View {
+export default class Calendar {
     constructor(domElement, config = {}) {
         this._calendarVM = new ViewModel(config);
         this._calendarDOM = new Dom(domElement);
 
         this._render();
-
-        if (this._calendarVM.showNavigationToolBar === true) this._addNavigationToolBar();
-        if (this._calendarVM.showLegend === true) this._addLegend();
-
-        this._setSelectedYear(this._calendarVM.selectedYear);
-        this._fitToContainer();
-        this._registerEventHandlers();
     }
 
     // PRIVATE FUNCTIONS    
@@ -52,6 +41,13 @@ export default class View {
         this._createMainContainer();
 
         this._addDOMMonth();
+
+        if (this._calendarVM.showNavigationToolBar === true) this._addNavigationToolBar();
+        if (this._calendarVM.showLegend === true) this._addLegend();
+
+        this._setSelectedYear(this._calendarVM.selectedYear);
+        this._fitToContainer();
+        this._registerEventHandlers();
     }
 
     /**
@@ -442,7 +438,7 @@ export default class View {
         btnPreviousYear.innerText = this._calendarVM.captionNavButtonPreviousYear;
         const iconPreviousYear = document.createElement("i");
         iconPreviousYear.className = this._calendarVM.cssClassNavIconPreviousYear;
-        btnPreviousYear.appendChild(iconPreviousYear);
+        btnPreviousYear.prepend(iconPreviousYear);
         divBlockNavLeftButton.appendChild(btnPreviousYear);
 
         // Current year span
@@ -863,7 +859,6 @@ export default class View {
         }
         delete this._calendarDOM;
         delete this._calendarVM;
-        delete this;
     }
 
     // TODO: Add doc
@@ -872,13 +867,6 @@ export default class View {
         this._calendarDOM.clear();
 
         this._render();
-
-        if (this._calendarVM.showNavigationToolBar === true) this._addNavigationToolBar();
-        if (this._calendarVM.showLegend === true) this._addLegend();
-
-        this._setSelectedYear(this._calendarVM.selectedYear);
-        this._fitToContainer();
-        this._registerEventHandlers();
     }
 
     //TODO add doc

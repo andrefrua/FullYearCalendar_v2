@@ -1,0 +1,118 @@
+ /*Override of the default FullYearCalendar Css Classes*/
+
+ /*Month names*/
+
+ .monthName {
+     padding: 0 10px;
+     color: #333;
+     text-align: right;
+ }
+
+ /* WeekDay names */
+
+ .weekDayName {
+     background-Color: #DDD;
+     color: #666;
+     padding: 2px;
+ }
+
+ /* Month row */
+
+ .monthRow {
+     margin-bottom: 5px;
+ }
+
+ /* Default day */
+
+ .defaultDay {
+     color: #333;
+     border: 1px solid #DDD;
+ }
+
+ .defaultDay:not(:empty):hover {
+     background-color: #333;
+     color: #ddd;
+     cursor: pointer;
+ }
+
+ .defaultDay:last-child {
+     border-right: 1px solid #DDD;
+ }
+
+ /* Custom dates styles */
+
+ .vacations {
+     background-color: lightgreen;
+     border: 1px solid lightgreen;
+ }
+
+ .spring {
+     background-color: yellowgreen;
+     border: 1px solid yellowgreen;
+ }
+
+ .holidays {
+     background-color: rgb(122, 157, 255);
+     border: 1px solid rgb(122, 157, 255);
+ }
+
+ .weekend {
+     font-weight: bold;
+     background-color: #DDD;
+     border: 1px solid #DDD;
+ }
+
+ .birthday {
+     background-color: rgb(255, 0, 0);
+     border: 1px solid rgb(255, 0, 0);
+ }
+
+ .selectedDay {
+     background-color: lightcoral;
+     border: 1px solid lightcoral;
+ }
+
+ .selectedDay2 {
+     background-color: rgb(201, 236, 73);
+     border: 1px solid rgb(201, 236, 73);
+ }
+
+ .importedDay {
+     background-color: rgb(4, 0, 255);
+     border: 1px solid rgb(4, 0, 255);
+     color: white;
+ }
+
+ /* NOT FULL CALENDAR RELATED */
+
+ .calendarContainer {
+     margin-bottom: 5px;
+     padding-bottom: 10px;
+     border-bottom: 2px solid #ccc;
+ }
+
+ .divControls {
+     display: flex;
+     flex-direction: row;
+     flex-wrap: wrap;
+     padding: 5px;
+ }
+
+ .divControls>div, .divControls>input, .divControls>span {
+     flex: 1 1 auto;
+     margin: 5px;
+ }
+
+ .divControls>input:read-only {
+     cursor: not-allowed;
+     text-align: center;
+ }
+
+ .divControls>b {
+     flex: 10px auto;
+     margin: 5px;
+ }
+
+ label {
+     font-weight: 100;
+ }

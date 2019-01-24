@@ -1,4 +1,6 @@
-﻿/*Month names*/
+﻿@import url("bootstrap.min.css");
+
+/*Month names*/
 .fyc_MonthName {
     padding: 0 10px;
     color: #333;
@@ -6,40 +8,46 @@
 }
 
 /* WeekDay names */
+
 .fyc_WeekDayName {
     background-Color: #DDD;
     color: #666;
     padding: 2px;
 }
+
 /* Month row */
+
 .fyc_MonthRow {
     margin-bottom: 5px;
 }
+
 /* Default day */
+
 .fyc_DefaultDay {
     color: #333;
     border: 1px solid #DDD;
 }
 
-    .fyc_DefaultDay:not(:empty):hover {
-        background-color: #333;
-        color: #ddd;
-        cursor: pointer;
-    }
+.fyc_DefaultDay:not(:empty):hover {
+    background-color: #333;
+    color: #ddd;
+    cursor: pointer;
+}
 
-    .fyc_DefaultDay:last-child {
-        border-right: 1px solid #DDD;
-    }
+.fyc_DefaultDay:last-child {
+    border-right: 1px solid #DDD;
+}
 
-    .fyc_DefaultDay:nth-child(7n+0) {
-        border-right: 1px solid #BBB;
-    }
-
+.fyc_DefaultDay:nth-child(7n+0) {
+    border-right: 1px solid #BBB;
+}
 
 .fyc_SelectedDay {
     background-color: #AAA;
 }
+
 /* Legend containers styles */
+
 .fyc_legendContainer {
     padding: 2px;
 }
@@ -56,8 +64,8 @@
     margin-top: 5px;
 }
 
-
 /* Navigation toolbar */
+
 .fyc_NavToolbarWrapper {
     text-align: center;
 }
@@ -80,8 +88,18 @@
 
 .fyc_IconPreviousYear {
     padding: 2px;
+    margin: 0 3px;    
+}
+
+.fyc_IconPreviousYear:before {
+    content: "\003c";    
 }
 
 .fyc_IconNextYear {
     padding: 2px;
+    margin: 0 3px;
+}
+
+.fyc_IconNextYear:before {
+    content: "\003e";
 }

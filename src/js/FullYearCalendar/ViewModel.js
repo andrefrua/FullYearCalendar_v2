@@ -1,79 +1,15 @@
 "use strict";
 
+import { PROPERTY_NAMES } from "./Enums.js";
+
 /**
  * module description TODO
  * @module ViewModel
  */
 
-/**
- * TODO
- * @const {Array}
- */
-const propNames = [
-    // Default properties
-    "dayWidth",
-    "showWeekDaysNameEachMonth",
-    "monthNames",
-    "weekDayNames",
-    "alignInContainer",
-    "selectedYear",
-    "weekStartDay",
-    "showLegend",
-    "legendStyle",
-    "showNavigationToolBar",
-    // Default class names if they are not supplied
-    "cssClassMonthRow",
-    "cssClassMonthName",
-    "cssClassWeekDayName",
-    "cssClassDefaultDay",
-    "cssClassSelectedDay",
-    // Navigation toolbar defaults
-    "cssClassNavButtonPreviousYear",
-    "cssClassNavButtonNextYear",
-    "cssClassNavIconPreviousYear",
-    "cssClassNavIconNextYear",
-    "captionNavButtonPreviousYear",
-    "captionNavButtonNextYear",
-    // Custom dates
-    "customDates",
-    "selectedDates",
-    // Calculated properties - READONLY
-    // "totalNumberOfDays",
-    // "weekStartDayNumber",
-    // "monthNameWidth",
-    // "totalCalendarWidth"
-];
 
 /**
- * Class used to instanciate the configuration object for the FullYearCalendar
- *  
- * @attribute {number}  dayWidth - Width in pixels that should be applied to each day cell
- * @attribute {boolean} showWeekDaysNameEachMonth - Shows the Week days names on each month. If false only shows one row at the top with the days names.
- * @attribute {Array} monthNames - Array of string with the names to give to the Months (Ex: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']).
- * @attribute {Array} weekDayNames - Array of string with the names to give to the week days (Ex: ['S', 'M', 'T', 'W', 'T', 'F', 'S']). Must start with Sunday.
- * @attribute {string} alignInContainer - Aligns the calendar in the container according to the attribute. ('left', 'center', 'right').
- * @attribute {string} selectedYear - Year which the calendar will be started with.
- * @attribute {string} weekStartDay - Name of the day to start the week with. Possibilities 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'. If not provided it will start on Sunday.
- * @attribute {boolean} showLegend - Show a legend with all the attributes defined on the CustomDates object.
- * @attribute {string} legendStyle - Changes the style of the legend between inline or listed ('Inline' / 'Block').
- * @attribute {boolean} showNavigationToolBar - Show the toolbar with built in navigation between year and currently selected year as well.
- * @attribute {string} cssClassMonthRow - Name of the Css Class to be applied to the row of the month (With the days numbers).
- * @attribute {string} cssClassMonthName - Name of the Css Class to be applied to the cell of the Month name.
- * @attribute {string} cssClassWeekDayName - Name of the Css Class to be applied to the Week day name.
- * @attribute {string} cssClassDefaultDay - Name of the Css Class to be applied to all the days as a default.
- * @attribute {string} cssClassSelectedDay - Name of the Css Class to be applied to a selected day.
- * @attribute {string} cssClassNavButtonPreviousYear - Css class to be applied to the Previous year navigation button.
- * @attribute {string} cssClassNavButtonNextYear - Css class to be applied to the next year navigation button.
- * @attribute {string} cssClassNavIconPreviousYear - Css class to be applied to the previous icon navigation button.
- * @attribute {string} cssClassNavIconNextYear - Css class to be applied to the next icon navigation button.
- * @attribute {string} captionNavButtonPreviousYear - Text to be added to the previous year navigation button.
- * @attribute {string} captionNavButtonNextYear - Text to be added to the next year navigation button.
- * @attribute {Array} customDates - Array of Objects TODO: Add documentation for this property
- */
-
-
-/**
- * Class description
+ * @class ViewModel class for the FullYearCalendar.
  */
 export default class ViewModel {
     /**
@@ -105,11 +41,13 @@ export default class ViewModel {
      */
     constructor(config) {
         // Initializes all the necessary propetries in order to have the calendar working as intended.
-        propNames.forEach(propName => this[propName] = config && config[propName]);
+        PROPERTY_NAMES.forEach(propName => this[propName] = config && config[propName]);
     }
-    
+
     //TODO: Add doc for each property
     /**
+     * Stores the witdh of the day in the calendar. The unit is pixels.
+     * 
      * @type {number}
      */
     get dayWidth() {
@@ -119,6 +57,8 @@ export default class ViewModel {
         this._dayWidth = value || 25;
     }
     /**
+     * When set to `true` the week day names will show for each one of the months.
+     * 
      * @type {boolean}
      */
     get showWeekDaysNameEachMonth() {
@@ -127,56 +67,84 @@ export default class ViewModel {
     set showWeekDaysNameEachMonth(value) {
         this._showWeekDaysNameEachMonth = value || false;
     }
-
+    /**
+     * Array of strings with the caption for each one of the months. The array should have 12 position and the initial month must be January.
+     * 
+     * @type {Array}
+     */
     get monthNames() {
         return this._monthNames;
     }
     set monthNames(value) {
         this._monthNames = value || ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     }
-
+    /**
+     * Array of strings with the caption for each one of the days of the week. The array should have 7 positions starting with Sunday.
+     * 
+     * @type {Array}
+     */
     get weekDayNames() {
         return this._weekDayNames;
     }
     set weekDayNames(value) {
         this._weekDayNames = value || ["S", "M", "T", "W", "T", "F", "S"]
     }
-
+    /**
+     * Sets the alignement of the calendar inside it's container..
+     * Possible value: `left`, `center` and `right`.
+     * 
+     * @type {string}
+     */
     get alignInContainer() {
         return this._alignInContainer;
     }
     set alignInContainer(value) {
         this._alignInContainer = value || "center";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get selectedYear() {
         return this._selectedYear;
     }
     set selectedYear(value) {
         this._selectedYear = value || new Date().getFullYear();
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get weekStartDay() {
         return this._weekStartDay;
     }
     set weekStartDay(value) {
         this._weekStartDay = value || "Sun";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get showLegend() {
         return this._showLegend;
     }
     set showLegend(value) {
         this._showLegend = value || false;
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get legendStyle() {
         return this._legendStyle;
     }
     set legendStyle(value) {
         this._legendStyle = value || "Inline"; //Inline | Block
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get showNavigationToolBar() {
         return this._showNavigationToolBar;
     }
@@ -185,41 +153,60 @@ export default class ViewModel {
     }
 
     // Default class names if they are not supplied
+    /**
+     * 
+     * @type {}
+     */
     get cssClassMonthRow() {
         return this._cssClassMonthRow;
     }
     set cssClassMonthRow(value) {
         this._cssClassMonthRow = value || "fyc_MonthRow";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get cssClassMonthName() {
         return this._cssClassMonthName;
     }
     set cssClassMonthName(value) {
         this._cssClassMonthName = value || "fyc_MonthName";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get cssClassWeekDayName() {
         return this._cssClassWeekDayName;
     }
     set cssClassWeekDayName(value) {
         this._cssClassWeekDayName = value || "fyc_WeekDayName";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get cssClassDefaultDay() {
         return this._cssClassDefaultDay;
     }
     set cssClassDefaultDay(value) {
         this._cssClassDefaultDay = value || "fyc_DefaultDay";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get cssClassSelectedDay() {
         return this._cssClassSelectedDay;
     }
     set cssClassSelectedDay(value) {
         this._cssClassSelectedDay = value || "fyc_SelectedDay";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     // Navigation toolbar defaults
     get cssClassNavButtonPreviousYear() {
         return this._cssClassNavButtonPreviousYear;
@@ -227,50 +214,72 @@ export default class ViewModel {
     set cssClassNavButtonPreviousYear(value) {
         this._cssClassNavButtonPreviousYear = value || "fyc_NavButtonPreviousYear";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get cssClassNavButtonNextYear() {
         return this._cssClassNavButtonNextYear;
     }
     set cssClassNavButtonNextYear(value) {
         this._cssClassNavButtonNextYear = value || "fyc_NavButtonNextYear";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get cssClassNavIconPreviousYear() {
         return this._cssClassNavIconPreviousYear;
     }
     set cssClassNavIconPreviousYear(value) {
         this._cssClassNavIconPreviousYear = value || "fyc_IconPreviousYear";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get cssClassNavIconNextYear() {
         return this._cssClassNavIconNextYear;
     }
     set cssClassNavIconNextYear(value) {
         this._cssClassNavIconNextYear = value || "fyc_IconNextYear";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get captionNavButtonPreviousYear() {
         return this._captionNavButtonPreviousYear;
     }
     set captionNavButtonPreviousYear(value) {
-        this._captionNavButtonPreviousYear = value || "Previous";
+        this._captionNavButtonPreviousYear = value || "";
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get captionNavButtonNextYear() {
         return this._captionNavButtonNextYear;
     }
     set captionNavButtonNextYear(value) {
-        this._captionNavButtonNextYear = value || "Next";
+        this._captionNavButtonNextYear = value || "";
     }
 
     // Custom dates
+    /**
+     * 
+     * @type {}
+     */
     get customDates() {
         return this._customDates;
     }
     set customDates(value) {
         this._customDates = value || {};
     }
-
+    /**
+     * 
+     * @type {}
+     */
     get selectedDates() {
         return this._selectedDates;
     }
@@ -305,22 +314,18 @@ export default class ViewModel {
         return this.monthNameWidth + (this.dayWidth * 38); //Total ammount of days drawn     
     }
 
+    /** Methods */
 
-    //TODO: Add doc
+    /**
+     * Updates the properties of the calendar with the new ones received as a parameter.
+     * 
+     * @param {Object} config Object with the properties that should be updated on the calendar.
+     */
     _update(config) {
-        let updated = false;
         for (let property in config) {
-            if (config.hasOwnProperty(property) && this.hasOwnProperty(property) && this[property] !== config[property]) {
+            if (config.hasOwnProperty(property) && this[property] !== undefined && config[property] !== this[property]) {
                 this[property] = config[property];
-                updated = true;
             }
-        }
-
-        if (updated) {
-            this.weekStartDayNumber = this._getWeekDayNumberFromName(this.weekStartDay);
-            this.monthNameWidth = this.dayWidth * 4;
-            // Total ammount of days drawn
-            this.totalCalendarWidth = this.monthNameWidth + (this.dayWidth * 38);
         }
     }
 

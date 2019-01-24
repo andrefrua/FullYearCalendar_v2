@@ -1,238 +1,68 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+﻿<!DOCTYPE html>
+<html>
+
 <head>
-    <title>FullYearCalendar - Full example</title>
+    <title>FullYearCalendar - Multiple instances example</title>
 
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link href="../src/js/FullYearCalendar/default.css" rel="stylesheet" media="screen" />
+    <link href="../src/css/index.css" rel="stylesheet" media="screen" />
 
-    <script src="../src/js/FullYearCalendar.js"></script>
-    <link href="../src/css/FullYearCalendar.css" rel="stylesheet" media="screen" />
     <script src="https://use.fontawesome.com/cc54a83773.js"></script>
-
-    <style>
-        /*Override of the default FullYearCalendar Css Classes*/
-        /*Month names*/
-        .monthName {
-            padding: 0 10px;
-            color: #333;
-            text-align: right;
-        }
-
-        /* WeekDay names */
-        .weekDayName {
-            background-Color: #DDD;
-            color: #666;
-            padding: 2px;
-        }
-        /* Month row */
-        .monthRow {
-            margin-bottom: 5px;
-        }
-        /* Default day */
-        .defaultDay {
-            color: #333;
-            border: 1px solid #DDD;
-        }
-
-            .defaultDay:not(:empty):hover {
-                background-color: #333;
-                color: #ddd;
-                cursor: pointer;
-            }
-
-            .defaultDay:last-child {
-                border-right: 1px solid #DDD;
-            }
-
-            .defaultDay:nth-child(7n+0) {
-                border-right: 1px solid #BBB;
-            }
-
-
-        /* Full example Css */
-        #divFullYearCalendar {
-            margin: 0 15px;
-        }
-
-        #divControls {
-            margin: 10px 10px 0 10px;
-        }
-
-        #divYear {
-            padding: 5px;
-            text-align: left;
-            margin-left: 50px;
-        }
-        /* Custom dates styles */
-        .vacations {
-            background-color: lightgreen;
-            border: 1px solid lightgreen;
-        }
-
-        .spring {
-            background-color: yellowgreen;
-            border: 1px solid yellowgreen;
-        }
-
-        .holidays {
-            background-color: lightsalmon;
-            border: 1px solid lightsalmon;
-        }
-
-        .weekend {
-            font-weight: bold;
-            background-color: #DDD;
-            border: 1px solid  #DDD;
-        }
-
-        .selectedDay {
-            background-color: lightcoral;
-            border: 1px solid lightcoral;
-        }
-    </style>
 </head>
 
 <body>
-    <div style="color: red; font-size: 36pt">**** NOT WORKING AS INTENDED ****</div>
-    <div id="divControls">
-        <input type="number" id="inputYearNumber" value="2017" />
-        <input type="button" value="Go" onmouseup="FullYearCalendar.GoToYear('divFullYearCalendar', parseInt(document.getElementById('inputYearNumber').value));" />
-        <input type="button" value="< Previous Year" onmouseup="FullYearCalendar.GoToPreviousYear('divFullYearCalendar');" />
-        <input type="button" value="Next Year >" onmouseup="FullYearCalendar.GoToNextYear('divFullYearCalendar');" />
-        <input type="button" value="Go to current year" onmouseup="FullYearCalendar.GoToYear('divFullYearCalendar', new Date().getFullYear());" />
-        <input type="button" value="Get all selected days" onmouseup="jQuery('#divListSelectedDays').html(JSON.stringify(FullYearCalendar.GetSelectedDays('divFullYearCalendar')));" />
+    <div class="calendarContainer">
+        <div class="divControls">
+            <input type="number" id="inputYearNumber1" value="2019" />
+            <input type="button" id="btnGoToYear1" value="Go" />
+            <input type="button" id="btnGoToPreviousYear1" value="< Previous Year" />
+            <input type="button" id="btnGoToNextYear1" value="Next Year >" />
+            <input type="button" id="btnGoToCurrentYear1" value="Go to current year" />
+            <input type="button" id="btnUpdateSelectedDays1" value="Update selected days" />
+            <input type="button" id="btnReplaceSelectedDays1" value="Replace selected days" />
+        </div>
+        <div class="divControls">
+            <b>Cliked on:</b><input type="text" id="inputClickedDay1" readonly />
+            <b>Mouse overed on:</b><input type="text" id="inputHoveredDay1" readonly />
+            <span>Year changed <span id="inputYearChanged1"> 0 </span> times.</span>
+            <div id="divListSelectedDays1"></div>
+        </div>
+        <div class="divControls">
+            <span class="textAlignLeft"> Day width: <input type="number" id="inputDayWidth1" value="25" /></span>
+            <span>
+                <label>
+                    <input type="checkbox" id="chkShowWeekDaysNameEachMonth1">
+                    Show day name on each month
+                </label>
+            </span>
+            <span>
+                Week start day
+                <select onchange="fullYearCalendar1.refresh({weekStartDay: this.value})">
+                    <option value="Sun">Sunday</option>
+                    <option value="Mon">Monday</option>
+                    <option value="Tue">Tuesday</option>
+                    <option value="Wed">Wednesday</option>
+                    <option value="Thu">Thursday</option>
+                    <option value="Fri">Friday</option>
+                    <option value="Sat">Saturday</option>
+                </select>
+            </span>
+        </div>
+        <div class="divFullYearCalendar" id="divFullYearCalendar1"></div>
+    </div>
+    <div class="calendarContainer">
+        <div class="divControls">
+            <input type="number" id="inputYearNumber2" value="2020" />
+            <input type="button" value="Go" onmouseup="fullYearCalendar2.goToYear(parseInt(document.getElementById('inputYearNumber2').value));" />
+            <input type="button" value="< Previous Year" onmouseup="fullYearCalendar2.goToPreviousYear();" />
+            <input type="button" value="Next Year >" onmouseup="fullYearCalendar2.goToNextYear();" />
+            <input type="button" value="Go to current year" onmouseup="fullYearCalendar2.goToYear(new Date().getFullYear());" />
+        </div>
+        <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
     </div>
 
-    <div id="divYear1"></div>
-    <div id="divFullYearCalendar1"></div>
-    <div id="divHoveredDay1"></div>
-    <div id="divClickedDay1"></div>
-    <div id="divListSelectedDays1"></div>
-    <hr />
-    <div id="divYear2"></div>
-    <div id="divFullYearCalendar2"></div>
-    <div id="divHoveredDay2"></div>
-    <div id="divClickedDay2"></div>
-    <div id="divListSelectedDays2"></div>
+    <script type="module" src="../src/js/MultipleInstances.js"></script>
 
-    <script type="text/javascript">
-        FullYearCalendar.Init({
-            ContainerElementId: 'divFullYearCalendar1',
-            InitialYear: 2017,
-            DayWidth: 24,
-            CssClassMonthRow: 'monthRow',
-            CssClassMonthName: 'monthName',
-            CssClassWeekDayName: 'weekDayName',
-            CssClassDefaultDay: 'defaultDay',
-            CssClassSelectedDay: 'selectedDay',
-            ShowWeekDaysNameEachMonth: false,
-            MonthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            WeekDayNames: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-            WeekStartDay: 'Mon',
-            AlignInContainer: 'center',
-            ShowLegend: true,
-            LegendStyle: 'Inline',
-            ShowNavigationToolBar: true,
-            CssClassNavButtonPreviousYear: 'btn btn-default btn-sm',
-            CssClassNavButtonNextYear: 'btn btn-default btn-sm',
-            CssClassNavIconPreviousYear: 'fa fa-chevron-left',
-            CssClassNavIconNextYear: 'fa fa-chevron-right',
-            CaptionNavButtonPreviousYear: '',
-            CaptionNavButtonNextYear: '',
-            CustomDates: {
-                vacations: [
-                    { start: '2017-01-15', end: '2017-01-25' },
-                    { start: '2017-02-10', end: '2017-02-13' }
-                ],
-                holidays: [
-                  '2017-04-25',
-                  '2017-05-01',
-                  '2017-12-01',
-                  '2017-12-08',
-                  '2017-11-01'
-                ],
-                spring: {
-                    start: '2017-03-21',
-                    end: '2017-06-21'
-                },
-                weekend: 'Sat,Sun'
-            },
-            CustomDatesCaption: {
-                vacations: 'Vacations',
-                holidays: 'Holidays',
-                spring: 'Spring',
-                weekend: 'Weekends'
-            },
-            OnYearChanged: function (currentYear) {
-                document.getElementById('divYear1').innerHTML = 'Year changed to: ' + currentYear;
-            },
-            OnDayMouseOver: function (clickedDayContainer, clickedDate) {
-                document.getElementById('divHoveredDay1').innerHTML = '<b>Mouse over on:</b> ' + clickedDate.toISOString().slice(0, 10);
-            },
-            OnDayClick: function (clickedDayContainer, clickedDate) {
-                document.getElementById('divClickedDay1').innerHTML = '<b>Clicked on:</b> ' + clickedDate.toISOString().slice(0, 10);
-            },
-        })
-
-        FullYearCalendar.Init({
-            ContainerElementId: 'divFullYearCalendar2',
-            InitialYear: 2017,
-            DayWidth: 24,
-            CssClassMonthRow: 'monthRow',
-            CssClassMonthName: 'monthName',
-            CssClassWeekDayName: 'weekDayName',
-            CssClassDefaultDay: 'defaultDay',
-            CssClassSelectedDay: 'selectedDay',
-            ShowWeekDaysNameEachMonth: false,
-            MonthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            WeekDayNames: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-            WeekStartDay: 'Mon',
-            AlignInContainer: 'center',
-            ShowLegend: true,
-            LegendStyle: 'Inline',
-            ShowNavigationToolBar: true,
-            CssClassNavButtonPreviousYear: 'btn btn-default btn-sm',
-            CssClassNavButtonNextYear: 'btn btn-default btn-sm',
-            CssClassNavIconPreviousYear: 'fa fa-chevron-left',
-            CssClassNavIconNextYear: 'fa fa-chevron-right',
-            CaptionNavButtonPreviousYear: '',
-            CaptionNavButtonNextYear: '',
-            CustomDates: {
-                vacations: [
-                    { start: '2017-01-15', end: '2017-01-25' },
-                    { start: '2017-02-10', end: '2017-02-13' }
-                ],
-                holidays: [
-                  '2017-04-25',
-                  '2017-05-01',
-                  '2017-12-01',
-                  '2017-12-08',
-                  '2017-11-01'
-                ],
-                spring: {
-                    start: '2017-03-21',
-                    end: '2017-06-21'
-                },
-                weekend: 'Sat,Sun'
-            },
-            CustomDatesCaption: {
-                vacations: 'Vacations',
-                holidays: 'Holidays',
-                spring: 'Spring',
-                weekend: 'Weekends'
-            },
-            OnYearChanged: function (currentYear) {
-                document.getElementById('divYear2').innerHTML = 'Year changed to: ' + currentYear;
-            },
-            OnDayMouseOver: function (clickedDayContainer, clickedDate) {
-                document.getElementById('divHoveredDay2').innerHTML = '<b>Mouse over on:</b> ' + clickedDate.toISOString().slice(0, 10);
-            },
-            OnDayClick: function (clickedDayContainer, clickedDate) {
-                document.getElementById('divClickedDay2').innerHTML = '<b>Clicked on:</b> ' + clickedDate.toISOString().slice(0, 10);
-            },
-        })
-    </script>
 </body>
+
 </html>
