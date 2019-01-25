@@ -46,6 +46,12 @@
     background-color: #AAA;
 }
 
+.fyc_WeekendDay {
+    font-weight: bold;
+    background-color: #DDD;
+    border: 1px solid #DDD;
+}
+
 /* Legend containers styles */
 
 .fyc_legendContainer {

@@ -3,7 +3,7 @@
  * 
  * TODO: 
  * - Break classes into separate files (use imports and exports) - OK
- * - Normalize CustomDates object 
+ * - Normalize CustomDates object - OK
  * - Update attributes with correct name (property)  - OK
  * - Create the possibility to merge customdates series 
  * - Create setters for the VM configuration object - OK
@@ -453,7 +453,7 @@ export default class Calendar {
         const divBlockNavRightButton = document.createElement("div");
         divBlockNavRightButton.className = "fyc_NavToolbarContainer";
         const btnNextYear = document.createElement("button");
-        btnNextYear.className = this._calendarVM.cssClassNavButtonNextYear; "";
+        btnNextYear.className = this._calendarVM.cssClassNavButtonNextYear;
         btnNextYear.innerText = this._calendarVM.captionNavButtonNextYear;
         const iconNextYear = document.createElement("i");
         iconNextYear.className = this._calendarVM.cssClassNavIconNextYear;
@@ -596,108 +596,70 @@ export default class Calendar {
         const _this = this;
 
         currentDate = currentDate.setHours(0, 0, 0, 0);
+
         // Loops through all the the properties in the CustomDates object.
         for (let property in customDates) {
             // Just to confirm that the object actually has the property.
             if (customDates.hasOwnProperty(property)) {
-                // Since we have several possibities to add the array of Dates we need several checks.
+                customDates[property].values.forEach(function (auxPeriod) {
+                    let startDate = new Date(auxPeriod.start);
+                    let endDate = new Date(auxPeriod.end);
 
-                // 1  - If it's an object then it can be a range with start and end properties
-                if (customDates[property] && customDates[property].values && customDates[property].values.constructor === Object) {
-                    if (customDates[property].values.hasOwnProperty("start") && customDates[property].values.hasOwnProperty("end")) {
-                        let startDate = new Date(customDates[property].values.start);
-                        let endDate = new Date(customDates[property].values.end);
-
-                        const isInPeriod = this._calendarVM._isDateInPeriod(startDate, endDate, currentDate, customDates[property].recurring);
-                        if (isInPeriod) {
-                            cssClassToApply += " " + customDates[property].cssClass;
-                        }
-                    }
-                }
-
-                // 2 - If it's an array of Dates then we must apply the style to each one of them if they exist in the calendar
-                if (customDates[property] && customDates[property].values && customDates[property].values.constructor === Array) {
-                    // Checks if the current date exists in the Array
-                    customDates[property].values.forEach(function (auxDate) {
-                        auxDate = new Date(auxDate);
-                        if (customDates[property].recurring) {
-                            auxDate = _this._calendarVM._changeYearOnDate(auxDate, _this._calendarVM.selectedYear);
-                        }
-                        // Validates if the value is an actual date
-                        if (auxDate instanceof Date && !isNaN(auxDate.valueOf())) {
-                            if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
-                                cssClassToApply += " " + customDates[property].cssClass;
-                            }
-                        }
-                    });
-                }
-
-                // 3 - If it's an array of periods for the same property, for example several periods of vacations
-                if (customDates[property] && customDates[property].values && customDates[property].values.constructor === Array &&
-                    customDates[property].values.length > 0 && customDates[property].values[0].constructor === Object) {
-                    // Checks if the current date exists in the Array
-                    customDates[property].values.forEach(function (auxPeriod) {
-                        let startDate = new Date(auxPeriod.start);
-                        let endDate = new Date(auxPeriod.end);
-
-                        const isInPeriod = _this._calendarVM._isDateInPeriod(startDate, endDate, currentDate, customDates[property].recurring);
-                        if (isInPeriod) {
-                            cssClassToApply += " " + customDates[property].cssClass;
-                        }
-                    });
-                }
-
-                // 4 - Weekdays to give special layout
-                if (customDates[property] && customDates[property].values && customDates[property].values.constructor === String) {
-
-                    const arrayCustomDays = customDates[property].values.split(",");
-
-                    arrayCustomDays.forEach(function (customDay) {
-                        let dayNumber = -1;
-                        switch (customDay) {
-                            case "Sun":
-                                dayNumber = 0;
-                                break;
-                            case "Mon":
-                                dayNumber = 1;
-                                break;
-                            case "Tue":
-                                dayNumber = 2;
-                                break;
-                            case "Wed":
-                                dayNumber = 3;
-                                break;
-                            case "Thu":
-                                dayNumber = 4;
-                                break;
-                            case "Fri":
-                                dayNumber = 5;
-                                break;
-                            case "Sat":
-                                dayNumber = 6;
-                                break;
-                        }
-                        if (new Date(currentDate).getDay() === dayNumber) {
-                            // Name of the property. A Css class with the same name should exist
-                            cssClassToApply += " " + customDates[property].cssClass;
-                        }
-                    });
-                }
-
-                // 5 - Apply the styles to the selected days
-                this._calendarVM.selectedDates.values.forEach(function (auxDate) {
-                    auxDate = new Date(auxDate);
-
-                    // Validates if the value is an actual date
-                    if (auxDate instanceof Date && !isNaN(auxDate.valueOf())) {
-                        if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
-                            cssClassToApply += " " + _this._calendarVM.cssClassSelectedDay;
-                        }
+                    const isInPeriod = _this._calendarVM._isDateInPeriod(startDate, endDate, currentDate, auxPeriod.recurring);
+                    if (isInPeriod) {
+                        cssClassToApply += " " + customDates[property].cssClass;
                     }
                 });
-
             }
         }
+
+        // Re-apply the selected days style in case the year is changed.
+        this._calendarVM.selectedDates.values.forEach(function (auxDate) {
+            auxDate = new Date(auxDate);
+
+            // Validates if the value is an actual date
+            if (!isNaN(auxDate.valueOf())) {
+                if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
+                    cssClassToApply += " " + _this._calendarVM.cssClassSelectedDay;
+                }
+            }
+        });
+
+        // Apply the style to the weekend days.
+        if (this._calendarVM.weekendDays && this._calendarVM.weekendDays.length > 0) {
+
+            this._calendarVM.weekendDays.forEach(function (weekendDay) {
+                let dayNumber = -1;
+                switch (weekendDay) {
+                    case "Sun":
+                        dayNumber = 0;
+                        break;
+                    case "Mon":
+                        dayNumber = 1;
+                        break;
+                    case "Tue":
+                        dayNumber = 2;
+                        break;
+                    case "Wed":
+                        dayNumber = 3;
+                        break;
+                    case "Thu":
+                        dayNumber = 4;
+                        break;
+                    case "Fri":
+                        dayNumber = 5;
+                        break;
+                    case "Sat":
+                        dayNumber = 6;
+                        break;
+                }
+                if (new Date(currentDate).getDay() === dayNumber) {
+                    // Name of the property. A Css class with the same name should exist
+                    cssClassToApply += " " + _this._calendarVM.cssClassWeekendDay;
+                }
+            });
+        }
+
         return cssClassToApply;
     }
 

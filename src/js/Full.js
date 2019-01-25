@@ -4,11 +4,12 @@ const divFullYearCalendar = document.getElementById('divFullYearCalendar')
 
 const configObj = {
     selectedYear: new Date().getFullYear(),
-    dayWidth: 30,
+    dayWidth: 20,
     showWeekDaysNameEachMonth: false,
     monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     weekDayNames: ['Su', 'Mo', 'Th', 'We', 'Tu', 'Fr', 'Sa'],
     weekStartDay: 'Sun',
+    weekendDays: ["Sat", "Sun"],
     alignInContainer: 'center',
     showLegend: true,
     legendStyle: 'Inline',
@@ -18,6 +19,7 @@ const configObj = {
     cssClassWeekDayName: 'weekDayName',
     cssClassDefaultDay: 'defaultDay',
     cssClassSelectedDay: 'selectedDay',
+    cssClassWeekendDay: "weekendDay",
     cssClassNavButtonPreviousYear: 'btn btn-default btn-sm',
     cssClassNavButtonNextYear: 'btn btn-default btn-sm',
     cssClassNavIconPreviousYear: 'fa fa-chevron-left',
@@ -31,12 +33,11 @@ const configObj = {
             values: "Sat,Sun"
         },
         vacations: {
-            recurring: false,
             caption: "Vacations",
             cssClass: "vacations",
             values: [
-                { start: '2019-01-15', end: '2019-01-25' },
-                { start: '2019-02-10', end: '2019-02-13' }
+                { start: '2019-01-15', end: '2019-01-25', recurring: true },
+                { start: '2019-02-10', end: '2019-02-13', recurring: false, }
             ]
         },
         holidays: {
@@ -52,12 +53,12 @@ const configObj = {
             ]
         },
         spring: {
-            recurring: true,
             caption: "Spring",
-            cssClass: "spring",
+            cssClass: "spring",           
             values: {
                 start: '2019-03-21',
-                end: '2019-06-21'
+                end: '2019-06-21',
+                recurring: true
             }
         }
     }

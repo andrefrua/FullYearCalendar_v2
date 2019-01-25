@@ -22,6 +22,7 @@ export default class ViewModel {
      *      @property {string}  alignInContainer - Aligns the calendar in the container according to the attribute. ('left', 'center', 'right').
      *      @property {string}  selectedYear - Year which the calendar will be started with.
      *      @property {string}  weekStartDay - Name of the day to start the week with. Possibilities 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'. If not provided it will start on Sunday.
+     *      @property {Array}   weekendDays - Array with the names of the days that should be recognized as weekend. Ex: ["Sat", "Sun"].
      *      @property {boolean} showLegend - Show a legend with all the attributes defined on the CustomDates object.
      *      @property {string}  legendStyle - Changes the style of the legend between inline or listed ('Inline' / 'Block').
      *      @property {boolean} showNavigationToolBar - Show the toolbar with built in navigation between year and currently selected year as well.
@@ -30,6 +31,7 @@ export default class ViewModel {
      *      @property {string}  cssClassWeekDayName - Name of the Css Class to be applied to the Week day name.
      *      @property {string}  cssClassDefaultDay - Name of the Css Class to be applied to all the days as a default.
      *      @property {string}  cssClassSelectedDay - Name of the Css Class to be applied to a selected day.
+     *      @property {string}  cssClassWeekendDay - Name of the Css Class to be applied to a weekend day.
      *      @property {string}  cssClassNavButtonPreviousYear - Css class to be applied to the Previous year navigation button.
      *      @property {string}  cssClassNavButtonNextYear - Css class to be applied to the next year navigation button.
      *      @property {string}  cssClassNavIconPreviousYear - Css class to be applied to the previous icon navigation button.
@@ -125,6 +127,16 @@ export default class ViewModel {
      * 
      * @type {}
      */
+    get weekendDays() {
+        return this._weekendDays;
+    }
+    set weekendDays(value) {
+        this._weekendDays = value || [];
+    }    
+    /**
+     * 
+     * @type {}
+     */
     get showLegend() {
         return this._showLegend;
     }
@@ -207,6 +219,16 @@ export default class ViewModel {
      * 
      * @type {}
      */
+    get cssClassWeekendDay() {
+        return this._cssClassWeekendDay;
+    }
+    set cssClassWeekendDay(value) {
+        this._cssClassWeekendDay = value || "fyc_WeekendDay";
+    }    
+    /**
+     * 
+     * @type {}
+     */
     // Navigation toolbar defaults
     get cssClassNavButtonPreviousYear() {
         return this._cssClassNavButtonPreviousYear;
@@ -274,7 +296,7 @@ export default class ViewModel {
         return this._customDates;
     }
     set customDates(value) {
-        this._customDates = value || {};
+        this._customDates = this._normalizeCustomDates(value) || {};
     }
     /**
      * 
@@ -411,8 +433,80 @@ export default class ViewModel {
         }
         return false;
     }
+
     //TODO DOC
     _convertDateToISOWihoutTimezone(dateToConvert) {
         return new Date(dateToConvert.getTime() - (dateToConvert.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
     }
+
+
+    //TESTING
+    _normalizeCustomDates(customDates) {
+        let normalizedCustomDates = {};
+
+        // Loops through all the the properties in the CustomDates object.
+        for (let property in customDates) {
+            // Just to confirm that the object actually has the property.
+            if (customDates.hasOwnProperty(property) && customDates[property].values) {
+                // Since we have several possibities to add the array of Dates we need several checks.
+
+                // 1 - If the values property is an Object then we should check for the start and end properties (Range).
+                if (customDates[property].values.constructor === Object &&
+                    customDates[property].values.hasOwnProperty("start") &&
+                    customDates[property].values.hasOwnProperty("end")) {
+
+                    let startDate = new Date(customDates[property].values.start);
+                    let endDate = new Date(customDates[property].values.end);
+                    const recurring = customDates[property].values.recurring || customDates[property].recurring || false;
+
+                    normalizedCustomDates[property] = {
+                        caption: customDates[property].caption,
+                        cssClass: customDates[property].cssClass,
+                        values: [
+                            { start: startDate, end: endDate, recurring: recurring }
+                        ]
+                    }
+                }
+
+                // 2 - If it's an array of Dates we must add one position on the values array for each one.
+                if (customDates[property].values.constructor === Array) {
+                    normalizedCustomDates[property] = {
+                        caption: customDates[property].caption,
+                        cssClass: customDates[property].cssClass,
+                        values: []
+                    }
+                    // Checks if the current date exists in the Array
+                    customDates[property].values.forEach(function (auxDate) {
+                        auxDate = new Date(auxDate);
+                        const recurring = customDates[property].recurring || false;
+                        normalizedCustomDates[property].values.push({ start: auxDate, end: auxDate, recurring: recurring });
+                    });
+                }
+
+                // 3 - If it's an array of periods for the same property, for example several periods of vacations
+                if (customDates[property].values.constructor === Array &&
+                    customDates[property].values.length > 0 &&
+                    customDates[property].values[0].constructor === Object) {
+
+                    normalizedCustomDates[property] = {
+                        caption: customDates[property].caption,
+                        cssClass: customDates[property].cssClass,
+                        values: []
+                    }
+                    // Checks if the current date exists in the Array
+                    customDates[property].values.forEach(function (auxPeriod) {
+                        let startDate = new Date(auxPeriod.start);
+                        let endDate = new Date(auxPeriod.end);
+                        const recurring = auxPeriod.recurring || customDates[property].recurring || false;
+
+                        normalizedCustomDates[property].values.push({ start: startDate, end: endDate, recurring: recurring });
+
+                    });
+                }
+            }
+        }
+
+        return normalizedCustomDates;
+    }
+
 }

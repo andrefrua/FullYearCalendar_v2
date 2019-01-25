@@ -56,12 +56,6 @@
      border: 1px solid rgb(122, 157, 255);
  }
 
- .weekend {
-     font-weight: bold;
-     background-color: #DDD;
-     border: 1px solid #DDD;
- }
-
  .birthday {
      background-color: rgb(255, 0, 0);
      border: 1px solid rgb(255, 0, 0);
@@ -71,6 +65,13 @@
      background-color: lightcoral;
      border: 1px solid lightcoral;
  }
+
+ .weekendDay {
+    font-weight: bold;
+    background-color: #555;
+    border: 1px solid #555;
+    color: white;
+}
 
  .selectedDay2 {
      background-color: rgb(201, 236, 73);

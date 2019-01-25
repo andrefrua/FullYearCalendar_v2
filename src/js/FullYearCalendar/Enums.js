@@ -11,6 +11,7 @@ export const PROPERTY_NAMES = [
     "alignInContainer",
     "selectedYear",
     "weekStartDay",
+    "weekendDays",    
     "showLegend",
     "legendStyle",
     "showNavigationToolBar",
@@ -20,6 +21,7 @@ export const PROPERTY_NAMES = [
     "cssClassWeekDayName",
     "cssClassDefaultDay",
     "cssClassSelectedDay",
+    "cssClassWeekendDay",
     // Navigation toolbar defaults
     "cssClassNavButtonPreviousYear",
     "cssClassNavButtonNextYear",
