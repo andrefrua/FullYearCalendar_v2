@@ -833,7 +833,12 @@ export default class Calendar {
 
     //TODO add doc
     refreshCustomDates(customDates, keepPrevious = true) {
-        this._calendarVM._updateCustomDates(customDates);
+        if (keepPrevious) {
+            this._calendarVM._updateCustomDates(customDates);
+        } else {
+            this._calendarVM._replaceCustomDates(customDates);
+        }
+
         this._setSelectedYear(this._calendarVM.selectedYear);
     }
 } 

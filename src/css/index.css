@@ -30,7 +30,7 @@
  }
 
  .defaultDay:not(:empty):hover {
-     background-color: #333;
+     background-color: rgb(255, 165, 81);
      color: #ddd;
      cursor: pointer;
  }

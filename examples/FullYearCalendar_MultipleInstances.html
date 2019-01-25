@@ -53,10 +53,10 @@
     <div class="calendarContainer">
         <div class="divControls">
             <input type="number" id="inputYearNumber2" value="2020" />
-            <input type="button" value="Go" onmouseup="fullYearCalendar2.goToYear(parseInt(document.getElementById('inputYearNumber2').value));" />
-            <input type="button" value="< Previous Year" onmouseup="fullYearCalendar2.goToPreviousYear();" />
-            <input type="button" value="Next Year >" onmouseup="fullYearCalendar2.goToNextYear();" />
-            <input type="button" value="Go to current year" onmouseup="fullYearCalendar2.goToYear(new Date().getFullYear());" />
+            <input type="button" id="btnGoToYear2" value="Go" />
+            <input type="button" id="btnGoToPreviousYear2" value="< Previous Year" />
+            <input type="button" id="btnGoToNextYear2" value="Next Year >" />
+            <input type="button" id="btnGoToCurrentYear2" value="Go to current year" />            
         </div>
         <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
     </div>

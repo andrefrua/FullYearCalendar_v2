@@ -15,7 +15,7 @@ export default class ViewModel {
     /**
      * Constructor description TODO
      * @param {Object} config {
-     *      @property {number}  dayWidth - Width in pixels that should be applied to each day cell
+     *      @property {number}  dayWidth - Width in pixels that will be applied to each day cell.
      *      @property {boolean} showWeekDaysNameEachMonth - Shows the Week days names on each month. If false only shows one row at the top with the days names.
      *      @property {Array}   monthNames - Array of string with the names to give to the Months (Ex: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']).
      *      @property {Array}   weekDayNames - Array of string with the names to give to the week days (Ex: ['S', 'M', 'T', 'W', 'T', 'F', 'S']). Must start with Sunday.
@@ -48,7 +48,7 @@ export default class ViewModel {
 
     //TODO: Add doc for each property
     /**
-     * Stores the witdh of the day in the calendar. The unit is pixels.
+     * Width in pixels that will be applied to each day cell.
      * 
      * @type {number}
      */
@@ -353,26 +353,49 @@ export default class ViewModel {
 
     // TODO doc
     _updateCustomDates(newCustomDates) {
-        let updated = false;
-        for (let property in newCustomDates) {
-            if (newCustomDates.hasOwnProperty(property) && this.customDates.hasOwnProperty(property) &&
-                newCustomDates[property] !== this.customDates[property]) {
+        newCustomDates = this._normalizeCustomDates(newCustomDates);
 
-                this.customDates[property] = newCustomDates[property];
-                updated = true;
+        for (let property in newCustomDates) {
+            if(this.customDates.hasOwnProperty(property)) {
+                // Let's update the values
+                newCustomDates[property].values.forEach(newValue => {
+                    let valueUpdated = false;
+                    this.customDates[property].values.forEach((value, index) => {
+                        // If the period is bigger than the original it gets replaced with the new one
+                        if(newValue.start < value.start && newValue.end > value.end ) {
+                            this.customDates[property].values[index] = newValue;
+                            valueUpdated = true;
+                        } else if (this._isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring)) {
+                            // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
+                            if(newValue.end > value.end) {
+                                value.end = newValue.end;
+                                valueUpdated = true;
+                            }
+                        } else if (this._isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring)) {
+                            if (newValue.start < value.start) {
+                                value.start = newValue.start;
+                                valueUpdated = true;
+                            }
+                        }
+                    });
+                    if(!valueUpdated) {
+                        this.customDates[property].values.push(newValue);
+                    }
+                });
+
             } else {
                 this.customDates[property] = newCustomDates[property];
             }
         }
 
 
-        let _this = this;
+        // let _this = this;
         //this.customDates = Object.assign(this.customDates, newCustomDates);
 
     }
     // TODO doc
     _replaceCustomDates(newCustomDates) {
-        this.customDates = newCustomDates;
+        this.customDates = this._normalizeCustomDates(newCustomDates);
     }
 
     /**
@@ -440,7 +463,7 @@ export default class ViewModel {
     }
 
 
-    //TESTING
+    //TODO ADd DOC, Normalizes the customDates object
     _normalizeCustomDates(customDates) {
         let normalizedCustomDates = {};
 

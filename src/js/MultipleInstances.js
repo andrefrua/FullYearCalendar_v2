@@ -9,6 +9,7 @@ const configObj1 = {
     monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     weekDayNames: ['Su', 'Mo', 'Th', 'We', 'Tu', 'Fr', 'Sa'],
     weekStartDay: 'Sun',
+    weekendDays: ["Sat", "Sun"],
     alignInContainer: 'center',
     showLegend: true,
     legendStyle: 'Inline',
@@ -82,44 +83,14 @@ const configObj2 = {
     selectedYear: 2019,
     cssClassSelectedDay: 'selectedDay2',
     showLegend: true,
+    weekendDays: ["Sat", "Sun"],
+    cssClassWeekendDay: "weekendDay",
     showNavigationToolBar: true,
     captionNavButtonPreviousYear: 'Previous',
     captionNavButtonNextYear: 'Next',
-    customDates: {
-        birthday: {
-            recurring: true,
-            caption: "Birthday",
-            cssClass: "birthday",
-            values: [
-                '2019-03-14'
-            ]
-        }
-    }
+    customDates: {}
 }
 const fullYearCalendar2 = new Calendar(divFullYearCalendar2, configObj2);
-
-btnUpdateSelectedDays1.onclick = function (e) {
-    const selectedDays1 = fullYearCalendar1.getSelectedDays();
-
-    const customDates = {
-        birthday: {
-            recurring: true,
-            caption: "Birthday",
-            cssClass: "birthday",
-            values: [
-                '2019-03-20'
-            ]
-        },
-        selectedDays: {
-            caption: "Selected days",
-            cssClass: "importedDay",
-            values: selectedDays1
-        },
-    }
-
-    fullYearCalendar2.refreshCustomDates(customDates);
-}
-
 
 /** Outside controls */
 btnGoToYear1.onclick = function (e) {
@@ -144,4 +115,50 @@ inputDayWidth1.onchange = function (e) {
 
 chkShowWeekDaysNameEachMonth1.onchange = function (e) {
     fullYearCalendar1.refresh({ showWeekDaysNameEachMonth: this.checked })
+}
+
+btnUpdateSelectedDays1.onclick = function (e) {
+    const selectedDays1 = fullYearCalendar1.getSelectedDays();
+
+    const customDates = {
+        selectedDays: {
+            caption: "Selected days",
+            cssClass: "importedDay",
+            values: selectedDays1
+        }
+    }
+
+    fullYearCalendar2.refreshCustomDates(customDates, true);
+}
+
+btnReplaceSelectedDays1.onclick = function (e) {
+    const selectedDays1 = fullYearCalendar1.getSelectedDays();
+
+    const customDates = {
+        selectedDays: {
+            caption: "Selected days",
+            cssClass: "importedDay",
+            values: selectedDays1
+        },
+    }
+
+    fullYearCalendar2.refreshCustomDates(customDates, false);
+}
+
+
+
+btnGoToYear2.onclick = function (e) {
+    fullYearCalendar2.goToYear(parseInt(document.getElementById('inputYearNumber2').value));
+}
+
+btnGoToPreviousYear2.onclick = function (e) {
+    fullYearCalendar2.goToPreviousYear();
+}
+
+btnGoToNextYear2.onclick = function (e) {
+    fullYearCalendar2.goToNextYear();
+}
+
+btnGoToCurrentYear2.onclick = function (e) {
+    fullYearCalendar2.goToYear(new Date().getFullYear());
 }
