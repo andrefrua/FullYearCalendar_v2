@@ -5,9 +5,11 @@
  * - Break classes into separate files (use imports and exports) - OK
  * - Normalize CustomDates object - OK
  * - Update attributes with correct name (property)  - OK
- * - Create the possibility to merge customdates series 
+ * - Create the possibility to merge customdates series - OK
  * - Create setters for the VM configuration object - OK
  *
+ * - Added drag selection - still buggy
+ * 
  * Naming convention
  * - Abrev. -
  * - DOM    - Dom 
@@ -260,12 +262,16 @@ export default class Calendar {
 
         const dayInfo = {
             dayDOMElement: dayElement,
+            monthIndex: currentMonth,
+            dayIndex: currentDay,
             value: null
         }
 
         // Add the events to be associated to each day.
-        this._addEventListerenToElement(dayElement, "click", "_dayClick", dayInfo);
-        this._addEventListerenToElement(dayElement, "mouseover", "_dayMouseOver", dayInfo);
+        this._addEventListenerToElement(dayElement, "click", "_dayClick", dayInfo);
+        this._addEventListenerToElement(dayElement, "mouseover", "_dayMouseOver", dayInfo);
+        this._addEventListenerToElement(dayElement, "mousedown", "_dayMouseDown", dayInfo);
+        this._addEventListenerToElement(dayElement, "mouseup", "_dayMouseUp", dayInfo);
 
         // Store each one of the days inside the calendarDOM object.
         if (typeof this._calendarDOM.daysInMonths[currentMonth] === "undefined") {
@@ -344,15 +350,15 @@ export default class Calendar {
      * @param {String} functionToCall - Name of the function that should be called when the event is fired.
      * @param {Object} params - Parameters that should be sent to the function.
      */
-    _addEventListerenToElement(sender, eventType, functionToCall, params) {
+    _addEventListenerToElement(sender, eventType, functionToCall, params) {
         var _this = this;
         // For newers browsers
         if (sender.addEventListener) {
-            sender.addEventListener(eventType, function () { return _this[functionToCall](params); }, false);
+            sender.addEventListener(eventType, function (event) { return _this[functionToCall](event, params); }, false);
         }
         // For older browsers
         else if (sender.attachEvent) {
-            sender.attachEvent("on" + eventType, function () { return _this[functionToCall](params); });
+            sender.attachEvent("on" + eventType, function (event) { return _this[functionToCall](event, params); });
         }
     }
 
@@ -362,7 +368,8 @@ export default class Calendar {
      * 
      * @param {Object} dayInfo - Object representing the day that was clicked.
      */
-    _dayClick(dayInfo) {
+    _dayClick(event, dayInfo) {
+        event.preventDefault();
         // Exits right away if it"s not a valid day.
         if (!dayInfo.value) return;
 
@@ -390,7 +397,8 @@ export default class Calendar {
      * 
      * @param {Object} dayInfo - Object representing the day that was clicked.
      */
-    _dayMouseOver(dayInfo) {
+    _dayMouseOver(event, dayInfo) {
+        event.preventDefault();
         // Exits right away if it's not a valid day or there is so function for the day MouseOver event.
         if (!dayInfo.value) return;
 
@@ -420,7 +428,172 @@ export default class Calendar {
                 this.onDayMouseOver(dayInfo.dayDOMElement, new Date(dayInfo.value));
             }
         }
+
+
+        // TODO: The logic for hovering should be added some where else
+        if (this.__mouseDownDayInfo) {
+            let daysToSelect = [];
+
+            const mouseDownDayInfo = this.__mouseDownDayInfo;
+
+            // Clears all the days
+            // for (let iMonth = 0; iMonth < 12; iMonth++) {
+            //     for (let iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
+            //         this._calendarVM.selectedDates.values = [];
+            //         //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "white";
+            //     }
+            // }
+
+            // Handles the hovering of the days when in the same month
+            if (mouseDownDayInfo.monthIndex === dayInfo.monthIndex) {
+
+                if (dayInfo.dayIndex >= mouseDownDayInfo.dayIndex) {
+                    for (let index = mouseDownDayInfo.dayIndex; index <= dayInfo.dayIndex; index++) {
+                        //this._selectHoveredDay(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                        daysToSelect.push(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                        //this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
+                    }
+
+                }
+                if (dayInfo.dayIndex <= mouseDownDayInfo.dayIndex) {
+                    for (let index = mouseDownDayInfo.dayIndex; index >= dayInfo.dayIndex; index--) {
+                        //this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
+                        //this._selectHoveredDay(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                        daysToSelect.push(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                    }
+
+                }
+            }
+
+            if (mouseDownDayInfo.monthIndex < dayInfo.monthIndex) {
+
+                for (let iMonth = mouseDownDayInfo.monthIndex; iMonth <= dayInfo.monthIndex; iMonth++) {
+                    // Fill all the days until the end of the month
+                    if (iMonth === mouseDownDayInfo.monthIndex) {
+                        for (let iDay = mouseDownDayInfo.dayIndex; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
+                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                            }
+                        }
+                    }
+                    // Fill the days from the start of the month up until the currently hovered day
+                    if (iMonth === dayInfo.monthIndex) {
+                        for (let iDay = 0; iDay <= dayInfo.dayIndex; iDay++) {
+                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                            }
+                        }
+                    }
+                    // Fills the days in between the starting month and the ending month
+                    if (iMonth > mouseDownDayInfo.monthIndex && iMonth < dayInfo.monthIndex) {
+                        for (let iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
+                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                            }
+                        }
+                    }
+
+                }
+
+            }
+            if (mouseDownDayInfo.monthIndex > dayInfo.monthIndex) {
+                for (let iMonth = mouseDownDayInfo.monthIndex; iMonth >= dayInfo.monthIndex; iMonth--) {
+                    // Fill all the days until the end of the month
+                    if (iMonth === mouseDownDayInfo.monthIndex) {
+                        for (let iDay = mouseDownDayInfo.dayIndex; iDay >= 0; iDay--) {
+                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                            }
+                        }
+                    }
+                    // Fill the days from the start of the month up until the currently hovered day
+                    if (iMonth === dayInfo.monthIndex) {
+
+                        for (let iDay = this._calendarVM.totalNumberOfDays; iDay >= dayInfo.dayIndex; iDay--) {
+                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                            }
+                        }
+                    }
+                    // Fills the days in between the starting month and the ending month
+                    if (iMonth < mouseDownDayInfo.monthIndex && iMonth > dayInfo.monthIndex) {
+                        for (let iDay = this._calendarVM.totalNumberOfDays; iDay >= 0; iDay--) {
+                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                            }
+                        }
+                    }
+
+                }
+
+            }
+            this._selectHoveredDays(daysToSelect);
+
+        }
     }
+
+    _selectHoveredDays(daysToSelect) {
+        this._calendarVM.selectedDates.values = [];
+
+        for (let iMonth = 0; iMonth < this._calendarDOM.daysInMonths.length; iMonth++) {
+            for (let iDay = 0; iDay < this._calendarVM.totalNumberOfDays; iDay++) {
+                this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.classList.remove(this._calendarVM.cssClassSelectedDay);
+            }
+        }
+
+        for (let index = 0; index < daysToSelect.length; index++) {
+
+            const selectedDayIndex = this._calendarVM.selectedDates.values.indexOf(daysToSelect[index].value);
+
+            // Selects the day if it wasn't already selected and unselects if it was selected
+            if (selectedDayIndex > -1) {
+                this._calendarVM.selectedDates.values.splice(selectedDayIndex, 1);
+                daysToSelect[index].dayDOMElement.className = daysToSelect[index].dayDOMElement.className.split(" " + this._calendarVM.cssClassSelectedDay).join("");
+            } else {
+                this._calendarVM.selectedDates.values.push(daysToSelect[index].value);
+                daysToSelect[index].dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
+            }
+        }
+
+
+    }
+
+
+
+
+    //TESTING
+    _dayMouseDown(event, dayInfo) {
+        event.preventDefault();
+        this.__mouseDownDayInfo = dayInfo;
+
+        console.log("DOWN");
+    }
+    _dayMouseUp(event, dayInfo) {
+        event.preventDefault();
+        this.__mouseDownDayInfo = null;
+        console.log("UP");
+    }
+    //END TESTING
+
+
+
+
+
+
+
+
 
     /**
      * Creates the Html elements for the navigation toolbar and adds them to the main container at the top
@@ -461,8 +634,8 @@ export default class Calendar {
         divBlockNavRightButton.appendChild(btnNextYear);
 
         // Adds the event listeners to the previous and next buttons.
-        this._addEventListerenToElement(btnPreviousYear, "click", "goToPreviousYear");
-        this._addEventListerenToElement(btnNextYear, "click", "goToNextYear");
+        this._addEventListenerToElement(btnPreviousYear, "click", "goToPreviousYear");
+        this._addEventListenerToElement(btnNextYear, "click", "goToNextYear");
 
         navToolbarWrapper.appendChild(divBlockNavLeftButton);
         navToolbarWrapper.appendChild(divBlockNavCurrentYear);
@@ -696,7 +869,7 @@ export default class Calendar {
      * Register the event handlers that are needed.
      */
     _registerEventHandlers() {
-        this._addEventListerenToElement(window, "resize", "_onResize", this);
+        this._addEventListenerToElement(window, "resize", "_onResize", this);
     }
 
     /**
