@@ -28,13 +28,36 @@ import Dom from "./Dom.js";
  */
 export default class Calendar {
     constructor(domElement, config = {}) {
-        this._calendarVM = new ViewModel(config);
-        this._calendarDOM = new Dom(domElement);
+        this.calendarVM = new ViewModel(config);
+        this.calendarDOM = new Dom(domElement);
 
         this._render();
     }
 
-    // PRIVATE FUNCTIONS    
+    /**
+     * Getters and setters
+     */
+
+    /**
+     * TODO: ADD DOC.
+     */
+    get calendarVM() {
+        return this._calendarVM;
+    }
+    set calendarVM(value) {
+        this._calendarVM = value;
+    }
+    /**
+     * TODO: ADD DOC.
+     */
+    get calendarDOM() {
+        return this._calendarDOM;
+    }
+    set calendarDOM(value) {
+        this._calendarDOM = value;
+    }
+    
+    // PRIVATE FUNCTIONS
 
     /**
      * Adds the DOM elements needed to to render the calendar
@@ -44,10 +67,10 @@ export default class Calendar {
 
         this._addDOMMonth();
 
-        if (this._calendarVM.showNavigationToolBar === true) this._addNavigationToolBar();
-        if (this._calendarVM.showLegend === true) this._addLegend();
+        if (this.calendarVM.showNavigationToolBar === true) this._addNavigationToolBar();
+        if (this.calendarVM.showLegend === true) this._addLegend();
 
-        this._setSelectedYear(this._calendarVM.selectedYear);
+        this._setSelectedYear(this.calendarVM.selectedYear);
         this._fitToContainer();
         this._registerEventHandlers();
     }
@@ -56,11 +79,11 @@ export default class Calendar {
      * Creates the main container for the calendar and adds it to the received DOM element object.
      */
     _createMainContainer() {
-        this._calendarDOM.mainContainer = document.createElement("div");
-        this._calendarDOM.mainContainer.style.display = "inline-block";
+        this.calendarDOM.mainContainer = document.createElement("div");
+        this.calendarDOM.mainContainer.style.display = "inline-block";
 
-        this._calendarDOM.domElement.appendChild(this._calendarDOM.mainContainer);
-        this._calendarDOM.domElement.style.textAlign = this._calendarVM.alignInContainer;
+        this.calendarDOM.domElement.appendChild(this.calendarDOM.mainContainer);
+        this.calendarDOM.domElement.style.textAlign = this.calendarVM.alignInContainer;
     }
 
     /**
@@ -84,12 +107,12 @@ export default class Calendar {
             this._addDOMDay(iMonth, monthContainer);
 
             this._addDOMElement(monthNameContainer, this._createDOMElementMonthName(iMonth));
-            this._addDOMElement(this._calendarDOM.mainContainer, monthNameContainer);
+            this._addDOMElement(this.calendarDOM.mainContainer, monthNameContainer);
 
-            this._addDOMElement(this._calendarDOM.mainContainer, monthContainer);
-            this._addDOMElement(this._calendarDOM.mainContainer, clearFixElement);
+            this._addDOMElement(this.calendarDOM.mainContainer, monthContainer);
+            this._addDOMElement(this.calendarDOM.mainContainer, clearFixElement);
         }
-        if (!this._calendarVM.showWeekDaysNameEachMonth) {
+        if (!this.calendarVM.showWeekDaysNameEachMonth) {
             this._addDOMWeekDayNameOnTop();
         }
     }
@@ -105,7 +128,7 @@ export default class Calendar {
         let weekElement = null;
 
         // Add an element for each day.
-        for (let iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
+        for (let iDay = 0; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
             // Creates a new container at the start of each week
             if (iDay % 7 === 0) {
                 weekElement = this._createDOMElementWeek();
@@ -127,7 +150,7 @@ export default class Calendar {
         let weekElement = null;
 
         // Add an element for each day.
-        for (var iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
+        for (var iDay = 0; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
             //Creates a new container at the start of each week
             if (iDay % 7 === 0) {
                 weekElement = this._createDOMElementWeek(true);
@@ -147,7 +170,7 @@ export default class Calendar {
         const weekDayNamesContainer = document.createElement("div");
         weekDayNamesContainer.className = isMonthly ? "divWeekDayNamesMonthly" : "divWeekDayNamesYearly";
         // Hides the container if we just want to have one container with the week names at the top.
-        if (!this._calendarVM.showWeekDaysNameEachMonth && !isMonthly) {
+        if (!this.calendarVM.showWeekDaysNameEachMonth && !isMonthly) {
             weekDayNamesContainer.style.display = "none";
         }
         return weekDayNamesContainer;
@@ -162,15 +185,15 @@ export default class Calendar {
 
         // Container that will be on top of the Months names
         const monthNameContainer = document.createElement("div");
-        monthNameContainer.className = this._calendarVM.cssClassMonthName;
+        monthNameContainer.className = this.calendarVM.cssClassMonthName;
         monthNameContainer.style.float = "left";
-        monthNameContainer.style.minWidth = this._calendarVM.monthNameWidth + "px";
+        monthNameContainer.style.minWidth = this.calendarVM.monthNameWidth + "px";
         // Needs an empty space so that the container actual grows.
         monthNameContainer.innerHTML = "&nbsp;";
 
         // Container that will actually have the Week days names
         const monthContainer = document.createElement("div");
-        monthContainer.className = this._calendarVM.cssClassMonthRow;
+        monthContainer.className = this.calendarVM.cssClassMonthRow;
         monthContainer.style.float = "left";
         // Adds the week days name container to the month container
         const weekDayNamesContainer = this._createDOMElementWeekDayNamesContainer(false);
@@ -183,7 +206,7 @@ export default class Calendar {
         this._addDOMElement(weekDayNamesOnTopContainer, this._createDOMClearFixElement());
 
         //Adds the names to the top of the main Calendar container
-        this._addDOMElementOnTop(this._calendarDOM.mainContainer, weekDayNamesOnTopContainer);
+        this._addDOMElementOnTop(this.calendarDOM.mainContainer, weekDayNamesOnTopContainer);
     }
 
     /**
@@ -194,14 +217,14 @@ export default class Calendar {
      */
     _createDOMElementMonthName(currentMonth) {
         const monthNameElement = document.createElement("div");
-        monthNameElement.className = this._calendarVM.cssClassMonthName;
+        monthNameElement.className = this.calendarVM.cssClassMonthName;
         monthNameElement.setAttribute("fyc_monthname", "true");
         monthNameElement.style.display = "table-cell";
         monthNameElement.style.verticalAlign = "middle";
-        monthNameElement.innerHTML = this._calendarVM.monthNames[currentMonth];
-        monthNameElement.style.fontSize = parseInt(this._calendarVM.dayWidth / 2) + "px";
-        monthNameElement.style.height = this._calendarVM.dayWidth + "px";
-        monthNameElement.style.minWidth = this._calendarVM.monthNameWidth + "px";
+        monthNameElement.innerHTML = this.calendarVM.monthNames[currentMonth];
+        monthNameElement.style.fontSize = parseInt(this.calendarVM.dayWidth / 2) + "px";
+        monthNameElement.style.height = this.calendarVM.dayWidth + "px";
+        monthNameElement.style.minWidth = this.calendarVM.monthNameWidth + "px";
 
         return monthNameElement;
     }
@@ -215,7 +238,7 @@ export default class Calendar {
     _createDOMElementMonthContainer() {
         const monthContainer = document.createElement("div");
         monthContainer.style.position = "relative";
-        monthContainer.className = this._calendarVM.cssClassMonthRow;
+        monthContainer.className = this.calendarVM.cssClassMonthRow;
         monthContainer.setAttribute("fyc_monthrow", "true");
         monthContainer.style.float = "left";
 
@@ -247,9 +270,9 @@ export default class Calendar {
         const dayElement = document.createElement("div");
 
         dayElement.setAttribute("fyc_defaultday", "true");
-        dayElement.style.height = this._calendarVM.dayWidth + "px";
-        dayElement.style.minWidth = this._calendarVM.dayWidth + "px";
-        dayElement.style.fontSize = parseInt(this._calendarVM.dayWidth / 2.1) + "px";
+        dayElement.style.height = this.calendarVM.dayWidth + "px";
+        dayElement.style.minWidth = this.calendarVM.dayWidth + "px";
+        dayElement.style.fontSize = parseInt(this.calendarVM.dayWidth / 2.1) + "px";
         dayElement.style.display = "table-cell";
         dayElement.style.textAlign = "center";
         dayElement.style.verticalAlign = "middle";
@@ -274,10 +297,10 @@ export default class Calendar {
         this._addEventListenerToElement(dayElement, "mouseup", "_dayMouseUp", dayInfo);
 
         // Store each one of the days inside the calendarDOM object.
-        if (typeof this._calendarDOM.daysInMonths[currentMonth] === "undefined") {
-            this._calendarDOM.daysInMonths[currentMonth] = [];
+        if (typeof this.calendarDOM.daysInMonths[currentMonth] === "undefined") {
+            this.calendarDOM.daysInMonths[currentMonth] = [];
         }
-        this._calendarDOM.daysInMonths[currentMonth].push(dayInfo);
+        this.calendarDOM.daysInMonths[currentMonth].push(dayInfo);
 
         return dayElement;
     }
@@ -292,12 +315,12 @@ export default class Calendar {
         const dayNameElement = document.createElement("div");
 
         // Current day + starting week day number - 1 (because of the zero index)
-        dayNameElement.innerHTML = this._calendarVM.weekDayNames[(currentDay + this._calendarVM.weekStartDayNumber) % 7];
-        dayNameElement.className = this._calendarVM.cssClassWeekDayName;
+        dayNameElement.innerHTML = this.calendarVM.weekDayNames[(currentDay + this.calendarVM.weekStartDayNumber) % 7];
+        dayNameElement.className = this.calendarVM.cssClassWeekDayName;
         dayNameElement.setAttribute("fyc_weekdayname", "true");
-        dayNameElement.style.height = this._calendarVM.dayWidth + "px";
-        dayNameElement.style.minWidth = this._calendarVM.dayWidth + "px";
-        dayNameElement.style.fontSize = parseInt(this._calendarVM.dayWidth / 2.1) + "px";
+        dayNameElement.style.height = this.calendarVM.dayWidth + "px";
+        dayNameElement.style.minWidth = this.calendarVM.dayWidth + "px";
+        dayNameElement.style.fontSize = parseInt(this.calendarVM.dayWidth / 2.1) + "px";
         dayNameElement.style.display = "table-cell";
         dayNameElement.style.textAlign = "center";
         dayNameElement.style.verticalAlign = "middle";
@@ -373,16 +396,16 @@ export default class Calendar {
         // Exits right away if it"s not a valid day.
         if (!dayInfo.value) return;
 
-        const dayValue = this._calendarVM._convertDateToISOWihoutTimezone(new Date(dayInfo.value));
-        const selectedDayIndex = this._calendarVM.selectedDates.values.indexOf(dayValue);
+        const dayValue = this.calendarVM._convertDateToISOWihoutTimezone(new Date(dayInfo.value));
+        const selectedDayIndex = this.calendarVM.selectedDates.values.indexOf(dayValue);
 
         // Selects the day if it wasn't already selected and unselects if it was selected
         if (selectedDayIndex > -1) {
-            this._calendarVM.selectedDates.values.splice(selectedDayIndex, 1);
-            dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className.split(" " + this._calendarVM.cssClassSelectedDay).join("");
+            this.calendarVM.selectedDates.values.splice(selectedDayIndex, 1);
+            dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className.split(" " + this.calendarVM.cssClassSelectedDay).join("");
         } else {
-            this._calendarVM.selectedDates.values.push(dayValue);
-            dayInfo.dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
+            this.calendarVM.selectedDates.values.push(dayValue);
+            dayInfo.dayDOMElement.className += " " + this.calendarVM.cssClassSelectedDay;
         }
 
         // If the onDayClick function is defined then trigger the call
@@ -408,7 +431,7 @@ export default class Calendar {
             let captionToAdd = "";
             const dayCssClasses = dayInfo.dayDOMElement.className.split(" ");
             dayCssClasses.forEach(function (cssClass) {
-                const customDates = _this._calendarVM.customDates;
+                const customDates = _this.calendarVM.customDates;
                 for (let property in customDates) {
                     // Just to confirm that the object actually has the property.
                     if (customDates.hasOwnProperty(property)) {
@@ -438,9 +461,9 @@ export default class Calendar {
 
             // Clears all the days
             // for (let iMonth = 0; iMonth < 12; iMonth++) {
-            //     for (let iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
-            //         this._calendarVM.selectedDates.values = [];
-            //         //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "white";
+            //     for (let iDay = 0; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
+            //         this.calendarVM.selectedDates.values = [];
+            //         //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "white";
             //     }
             // }
 
@@ -449,17 +472,17 @@ export default class Calendar {
 
                 if (dayInfo.dayIndex >= mouseDownDayInfo.dayIndex) {
                     for (let index = mouseDownDayInfo.dayIndex; index <= dayInfo.dayIndex; index++) {
-                        //this._selectHoveredDay(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
-                        daysToSelect.push(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
-                        //this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
+                        //this._selectHoveredDay(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                        daysToSelect.push(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                        //this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
                     }
 
                 }
                 if (dayInfo.dayIndex <= mouseDownDayInfo.dayIndex) {
                     for (let index = mouseDownDayInfo.dayIndex; index >= dayInfo.dayIndex; index--) {
-                        //this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
-                        //this._selectHoveredDay(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
-                        daysToSelect.push(this._calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                        //this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
+                        //this._selectHoveredDay(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
+                        daysToSelect.push(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
                     }
 
                 }
@@ -470,31 +493,31 @@ export default class Calendar {
                 for (let iMonth = mouseDownDayInfo.monthIndex; iMonth <= dayInfo.monthIndex; iMonth++) {
                     // Fill all the days until the end of the month
                     if (iMonth === mouseDownDayInfo.monthIndex) {
-                        for (let iDay = mouseDownDayInfo.dayIndex; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
-                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
-                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
+                        for (let iDay = mouseDownDayInfo.dayIndex; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
+                            if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                                daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
                             }
                         }
                     }
                     // Fill the days from the start of the month up until the currently hovered day
                     if (iMonth === dayInfo.monthIndex) {
                         for (let iDay = 0; iDay <= dayInfo.dayIndex; iDay++) {
-                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                            if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
                     // Fills the days in between the starting month and the ending month
                     if (iMonth > mouseDownDayInfo.monthIndex && iMonth < dayInfo.monthIndex) {
-                        for (let iDay = 0; iDay <= this._calendarVM.totalNumberOfDays; iDay++) {
-                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                        for (let iDay = 0; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
+                            if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
@@ -507,31 +530,31 @@ export default class Calendar {
                     // Fill all the days until the end of the month
                     if (iMonth === mouseDownDayInfo.monthIndex) {
                         for (let iDay = mouseDownDayInfo.dayIndex; iDay >= 0; iDay--) {
-                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                            if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
                     // Fill the days from the start of the month up until the currently hovered day
                     if (iMonth === dayInfo.monthIndex) {
 
-                        for (let iDay = this._calendarVM.totalNumberOfDays; iDay >= dayInfo.dayIndex; iDay--) {
-                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                        for (let iDay = this.calendarVM.totalNumberOfDays; iDay >= dayInfo.dayIndex; iDay--) {
+                            if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
                     // Fills the days in between the starting month and the ending month
                     if (iMonth < mouseDownDayInfo.monthIndex && iMonth > dayInfo.monthIndex) {
-                        for (let iDay = this._calendarVM.totalNumberOfDays; iDay >= 0; iDay--) {
-                            if (this._calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                daysToSelect.push(this._calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
+                        for (let iDay = this.calendarVM.totalNumberOfDays; iDay >= 0; iDay--) {
+                            if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
+                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
+                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
@@ -545,25 +568,25 @@ export default class Calendar {
     }
 
     _selectHoveredDays(daysToSelect) {
-        this._calendarVM.selectedDates.values = [];
+        this.calendarVM.selectedDates.values = [];
 
-        for (let iMonth = 0; iMonth < this._calendarDOM.daysInMonths.length; iMonth++) {
-            for (let iDay = 0; iDay < this._calendarVM.totalNumberOfDays; iDay++) {
-                this._calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.classList.remove(this._calendarVM.cssClassSelectedDay);
+        for (let iMonth = 0; iMonth < this.calendarDOM.daysInMonths.length; iMonth++) {
+            for (let iDay = 0; iDay < this.calendarVM.totalNumberOfDays; iDay++) {
+                this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.classList.remove(this.calendarVM.cssClassSelectedDay);
             }
         }
 
         for (let index = 0; index < daysToSelect.length; index++) {
 
-            const selectedDayIndex = this._calendarVM.selectedDates.values.indexOf(daysToSelect[index].value);
+            const selectedDayIndex = this.calendarVM.selectedDates.values.indexOf(daysToSelect[index].value);
 
             // Selects the day if it wasn't already selected and unselects if it was selected
             if (selectedDayIndex > -1) {
-                this._calendarVM.selectedDates.values.splice(selectedDayIndex, 1);
-                daysToSelect[index].dayDOMElement.className = daysToSelect[index].dayDOMElement.className.split(" " + this._calendarVM.cssClassSelectedDay).join("");
+                this.calendarVM.selectedDates.values.splice(selectedDayIndex, 1);
+                daysToSelect[index].dayDOMElement.className = daysToSelect[index].dayDOMElement.className.split(" " + this.calendarVM.cssClassSelectedDay).join("");
             } else {
-                this._calendarVM.selectedDates.values.push(daysToSelect[index].value);
-                daysToSelect[index].dayDOMElement.className += " " + this._calendarVM.cssClassSelectedDay;
+                this.calendarVM.selectedDates.values.push(daysToSelect[index].value);
+                daysToSelect[index].dayDOMElement.className += " " + this.calendarVM.cssClassSelectedDay;
             }
         }
 
@@ -607,10 +630,10 @@ export default class Calendar {
         const divBlockNavLeftButton = document.createElement("div");
         divBlockNavLeftButton.className = "fyc_NavToolbarContainer";
         const btnPreviousYear = document.createElement("button");
-        btnPreviousYear.className = this._calendarVM.cssClassNavButtonPreviousYear;
-        btnPreviousYear.innerText = this._calendarVM.captionNavButtonPreviousYear;
+        btnPreviousYear.className = this.calendarVM.cssClassNavButtonPreviousYear;
+        btnPreviousYear.innerText = this.calendarVM.captionNavButtonPreviousYear;
         const iconPreviousYear = document.createElement("i");
-        iconPreviousYear.className = this._calendarVM.cssClassNavIconPreviousYear;
+        iconPreviousYear.className = this.calendarVM.cssClassNavIconPreviousYear;
         btnPreviousYear.prepend(iconPreviousYear);
         divBlockNavLeftButton.appendChild(btnPreviousYear);
 
@@ -619,17 +642,17 @@ export default class Calendar {
         divBlockNavCurrentYear.className = "fyc_NavToolbarContainer";
         const spanSelectedYear = document.createElement("span");
         spanSelectedYear.className = "fyc_NavToolbarSelectedYear";
-        spanSelectedYear.innerText = this._calendarVM.selectedYear;
+        spanSelectedYear.innerText = this.calendarVM.selectedYear;
         divBlockNavCurrentYear.appendChild(spanSelectedYear);
 
         // Next year button navigation
         const divBlockNavRightButton = document.createElement("div");
         divBlockNavRightButton.className = "fyc_NavToolbarContainer";
         const btnNextYear = document.createElement("button");
-        btnNextYear.className = this._calendarVM.cssClassNavButtonNextYear;
-        btnNextYear.innerText = this._calendarVM.captionNavButtonNextYear;
+        btnNextYear.className = this.calendarVM.cssClassNavButtonNextYear;
+        btnNextYear.innerText = this.calendarVM.captionNavButtonNextYear;
         const iconNextYear = document.createElement("i");
-        iconNextYear.className = this._calendarVM.cssClassNavIconNextYear;
+        iconNextYear.className = this.calendarVM.cssClassNavIconNextYear;
         btnNextYear.appendChild(iconNextYear);
         divBlockNavRightButton.appendChild(btnNextYear);
 
@@ -641,24 +664,24 @@ export default class Calendar {
         navToolbarWrapper.appendChild(divBlockNavCurrentYear);
         navToolbarWrapper.appendChild(divBlockNavRightButton);
 
-        this._calendarDOM.mainContainer.insertBefore(navToolbarWrapper, this._calendarDOM.mainContainer.firstChild);
+        this.calendarDOM.mainContainer.insertBefore(navToolbarWrapper, this.calendarDOM.mainContainer.firstChild);
     }
 
     /**
      * Adds the legend to the FullYearCalendar according to each propoerty defined on the CustomDates object.    
      */
     _addLegend() {
-        if (this._calendarVM.showLegend !== true) return;
+        if (this.calendarVM.showLegend !== true) return;
 
         const legendContainer = document.createElement("div");
         legendContainer.className = "fyc_legendContainer";
 
-        for (let property in this._calendarVM.customDates) {
+        for (let property in this.calendarVM.customDates) {
             // DefaultDay container that will look similar to the Day cell on the calendar
             const divPropertyDefaultDay = document.createElement("div");
             divPropertyDefaultDay.className = property;
-            divPropertyDefaultDay.style.width = this._calendarVM.dayWidth + "px";
-            divPropertyDefaultDay.style.height = this._calendarVM.dayWidth + "px";
+            divPropertyDefaultDay.style.width = this.calendarVM.dayWidth + "px";
+            divPropertyDefaultDay.style.height = this.calendarVM.dayWidth + "px";
 
             // Default Day container
             const divPropertyDefaultDayContainer = document.createElement("div");
@@ -672,8 +695,8 @@ export default class Calendar {
             const divPropertyCaption = document.createElement("div");
             divPropertyCaption.className = "fyc_legendPropertyCaption";
 
-            if (this._calendarVM.customDates && this._calendarVM.customDates[property] && this._calendarVM.customDates[property].caption) {
-                divPropertyCaption.innerText = this._calendarVM.customDates[property].caption;
+            if (this.calendarVM.customDates && this.calendarVM.customDates[property] && this.calendarVM.customDates[property].caption) {
+                divPropertyCaption.innerText = this.calendarVM.customDates[property].caption;
             } else {
                 divPropertyCaption.innerText = property;
             }
@@ -683,14 +706,14 @@ export default class Calendar {
 
             legendContainer.appendChild(divPropertyCaption);
 
-            if (this._calendarVM.legendStyle === "Block") {
+            if (this.calendarVM.legendStyle === "Block") {
                 const divClearBoth = document.createElement("div");
                 divClearBoth.className = "fyc_legendVerticalClear";
                 divClearBoth.style.clear = "both";
                 legendContainer.appendChild(divClearBoth);
             }
         }
-        this._calendarDOM.mainContainer.appendChild(legendContainer);
+        this.calendarDOM.mainContainer.appendChild(legendContainer);
     }
 
     /**
@@ -699,19 +722,19 @@ export default class Calendar {
      * @param {Number} currentYear - Year to be rendered.
      */
     _setSelectedYear(newSelectedYear) {
-        this._calendarVM.selectedYear = newSelectedYear;
+        this.calendarVM.selectedYear = newSelectedYear;
 
         for (let iMonth = 0; iMonth < 12; iMonth++) {
             this._setMonth(iMonth);
         }
 
-        if (this._calendarVM.showNavigationToolBar === true) {
+        if (this.calendarVM.showNavigationToolBar === true) {
             // TODO: Add these controls to the DOM and update them directly.
-            this._calendarDOM.mainContainer.querySelector(".fyc_NavToolbarSelectedYear").innerText = this._calendarVM.selectedYear;
+            this.calendarDOM.mainContainer.querySelector(".fyc_NavToolbarSelectedYear").innerText = this.calendarVM.selectedYear;
         }
 
         if (typeof this.onYearChanged === "function") {
-            this.onYearChanged(this._calendarVM.selectedYear);
+            this.onYearChanged(this.calendarVM.selectedYear);
         }
     }
 
@@ -723,37 +746,37 @@ export default class Calendar {
      */
     _setMonth(currentMonth) {
         // Gets the first day of the month so we know in which cell the month should start
-        let firstDayOfMonth = new Date(this._calendarVM.selectedYear, currentMonth, 1).getDay() - this._calendarVM.weekStartDayNumber;
+        let firstDayOfMonth = new Date(this.calendarVM.selectedYear, currentMonth, 1).getDay() - this.calendarVM.weekStartDayNumber;
         firstDayOfMonth = firstDayOfMonth < 0 ? 7 + firstDayOfMonth : firstDayOfMonth;
 
         // Calculate the last day of the month
-        const lastDayOfMonth = new Date(this._calendarVM.selectedYear, currentMonth + 1, 1, -1).getDate();
+        const lastDayOfMonth = new Date(this.calendarVM.selectedYear, currentMonth + 1, 1, -1).getDate();
 
         // Loops through all the days cell created previously and changes it"s content accordingly
-        for (let iDayCell = 0; iDayCell < this._calendarDOM.daysInMonths[currentMonth].length; iDayCell++) {
+        for (let iDayCell = 0; iDayCell < this.calendarDOM.daysInMonths[currentMonth].length; iDayCell++) {
 
             // If it's an actual day for the current month then adds the correct day if not then adds an empty string
             const dayCellContent = iDayCell >= firstDayOfMonth && iDayCell < firstDayOfMonth + lastDayOfMonth ? iDayCell - firstDayOfMonth + 1 : "";
 
             // Stores the Year, Month and Day no the calendar object as [yyyy, month, day]
-            this._calendarDOM.daysInMonths[currentMonth][iDayCell].value = dayCellContent ? [this._calendarVM.selectedYear, currentMonth + 1, iDayCell - firstDayOfMonth + 1] : null;
+            this.calendarDOM.daysInMonths[currentMonth][iDayCell].value = dayCellContent ? [this.calendarVM.selectedYear, currentMonth + 1, iDayCell - firstDayOfMonth + 1] : null;
             // Adds the content to the actual Html cell
-            this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? "0" + dayCellContent : dayCellContent;
+            this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? "0" + dayCellContent : dayCellContent;
             // Reapply the default Css class for the day
-            this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className = this._calendarVM.cssClassDefaultDay;
+            this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className = this.calendarVM.cssClassDefaultDay;
 
             // Applies Customer dates style to the calendar
             if (dayCellContent !== "") {
-                const yearValue = this._calendarDOM.daysInMonths[currentMonth][iDayCell].value[0]; //Year index
-                const monthValue = this._calendarDOM.daysInMonths[currentMonth][iDayCell].value[1]; //Month index
-                const dayValue = this._calendarDOM.daysInMonths[currentMonth][iDayCell].value[2]; //Day index
+                const yearValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[0]; //Year index
+                const monthValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[1]; //Month index
+                const dayValue = this.calendarDOM.daysInMonths[currentMonth][iDayCell].value[2]; //Day index
 
                 const currentDate = new Date(yearValue, monthValue - 1, dayValue); //Uses the previously stored date information
-                this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += this._applyCustomDateStyle(this._calendarVM.customDates, currentDate);
+                this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += this._applyCustomDateStyle(this.calendarVM.customDates, currentDate);
             } else {
                 // Add the class hideInMobile to the DayCell above and equal to 35 because if that cell is empty then the entire row can be hidden
-                if (iDayCell >= 35 && this._calendarDOM.daysInMonths[currentMonth][35].dayDOMElement.innerText === "")
-                    this._calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += " hideInMobile"; //This class will be used to hide these cell when in Mobile mode                    
+                if (iDayCell >= 35 && this.calendarDOM.daysInMonths[currentMonth][35].dayDOMElement.innerText === "")
+                    this.calendarDOM.daysInMonths[currentMonth][iDayCell].dayDOMElement.className += " hideInMobile"; //This class will be used to hide these cell when in Mobile mode                    
             }
         }
     }
@@ -778,7 +801,7 @@ export default class Calendar {
                     let startDate = new Date(auxPeriod.start);
                     let endDate = new Date(auxPeriod.end);
 
-                    const isInPeriod = _this._calendarVM._isDateInPeriod(startDate, endDate, currentDate, auxPeriod.recurring);
+                    const isInPeriod = _this.calendarVM._isDateInPeriod(startDate, endDate, currentDate, auxPeriod.recurring);
                     if (isInPeriod) {
                         cssClassToApply += " " + customDates[property].cssClass;
                     }
@@ -787,21 +810,21 @@ export default class Calendar {
         }
 
         // Re-apply the selected days style in case the year is changed.
-        this._calendarVM.selectedDates.values.forEach(function (auxDate) {
+        this.calendarVM.selectedDates.values.forEach(function (auxDate) {
             auxDate = new Date(auxDate);
 
             // Validates if the value is an actual date
             if (!isNaN(auxDate.valueOf())) {
                 if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
-                    cssClassToApply += " " + _this._calendarVM.cssClassSelectedDay;
+                    cssClassToApply += " " + _this.calendarVM.cssClassSelectedDay;
                 }
             }
         });
 
         // Apply the style to the weekend days.
-        if (this._calendarVM.weekendDays && this._calendarVM.weekendDays.length > 0) {
+        if (this.calendarVM.weekendDays && this.calendarVM.weekendDays.length > 0) {
 
-            this._calendarVM.weekendDays.forEach(function (weekendDay) {
+            this.calendarVM.weekendDays.forEach(function (weekendDay) {
                 let dayNumber = -1;
                 switch (weekendDay) {
                     case "Sun":
@@ -828,7 +851,7 @@ export default class Calendar {
                 }
                 if (new Date(currentDate).getDay() === dayNumber) {
                     // Name of the property. A Css class with the same name should exist
-                    cssClassToApply += " " + _this._calendarVM.cssClassWeekendDay;
+                    cssClassToApply += " " + _this.calendarVM.cssClassWeekendDay;
                 }
             });
         }
@@ -842,7 +865,7 @@ export default class Calendar {
      */
     _fitToContainer() {
         // If the current width of the container is lower than the total width of the calendar we need to change to mobile view.
-        if (this._calendarDOM.mainContainer.offsetWidth < this._calendarVM.totalCalendarWidth) {
+        if (this.calendarDOM.mainContainer.offsetWidth < this.calendarVM.totalCalendarWidth) {
             this._changeToMobileView();
         }
         else {
@@ -885,14 +908,14 @@ export default class Calendar {
      * Changes the current selected year to the next one.
      */
     goToNextYear() {
-        this._setSelectedYear(this._calendarVM.selectedYear + 1);
+        this._setSelectedYear(this.calendarVM.selectedYear + 1);
     }
 
     /**
      * Changes the current selected year to the previous one.
      */
     goToPreviousYear() {
-        this._setSelectedYear(this._calendarVM.selectedYear - 1);
+        this._setSelectedYear(this.calendarVM.selectedYear - 1);
     }
 
     /**
@@ -911,95 +934,95 @@ export default class Calendar {
      * @returns {Array} Selected days
      */
     getSelectedDays() {
-        return this._calendarVM.selectedDates.values.slice();
+        return this.calendarVM.selectedDates.values.slice();
     }
 
     // TODO: Add doc
     _changeToNormalView() {
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
-            "width", this._calendarVM.dayWidth + "px");
+            this.calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
+            "width", this.calendarVM.dayWidth + "px");
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
-            "width", this._calendarVM.dayWidth + "px");
+            this.calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
+            "width", this.calendarVM.dayWidth + "px");
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
+            this.calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
             "display", "block");
 
         // Hides the dummy days because on big format they aren"t needed.
         // NOTE: The order between the hideInMobile and IsDummyDay can"t be changed or it won"t work
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".hideInMobile",
+            this.calendarDOM.mainContainer, ".hideInMobile",
             "display", "table-cell");
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
+            this.calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
             "display", "none");
 
         // WeekDays names handling
-        if (!this._calendarVM.showWeekDaysNameEachMonth) {
+        if (!this.calendarVM.showWeekDaysNameEachMonth) {
             this._updateElementsStylePropertyBySelector(
-                this._calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
+                this.calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
                 "display", "none");
         }
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".divWeekDayNamesYearly",
+            this.calendarDOM.mainContainer, ".divWeekDayNamesYearly",
             "display", "block");
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".monthName",
+            this.calendarDOM.mainContainer, ".monthName",
             "text-align", "right");
     }
 
     // TODO: Add doc
     _changeToMobileView() {
-        const currentContainerWidth = this._calendarDOM.mainContainer.offsetWidth;
+        const currentContainerWidth = this.calendarDOM.mainContainer.offsetWidth;
 
         // Total width divided by six because the month container can have up to 6 weeks
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
+            this.calendarDOM.mainContainer, "[fyc_defaultday], .has-fyc_defaultday",
             "width", currentContainerWidth / 6 + "px");
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
+            this.calendarDOM.mainContainer, "[fyc_weekdayname], .has-fyc_weekdayname",
             "width", currentContainerWidth / 6 + "px");
 
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
+            this.calendarDOM.mainContainer, ".weekContainer.weekDay:nth-child(n+2)",
             "display", "none");
 
         // Shows the dummy days because on small format they are needed - 
         // NOTE: The order between the hideInMobile and IsDummyDay can"t be changed or it won"t work
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
+            this.calendarDOM.mainContainer, "[isdummyday], .has-isdummyday",
             "display", "table-cell");
 
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".hideInMobile",
+            this.calendarDOM.mainContainer, ".hideInMobile",
             "display", "none");
 
         // WeekDays names handling
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
+            this.calendarDOM.mainContainer, ".divWeekDayNamesMonthly",
             "display", "block");
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".divWeekDayNamesYearly",
+            this.calendarDOM.mainContainer, ".divWeekDayNamesYearly",
             "display", "none");
         this._updateElementsStylePropertyBySelector(
-            this._calendarDOM.mainContainer, ".monthName",
+            this.calendarDOM.mainContainer, ".monthName",
             "text-align", "left");
     }
     // TODO: Add doc
     dispose() {
-        var container = this._calendarDOM.mainContainer;
+        var container = this.calendarDOM.mainContainer;
         while (container.firstChild) {
             container.removeChild(container.firstChild);
         }
-        delete this._calendarDOM;
-        delete this._calendarVM;
+        delete this.calendarDOM;
+        delete this.calendarVM;
     }
 
     // TODO: Add doc
     refresh(config) {
-        this._calendarVM._update(config);
-        this._calendarDOM.clear();
+        this.calendarVM._update(config);
+        this.calendarDOM.clear();
 
         this._render();
     }
@@ -1007,11 +1030,11 @@ export default class Calendar {
     //TODO add doc
     refreshCustomDates(customDates, keepPrevious = true) {
         if (keepPrevious) {
-            this._calendarVM._updateCustomDates(customDates);
+            this.calendarVM._updateCustomDates(customDates);
         } else {
-            this._calendarVM._replaceCustomDates(customDates);
+            this.calendarVM._replaceCustomDates(customDates);
         }
 
-        this._setSelectedYear(this._calendarVM.selectedYear);
+        this._setSelectedYear(this.calendarVM.selectedYear);
     }
 } 

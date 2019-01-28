@@ -7,6 +7,29 @@ export default class Dom {
         this.daysInMonths = [];
     }
 
+    /**
+     * Getters and setters
+     */
+
+    /**
+     * TODO: ADD DOC.
+     */
+    get domElement() {
+        return this._domElement;
+    }
+    set domElement(value) {
+        this._domElement = value;
+    }
+    /**
+     * TODO: ADD DOC.
+     */
+    get daysInMonths() {
+        return this._daysInMonths;
+    }
+    set daysInMonths(value) {
+        this._daysInMonths = value;
+    }
+
     //TODO doc
     clear() {
         var container = this.mainContainer;

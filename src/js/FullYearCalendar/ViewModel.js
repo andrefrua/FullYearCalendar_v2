@@ -3,42 +3,39 @@
 import { PROPERTY_NAMES } from "./Enums.js";
 
 /**
- * module description TODO
- * @module ViewModel
- */
-
-
-/**
  * @class ViewModel class for the FullYearCalendar.
  */
 export default class ViewModel {
     /**
-     * Constructor description TODO
+     * Constructor method for the `ViewModel` class. Receives a config object that will be used to define the options to run the calendar. The options
+     * that aren't provided will be set to their default values.
+     * 
      * @param {Object} config {
      *      @property {number}  dayWidth - Width in pixels that will be applied to each day cell.
-     *      @property {boolean} showWeekDaysNameEachMonth - Shows the Week days names on each month. If false only shows one row at the top with the days names.
-     *      @property {Array}   monthNames - Array of string with the names to give to the Months (Ex: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']).
-     *      @property {Array}   weekDayNames - Array of string with the names to give to the week days (Ex: ['S', 'M', 'T', 'W', 'T', 'F', 'S']). Must start with Sunday.
-     *      @property {string}  alignInContainer - Aligns the calendar in the container according to the attribute. ('left', 'center', 'right').
-     *      @property {string}  selectedYear - Year which the calendar will be started with.
-     *      @property {string}  weekStartDay - Name of the day to start the week with. Possibilities 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'. If not provided it will start on Sunday.
-     *      @property {Array}   weekendDays - Array with the names of the days that should be recognized as weekend. Ex: ["Sat", "Sun"].
-     *      @property {boolean} showLegend - Show a legend with all the attributes defined on the CustomDates object.
-     *      @property {string}  legendStyle - Changes the style of the legend between inline or listed ('Inline' / 'Block').
-     *      @property {boolean} showNavigationToolBar - Show the toolbar with built in navigation between year and currently selected year as well.
-     *      @property {string}  cssClassMonthRow - Name of the Css Class to be applied to the row of the month (With the days numbers).
-     *      @property {string}  cssClassMonthName - Name of the Css Class to be applied to the cell of the Month name.
-     *      @property {string}  cssClassWeekDayName - Name of the Css Class to be applied to the Week day name.
-     *      @property {string}  cssClassDefaultDay - Name of the Css Class to be applied to all the days as a default.
-     *      @property {string}  cssClassSelectedDay - Name of the Css Class to be applied to a selected day.
-     *      @property {string}  cssClassWeekendDay - Name of the Css Class to be applied to a weekend day.
-     *      @property {string}  cssClassNavButtonPreviousYear - Css class to be applied to the Previous year navigation button.
-     *      @property {string}  cssClassNavButtonNextYear - Css class to be applied to the next year navigation button.
-     *      @property {string}  cssClassNavIconPreviousYear - Css class to be applied to the previous icon navigation button.
-     *      @property {string}  cssClassNavIconNextYear - Css class to be applied to the next icon navigation button.
-     *      @property {string}  captionNavButtonPreviousYear - Text to be added to the previous year navigation button.
-     *      @property {string}  captionNavButtonNextYear - Text to be added to the next year navigation button.
-     *      @property {Array}   customDates - Array of Objects TODO: Add documentation for this property
+     *      @property {boolean} showWeekDaysNameEachMonth - When set to `true` the week day names container will be shown for each one of the months.
+     *      @property {Array}   monthNames - Array of strings with the caption for each one of the months. The array should have 12 position and the initial month must be January. Ex: `["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]`
+     *      @property {Array}   weekDayNames - Array of strings with the caption for each one of the days of the week. The array should have 7 positions starting with Sunday. Ex: `["S", "M", "T", "W", "T", "F", "S"]`.
+     *      @property {string}  alignInContainer - Sets the alignement of the calendar inside it's container. Possible values: `left`, `center` and `right`.
+     *      @property {string}  selectedYear - Sets the initial selected year.
+     *      @property {string}  weekStartDay - Sets the starting day of the week. Possible values: `Sun`, `Mon`, `Tue`, `Wed`, `Thu`, `Fri`, `Sat`.
+     *      @property {Array}   weekendDays - Array with the names of the days that should be recognized as weekend. Ex: `["Sat", "Sun"]`.
+     *      @property {boolean} showLegend - When set to `true` shows a legend with all the attributes defined on the CustomDates object.
+     *      @property {string}  legendStyle - Changes the style of the legend between inline or listed. Possible values: `Inline` and `Block`.
+     *      @property {boolean} showNavigationToolBar - When set to `true` shows a toolbar with the current selected year and buttons to navigate between years.
+     *      @property {string}  cssClassMonthRow - Css class name to be applied to the month container, where the actual numbers are located.
+     *      @property {string}  cssClassMonthName - Css class name to be applied to the month name element.
+     *      @property {string}  cssClassWeekDayName - Css class name to be applied to the Week day name element.
+     *      @property {string}  cssClassDefaultDay - Css class name to be applied to all the days element as a default.
+     *      @property {string}  cssClassSelectedDay - Css class name to be applied to a selected day element.
+     *      @property {string}  cssClassWeekendDay - Css class name to be applied to a weekend day element.
+     *      @property {string}  cssClassNavButtonPreviousYear - Css class name to be applied to the `Previous` button.
+     *      @property {string}  cssClassNavButtonNextYear - Css class name to be applied to the `Next` button.
+     *      @property {string}  cssClassNavIconPreviousYear - Css class name to be applied to the `Previous` button icon.
+     *      @property {string}  cssClassNavIconNextYear - Css class name to be applied to the `Next` button icon.
+     *      @property {string}  captionNavButtonPreviousYear - Text to be added to the `Previous` button.
+     *      @property {string}  captionNavButtonNextYear - Text to be added to the `Next` button.
+     *      @property {Array}   customDates - TODO: DOC MISSING.
+     *      @property {Array}   selectedDates - TODO: DOC MISSING.
      * }
      */
     constructor(config) {
@@ -46,7 +43,10 @@ export default class ViewModel {
         PROPERTY_NAMES.forEach(propName => this[propName] = config && config[propName]);
     }
 
-    //TODO: Add doc for each property
+    /**
+     * Getters and setters
+     */
+
     /**
      * Width in pixels that will be applied to each day cell.
      * 
@@ -59,7 +59,7 @@ export default class ViewModel {
         this._dayWidth = value || 25;
     }
     /**
-     * When set to `true` the week day names will show for each one of the months.
+     * When set to `true` the week day names container will be shown for each one of the months.
      * 
      * @type {boolean}
      */
@@ -71,7 +71,7 @@ export default class ViewModel {
     }
     /**
      * Array of strings with the caption for each one of the months. The array should have 12 position and the initial month must be January.
-     * 
+     * Ex: `["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]`
      * @type {Array}
      */
     get monthNames() {
@@ -82,6 +82,7 @@ export default class ViewModel {
     }
     /**
      * Array of strings with the caption for each one of the days of the week. The array should have 7 positions starting with Sunday.
+     * Ex: `["S", "M", "T", "W", "T", "F", "S"]`.
      * 
      * @type {Array}
      */
@@ -92,8 +93,8 @@ export default class ViewModel {
         this._weekDayNames = value || ["S", "M", "T", "W", "T", "F", "S"]
     }
     /**
-     * Sets the alignement of the calendar inside it's container..
-     * Possible value: `left`, `center` and `right`.
+     * Sets the alignement of the calendar inside it's container.
+     * Possible values: `left`, `center` and `right`.
      * 
      * @type {string}
      */
@@ -104,8 +105,9 @@ export default class ViewModel {
         this._alignInContainer = value || "center";
     }
     /**
+     * Sets the initial selected year.
      * 
-     * @type {}
+     * @type {number}
      */
     get selectedYear() {
         return this._selectedYear;
@@ -114,8 +116,10 @@ export default class ViewModel {
         this._selectedYear = value || new Date().getFullYear();
     }
     /**
+     * Sets the starting day of the week.
+     * Possible values: `Sun`, `Mon`, `Tue`, `Wed`, `Thu`, `Fri`, `Sat`.
      * 
-     * @type {}
+     * @type {string}
      */
     get weekStartDay() {
         return this._weekStartDay;
@@ -124,8 +128,10 @@ export default class ViewModel {
         this._weekStartDay = value || "Sun";
     }
     /**
+     * Array with the names of the days that should be recognized as weekend.
+     * Ex: `["Sat", "Sun"]`.
      * 
-     * @type {}
+     * @type {Array}
      */
     get weekendDays() {
         return this._weekendDays;
@@ -134,8 +140,9 @@ export default class ViewModel {
         this._weekendDays = value || [];
     }    
     /**
+     * When set to `true` shows a legend with all the attributes defined on the CustomDates object.
      * 
-     * @type {}
+     * @type {boolean}
      */
     get showLegend() {
         return this._showLegend;
@@ -144,8 +151,10 @@ export default class ViewModel {
         this._showLegend = value || false;
     }
     /**
+     * Changes the style of the legend between inline or listed.
+     * Possible values: `Inline` and `Block`.
      * 
-     * @type {}
+     * @type {string}
      */
     get legendStyle() {
         return this._legendStyle;
@@ -154,8 +163,9 @@ export default class ViewModel {
         this._legendStyle = value || "Inline"; //Inline | Block
     }
     /**
+     * When set to `true` shows a toolbar with the current selected year and buttons to navigate between years.
      * 
-     * @type {}
+     * @type {boolean}
      */
     get showNavigationToolBar() {
         return this._showNavigationToolBar;
@@ -163,11 +173,14 @@ export default class ViewModel {
     set showNavigationToolBar(value) {
         this._showNavigationToolBar = value || false;
     }
-
-    // Default class names if they are not supplied
     /**
+     * Css class names
+     */
+
+    /**
+     * Css class name to be applied to the month container, where the actual numbers are located.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassMonthRow() {
         return this._cssClassMonthRow;
@@ -176,8 +189,9 @@ export default class ViewModel {
         this._cssClassMonthRow = value || "fyc_MonthRow";
     }
     /**
+     * Css class name to be applied to the month name element.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassMonthName() {
         return this._cssClassMonthName;
@@ -186,8 +200,9 @@ export default class ViewModel {
         this._cssClassMonthName = value || "fyc_MonthName";
     }
     /**
+     * Css class name to be applied to the Week day name element.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassWeekDayName() {
         return this._cssClassWeekDayName;
@@ -196,8 +211,9 @@ export default class ViewModel {
         this._cssClassWeekDayName = value || "fyc_WeekDayName";
     }
     /**
+     * Css class name to be applied to all the days element as a default.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassDefaultDay() {
         return this._cssClassDefaultDay;
@@ -206,8 +222,9 @@ export default class ViewModel {
         this._cssClassDefaultDay = value || "fyc_DefaultDay";
     }
     /**
+     * Css class name to be applied to a selected day element.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassSelectedDay() {
         return this._cssClassSelectedDay;
@@ -216,8 +233,9 @@ export default class ViewModel {
         this._cssClassSelectedDay = value || "fyc_SelectedDay";
     }
     /**
+     * Css class name to be applied to a weekend day element.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassWeekendDay() {
         return this._cssClassWeekendDay;
@@ -226,10 +244,10 @@ export default class ViewModel {
         this._cssClassWeekendDay = value || "fyc_WeekendDay";
     }    
     /**
+     * Css class name to be applied to the `Previous` button.
      * 
-     * @type {}
+     * @type {string}
      */
-    // Navigation toolbar defaults
     get cssClassNavButtonPreviousYear() {
         return this._cssClassNavButtonPreviousYear;
     }
@@ -237,8 +255,9 @@ export default class ViewModel {
         this._cssClassNavButtonPreviousYear = value || "fyc_NavButtonPreviousYear";
     }
     /**
+     * Css class name to be applied to the `Next` button.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassNavButtonNextYear() {
         return this._cssClassNavButtonNextYear;
@@ -247,8 +266,9 @@ export default class ViewModel {
         this._cssClassNavButtonNextYear = value || "fyc_NavButtonNextYear";
     }
     /**
+     * Css class name to be applied to the `Previous` button icon.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassNavIconPreviousYear() {
         return this._cssClassNavIconPreviousYear;
@@ -257,8 +277,9 @@ export default class ViewModel {
         this._cssClassNavIconPreviousYear = value || "fyc_IconPreviousYear";
     }
     /**
+     * Css class name to be applied to the `Next` button icon.
      * 
-     * @type {}
+     * @type {string}
      */
     get cssClassNavIconNextYear() {
         return this._cssClassNavIconNextYear;
@@ -267,8 +288,9 @@ export default class ViewModel {
         this._cssClassNavIconNextYear = value || "fyc_IconNextYear";
     }
     /**
+     * Text to be added to the `Previous` button.
      * 
-     * @type {}
+     * @type {string}
      */
     get captionNavButtonPreviousYear() {
         return this._captionNavButtonPreviousYear;
@@ -277,8 +299,9 @@ export default class ViewModel {
         this._captionNavButtonPreviousYear = value || "";
     }
     /**
+     * Text to be added to the `Next` button.
      * 
-     * @type {}
+     * @type {string}
      */
     get captionNavButtonNextYear() {
         return this._captionNavButtonNextYear;
@@ -287,10 +310,10 @@ export default class ViewModel {
         this._captionNavButtonNextYear = value || "";
     }
 
-    // Custom dates
     /**
+     * TODO: DOC MISSING
      * 
-     * @type {}
+     * @type {Array}
      */
     get customDates() {
         return this._customDates;
@@ -299,8 +322,9 @@ export default class ViewModel {
         this._customDates = this._normalizeCustomDates(value) || {};
     }
     /**
+     * TODO: DOC MISSING
      * 
-     * @type {}
+     * @type {Array}
      */
     get selectedDates() {
         return this._selectedDates;

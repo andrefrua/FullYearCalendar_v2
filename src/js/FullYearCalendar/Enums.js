@@ -13,7 +13,7 @@ export const PROPERTY_NAMES = [
     "alignInContainer",
     "selectedYear",
     "weekStartDay",
-    "weekendDays",    
+    "weekendDays",
     "showLegend",
     "legendStyle",
     "showNavigationToolBar",
