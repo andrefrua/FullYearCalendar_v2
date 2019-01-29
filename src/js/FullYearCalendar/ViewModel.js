@@ -1,6 +1,7 @@
 "use strict";
 
 import { PROPERTY_NAMES } from "./Enums.js";
+import Utils from "./Utils.js";
 
 /**
  * @class ViewModel class for the FullYearCalendar.
@@ -43,10 +44,7 @@ export default class ViewModel {
         PROPERTY_NAMES.forEach(propName => this[propName] = config && config[propName]);
     }
 
-    /**
-     * Getters and setters
-     */
-
+    // #region Getters and Setters
     /**
      * Width in pixels that will be applied to each day cell.
      * 
@@ -138,7 +136,7 @@ export default class ViewModel {
     }
     set weekendDays(value) {
         this._weekendDays = value || [];
-    }    
+    }
     /**
      * When set to `true` shows a legend with all the attributes defined on the CustomDates object.
      * 
@@ -242,7 +240,7 @@ export default class ViewModel {
     }
     set cssClassWeekendDay(value) {
         this._cssClassWeekendDay = value || "fyc_WeekendDay";
-    }    
+    }
     /**
      * Css class name to be applied to the `Previous` button.
      * 
@@ -309,7 +307,6 @@ export default class ViewModel {
     set captionNavButtonNextYear(value) {
         this._captionNavButtonNextYear = value || "";
     }
-
     /**
      * TODO: DOC MISSING
      * 
@@ -345,7 +342,7 @@ export default class ViewModel {
      * @readonly
      */
     get weekStartDayNumber() {
-        return this._getWeekDayNumberFromName(this.weekStartDay);
+        return Utils.getWeekDayNumberFromName(this.weekStartDay);
     }
     /**
      * @readonly
@@ -359,135 +356,78 @@ export default class ViewModel {
     get totalCalendarWidth() {
         return this.monthNameWidth + (this.dayWidth * 38); //Total ammount of days drawn     
     }
+    // #endregion  Getters and Setters
 
-    /** Methods */
-
+    // #region Public methods
     /**
      * Updates the properties of the calendar with the new ones received as a parameter.
      * 
      * @param {Object} config Object with the properties that should be updated on the calendar.
      */
-    _update(config) {
+    update(config) {
         for (let property in config) {
             if (config.hasOwnProperty(property) && this[property] !== undefined && config[property] !== this[property]) {
                 this[property] = config[property];
             }
         }
     }
-
-    // TODO doc
-    _updateCustomDates(newCustomDates) {
+    /**
+     * Updates the customDates property with the new values.
+     * 
+     * @param {Object} newCustomDates - New customDates object. 
+     */
+    updateCustomDates(newCustomDates) {
         newCustomDates = this._normalizeCustomDates(newCustomDates);
 
         for (let property in newCustomDates) {
-            if(this.customDates.hasOwnProperty(property)) {
+            if (this.customDates.hasOwnProperty(property)) {
                 // Let's update the values
                 newCustomDates[property].values.forEach(newValue => {
                     let valueUpdated = false;
                     this.customDates[property].values.forEach((value, index) => {
                         // If the period is bigger than the original it gets replaced with the new one
-                        if(newValue.start < value.start && newValue.end > value.end ) {
+                        if (newValue.start < value.start && newValue.end > value.end) {
                             this.customDates[property].values[index] = newValue;
                             valueUpdated = true;
-                        } else if (this._isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring)) {
+                        } else if (Utils.isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring)) {
                             // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
-                            if(newValue.end > value.end) {
+                            if (newValue.end > value.end) {
                                 value.end = newValue.end;
                                 valueUpdated = true;
                             }
-                        } else if (this._isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring)) {
+                        } else if (Utils.isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring)) {
                             if (newValue.start < value.start) {
                                 value.start = newValue.start;
                                 valueUpdated = true;
                             }
                         }
                     });
-                    if(!valueUpdated) {
+                    if (!valueUpdated) {
                         this.customDates[property].values.push(newValue);
                     }
                 });
-
             } else {
                 this.customDates[property] = newCustomDates[property];
             }
         }
-
-
-        // let _this = this;
-        //this.customDates = Object.assign(this.customDates, newCustomDates);
-
     }
-    // TODO doc
-    _replaceCustomDates(newCustomDates) {
+    /**
+     * Replaces the existing customDates object with the new one.
+     * 
+     * @param {Object} newCustomDates - The customDate objects.
+     */
+    replaceCustomDates(newCustomDates) {
         this.customDates = this._normalizeCustomDates(newCustomDates);
     }
+    // #endregion Public methods
 
+    // #region Private methods
     /**
-     * UTILS
-     */
-
-    /**
-     * Gets the week day number from the received name
-     * @param {String} weekDayName - Name of the day of the week. The name must be the first 3 letters of the name in English. Ex: ("Sun","Mon","Tue","Wed","Thu","Fri","Sat").
-     * @return {Number} Number representing the Week day
-     */
-    _getWeekDayNumberFromName(weekDayName) {
-        switch (weekDayName) {
-            case "Sun":
-                return 0;
-            case "Mon":
-                return 1;
-            case "Tue":
-                return 2;
-            case "Wed":
-                return 3;
-            case "Thu":
-                return 4;
-            case "Fri":
-                return 5;
-            case "Sat":
-                return 6;
-            default:
-                return 0;
-        }
-    }
-
-    /**
-     * Change the year of the received date to the specified year.
-     * @param {Date} date - Date to be changed.
-     * @param {Number} year - Year to be used as the new year.
-     */
-    _changeYearOnDate(date, year) {
-        return new Date(date.setFullYear(year));
-    }
-
-    /**
+     * Normalizes the customDate object.
      * 
-     * @param {Date} startDate 
-     * @param {Date} endDate 
-     * @param {Date} dateToCheck 
-     * @param {boolean} isRecurring 
+     * @param {Object} customDates - customDates object to be normalized.
+     * @return {Object} - Normalized customDates object.
      */
-    _isDateInPeriod(startDate, endDate, dateToCheck, isRecurring) {
-        if (isRecurring) {
-            startDate = this._changeYearOnDate(startDate, this.selectedYear);
-            endDate = this._changeYearOnDate(endDate, this.selectedYear);
-        }
-        if (startDate instanceof Date && !isNaN(startDate.valueOf()) && endDate instanceof Date && !isNaN(endDate.valueOf())) {
-            if (dateToCheck >= startDate.setHours(0, 0, 0, 0) && dateToCheck <= endDate.setHours(0, 0, 0, 0)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //TODO DOC
-    _convertDateToISOWihoutTimezone(dateToConvert) {
-        return new Date(dateToConvert.getTime() - (dateToConvert.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
-    }
-
-
-    //TODO ADd DOC, Normalizes the customDates object
     _normalizeCustomDates(customDates) {
         let normalizedCustomDates = {};
 
@@ -555,5 +495,5 @@ export default class ViewModel {
 
         return normalizedCustomDates;
     }
-
+    // #endregion Private methods
 }

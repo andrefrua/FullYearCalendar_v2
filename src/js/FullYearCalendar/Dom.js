@@ -7,12 +7,11 @@ export default class Dom {
         this.daysInMonths = [];
     }
 
+    // #region Getters and Setters
     /**
-     * Getters and setters
-     */
-
-    /**
-     * TODO: ADD DOC.
+     * Dom element where the calendar will be appended to.
+     * 
+     * @type {HtmlElement}
      */
     get domElement() {
         return this._domElement;
@@ -21,7 +20,9 @@ export default class Dom {
         this._domElement = value;
     }
     /**
-     * TODO: ADD DOC.
+     * Array with the all the dom elements representing the days in the calendar.
+     * 
+     * @type {Array}
      */
     get daysInMonths() {
         return this._daysInMonths;
@@ -29,21 +30,25 @@ export default class Dom {
     set daysInMonths(value) {
         this._daysInMonths = value;
     }
+    // #endregion Getters and Setters
 
-    //TODO doc
-    clear() {
-        var container = this.mainContainer;
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-        this.daysInMonths = [];
-    }
-    //TODO doc
+    // #region Public methods    
+    /**
+     * Destroys all the objects in the current instance of the Dom class.
+     */
     dispose() {
+        // Removes all the dom elements from the main container
         var container = this.mainContainer;
         while (container.firstChild) {
             container.removeChild(container.firstChild);
         }
-        delete this;
+        // Deletes all the properties from the instance.
+        for (const property in this) {
+            if (this.hasOwnProperty(property)) {
+                delete this[property];
+
+            }
+        }
     }
+    // #endregion Public methods
 }

@@ -8,7 +8,18 @@
  * - Create the possibility to merge customdates series - OK
  * - Create setters for the VM configuration object - OK
  *
+ *
  * - Added drag selection - still buggy
+ * 
+ * Questions: 
+ * - How should readonly props be handled? Check ViewModel?
+ * - Should I create a new class for the customDate object?
+ * - Some help with the dispose methods, check the one on the Dom.js file.
+ * - Move the DOM manupulation methods into the DOM class:
+ *      - Should I send the ViewModel into it, making it dependent on another file, or should I send only the needed props?
+ *      - What about the event handlers, should they be all defined inside the DOM class? If yes how can I trigger the events on the Calendar class?
+ * 
+ * 
  * 
  * Naming convention
  * - Abrev. -
@@ -21,6 +32,7 @@
 "use strict";
 
 import ViewModel from "./ViewModel.js";
+import Utils from "./Utils.js";
 import Dom from "./Dom.js";
 /**
  * FullYearCalendar
@@ -56,7 +68,7 @@ export default class Calendar {
     set calendarDOM(value) {
         this._calendarDOM = value;
     }
-    
+
     // PRIVATE FUNCTIONS
 
     /**
@@ -396,7 +408,7 @@ export default class Calendar {
         // Exits right away if it"s not a valid day.
         if (!dayInfo.value) return;
 
-        const dayValue = this.calendarVM._convertDateToISOWihoutTimezone(new Date(dayInfo.value));
+        const dayValue = Utils.convertDateToISOWihoutTimezone(new Date(dayInfo.value));
         const selectedDayIndex = this.calendarVM.selectedDates.values.indexOf(dayValue);
 
         // Selects the day if it wasn't already selected and unselects if it was selected
@@ -458,7 +470,7 @@ export default class Calendar {
             let daysToSelect = [];
 
             const mouseDownDayInfo = this.__mouseDownDayInfo;
-           
+
             // Handles the hovering of the days when in the same month
             if (mouseDownDayInfo.monthIndex === dayInfo.monthIndex) {
 
@@ -773,7 +785,7 @@ export default class Calendar {
                     let startDate = new Date(auxPeriod.start);
                     let endDate = new Date(auxPeriod.end);
 
-                    const isInPeriod = _this.calendarVM._isDateInPeriod(startDate, endDate, currentDate, auxPeriod.recurring);
+                    const isInPeriod = Utils.isDateInPeriod(startDate, endDate, currentDate, auxPeriod.recurring);
                     if (isInPeriod) {
                         cssClassToApply += " " + customDates[property].cssClass;
                     }
@@ -880,11 +892,19 @@ export default class Calendar {
      */
     _onMouseUp(event) {
         event.preventDefault();
-        this.__mouseDownDayInfo = null;
-        this.calendarVM.selectedDates.values = [];
+        if (this.__mouseDownDayInfo !== null) {
+            this.__mouseDownDayInfo = null;
+            this.calendarVM.selectedDates.values = [];
+
+            for (let iMonth = 0; iMonth < this.calendarDOM.daysInMonths.length; iMonth++) {
+                for (let iDay = 0; iDay < this.calendarVM.totalNumberOfDays; iDay++) {
+                    this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.classList.remove(this.calendarVM.cssClassSelectedDay);
+                }
+            }
+        }
         console.log("UP");
 
-        
+
     }
 
     // PUBLIC FUNCTIONS
@@ -996,17 +1016,14 @@ export default class Calendar {
     }
     // TODO: Add doc
     dispose() {
-        var container = this.calendarDOM.mainContainer;
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
+        this.calendarDOM.dispose();        
         delete this.calendarDOM;
         delete this.calendarVM;
     }
 
     // TODO: Add doc
     refresh(config) {
-        this.calendarVM._update(config);
+        this.calendarVM.update(config);
         this.calendarDOM.clear();
 
         this._render();
@@ -1015,9 +1032,9 @@ export default class Calendar {
     //TODO add doc
     refreshCustomDates(customDates, keepPrevious = true) {
         if (keepPrevious) {
-            this.calendarVM._updateCustomDates(customDates);
+            this.calendarVM.updateCustomDates(customDates);
         } else {
-            this.calendarVM._replaceCustomDates(customDates);
+            this.calendarVM.replaceCustomDates(customDates);
         }
 
         this._setSelectedYear(this.calendarVM.selectedYear);

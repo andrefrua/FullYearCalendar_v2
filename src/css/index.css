@@ -67,11 +67,11 @@
  }
 
  .weekendDay {
-    font-weight: bold;
-    background-color: #555;
-    border: 1px solid #555;
-    color: white;
-}
+     font-weight: bold;
+     background-color: #555;
+     border: 1px solid #555;
+     color: white;
+ }
 
  .selectedDay2 {
      background-color: rgb(201, 236, 73);
@@ -116,4 +116,14 @@
 
  label {
      font-weight: 100;
+ }
+
+ #btnDestroyCalendar1 {
+     border: 1px solid rgb(133, 1, 1);
+     background-color: rgba(255, 0, 0, 0.651);
+     color: white;
+ }
+
+ #btnDestroyCalendar1:hover {
+     background-color: rgb(133, 1, 1);
  }

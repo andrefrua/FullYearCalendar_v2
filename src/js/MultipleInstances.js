@@ -144,6 +144,11 @@ btnReplaceSelectedDays1.onclick = function (e) {
 
     fullYearCalendar2.refreshCustomDates(customDates, false);
 }
+btnDestroyCalendar1.onclick = function (e) {
+    if (confirm("Are you sure you want to destroy the first calendar?")) {
+        fullYearCalendar1.dispose();
+    }
+}
 
 
 
