@@ -29,6 +29,7 @@ export default class ViewModel {
      *      @property {string}  cssClassDefaultDay - Css class name to be applied to all the days element as a default.
      *      @property {string}  cssClassSelectedDay - Css class name to be applied to a selected day element.
      *      @property {string}  cssClassWeekendDay - Css class name to be applied to a weekend day element.
+     *      @property {string}  cssClassMultiSelection - Css class name to be applied when selecting mulitple days.
      *      @property {string}  cssClassNavButtonPreviousYear - Css class name to be applied to the `Previous` button.
      *      @property {string}  cssClassNavButtonNextYear - Css class name to be applied to the `Next` button.
      *      @property {string}  cssClassNavIconPreviousYear - Css class name to be applied to the `Previous` button icon.
@@ -242,6 +243,17 @@ export default class ViewModel {
         this._cssClassWeekendDay = value || "fyc_WeekendDay";
     }
     /**
+     * Css class name to be applied when selecting mulitple days.
+     * 
+     * @type {string}
+     */
+    get cssClassMultiSelection() {
+        return this._cssClassMultiSelection;
+    }
+    set cssClassMultiSelection(value) {
+        this._cssClassMultiSelection = value || "fyc_MultiSelection";
+    }    
+    /**
      * Css class name to be applied to the `Previous` button.
      * 
      * @type {string}
@@ -382,45 +394,13 @@ export default class ViewModel {
         for (let property in newCustomDates) {
             if (newCustomDates.hasOwnProperty(property)) {
                 if (this.customDates.hasOwnProperty(property)) {
-                    updateCustomDate(this.customDates[property], newCustomDates[property]);
+                    this._mergeCustomDateValues(this.customDates[property].values, newCustomDates[property].values);
                 } else {
                     this.customDates[property] = newCustomDates[property];
                 }
             }
         }
     }
-
-    updateCustomDate(targetCustomDate, sourceCustomDate) {
-        // Let's update the values
-        sourceCustomDate.values.forEach(newValue => {
-            
-            let wasValueMerged = false;
-
-            targetCustomDate.values.forEach((value, index) => {
-                // If the period is bigger than the original it gets replaced with the new one
-                if (newValue.start < value.start && newValue.end > value.end) {
-                    targetCustomDate.values[index] = newValue;
-                    wasValueMerged = true;
-                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring)) {
-                    // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
-                    if (newValue.end > value.end) {
-                        value.end = newValue.end;
-                        wasValueMerged = true;
-                    }
-                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring)) {
-                    if (newValue.start < value.start) {
-                        value.start = newValue.start;
-                        wasValueMerged = true;
-                    }
-                }
-            });
-
-            if (!wasValueMerged) {
-                targetCustomDate.values.push(newValue);
-            }
-        });
-    }
-
     /**
      * Replaces the existing customDates object with the new one.
      * 
@@ -504,6 +484,37 @@ export default class ViewModel {
         }
 
         return normalizedCustomDates;
+    }
+    // TODO: This needs to be reviewed. What should happen if there is a period with recurring overlapping another without...
+    _mergeCustomDateValues(targetValues, sourceValues) {
+        // Let's update the values
+        sourceValues.forEach(newValue => {
+
+            let wasValueMerged = false;
+
+            targetValues.forEach((value, index) => {
+                // If the period is bigger than the original it gets replaced with the new one
+                if (newValue.start < value.start && newValue.end > value.end) {
+                    targetValues[index] = newValue;
+                    wasValueMerged = true;
+                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring, this.selectedYear)) {
+                    // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
+                    if (newValue.end > value.end) {
+                        value.end = newValue.end;
+                        wasValueMerged = true;
+                    }
+                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring, this.selectedYear)) {
+                    if (newValue.start < value.start) {
+                        value.start = newValue.start;
+                        wasValueMerged = true;
+                    }
+                }
+            });
+
+            if (!wasValueMerged) {
+                targetValues.push(newValue);
+            }
+        });
     }
     // #endregion Private methods
 }

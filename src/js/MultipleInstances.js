@@ -19,6 +19,7 @@ const configObj1 = {
     cssClassWeekDayName: 'weekDayName',
     cssClassDefaultDay: 'defaultDay',
     cssClassSelectedDay: 'selectedDay',
+    cssClassMultiSelection: "multiSelect",
     cssClassNavButtonPreviousYear: 'btn btn-default btn-sm',
     cssClassNavButtonNextYear: 'btn btn-default btn-sm',
     cssClassNavIconPreviousYear: 'fa fa-chevron-left',
@@ -85,6 +86,7 @@ const configObj2 = {
     showLegend: true,
     weekendDays: ["Sat", "Sun"],
     cssClassWeekendDay: "weekendDay",
+    showWeekDaysNameEachMonth: true,
     showNavigationToolBar: true,
     captionNavButtonPreviousYear: 'Previous',
     captionNavButtonNextYear: 'Next',
@@ -107,6 +109,10 @@ btnGoToNextYear1.onclick = function (e) {
 
 btnGoToCurrentYear1.onclick = function (e) {
     fullYearCalendar1.goToYear(new Date().getFullYear());
+}
+
+btnGetSelectedDays1.onclick = function (e) {
+    divListSelectedDays1.innerText = JSON.stringify(fullYearCalendar1.getSelectedDays());
 }
 
 inputDayWidth1.onchange = function (e) {

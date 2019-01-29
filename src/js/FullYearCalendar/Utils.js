@@ -40,12 +40,13 @@ export default {
      * @param {Date} startDate - Start date of the period to be checked.
      * @param {Date} endDate - End date of the period to be checked.
      * @param {Date} dateToCheck - Date to be checked.
-     * @param {boolean} isRecurring - Checks recursiveness if set to `true`.
+     * @param {boolean} isRecurring - Checks recurring if set to `true`.
+     * @param {number} selectedYear - If reccuring is set to `true` we also need the year.
      */
-    isDateInPeriod(startDate, endDate, dateToCheck, isRecurring) {
+    isDateInPeriod(startDate, endDate, dateToCheck, isRecurring, selectedYear) {
         if (isRecurring) {
-            startDate = this.changeYearOnDate(startDate, this.selectedYear);
-            endDate = this.changeYearOnDate(endDate, this.selectedYear);
+            startDate = this.changeYearOnDate(startDate, selectedYear);
+            endDate = this.changeYearOnDate(endDate, selectedYear);
         }
         if (startDate instanceof Date && !isNaN(startDate.valueOf()) && endDate instanceof Date && !isNaN(endDate.valueOf())) {
             if (dateToCheck >= startDate.setHours(0, 0, 0, 0) && dateToCheck <= endDate.setHours(0, 0, 0, 0)) {

@@ -24,6 +24,7 @@ export const PROPERTY_NAMES = [
     "cssClassDefaultDay",
     "cssClassSelectedDay",
     "cssClassWeekendDay",
+    "cssClassMultiSelection",
     // Navigation toolbar defaults
     "cssClassNavButtonPreviousYear",
     "cssClassNavButtonNextYear",

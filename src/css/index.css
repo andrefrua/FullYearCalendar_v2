@@ -72,6 +72,10 @@
      border: 1px solid #555;
      color: white;
  }
+ .multiSelect {
+    background-color: lightsalmon;
+    border: 1px solid lightsalmon;
+ }
 
  .selectedDay2 {
      background-color: rgb(201, 236, 73);

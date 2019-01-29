@@ -20,6 +20,7 @@ const configObj = {
     cssClassDefaultDay: 'defaultDay',
     cssClassSelectedDay: 'selectedDay',
     cssClassWeekendDay: "weekendDay",
+    cssClassMultiSelection: "multiSelect",
     cssClassNavButtonPreviousYear: 'btn btn-default btn-sm',
     cssClassNavButtonNextYear: 'btn btn-default btn-sm',
     cssClassNavIconPreviousYear: 'fa fa-chevron-left',
