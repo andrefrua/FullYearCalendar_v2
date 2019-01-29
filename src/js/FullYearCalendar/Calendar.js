@@ -7,9 +7,15 @@
  * - Update attributes with correct name (property)  - OK
  * - Create the possibility to merge customdates series - OK
  * - Create setters for the VM configuration object - OK
- *
- *
+ * - Remove _this and use bind in the function, check the seconds argument on the forEach
+ * - Review the customDates merge values
+ * - Create a singe event handler for the click on the days element
+ * 
  * - Added drag selection - still buggy
+ * 
+ * [element, eventName, handler]
+ * new Dom(calendar)
+ * addCallbacks(calendar)
  * 
  * Questions: 
  * - How should readonly props be handled? Check ViewModel?

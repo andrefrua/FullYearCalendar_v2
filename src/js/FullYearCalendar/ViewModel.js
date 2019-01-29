@@ -380,37 +380,47 @@ export default class ViewModel {
         newCustomDates = this._normalizeCustomDates(newCustomDates);
 
         for (let property in newCustomDates) {
-            if (this.customDates.hasOwnProperty(property)) {
-                // Let's update the values
-                newCustomDates[property].values.forEach(newValue => {
-                    let valueUpdated = false;
-                    this.customDates[property].values.forEach((value, index) => {
-                        // If the period is bigger than the original it gets replaced with the new one
-                        if (newValue.start < value.start && newValue.end > value.end) {
-                            this.customDates[property].values[index] = newValue;
-                            valueUpdated = true;
-                        } else if (Utils.isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring)) {
-                            // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
-                            if (newValue.end > value.end) {
-                                value.end = newValue.end;
-                                valueUpdated = true;
-                            }
-                        } else if (Utils.isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring)) {
-                            if (newValue.start < value.start) {
-                                value.start = newValue.start;
-                                valueUpdated = true;
-                            }
-                        }
-                    });
-                    if (!valueUpdated) {
-                        this.customDates[property].values.push(newValue);
-                    }
-                });
-            } else {
-                this.customDates[property] = newCustomDates[property];
+            if (newCustomDates.hasOwnProperty(property)) {
+                if (this.customDates.hasOwnProperty(property)) {
+                    updateCustomDate(this.customDates[property], newCustomDates[property]);
+                } else {
+                    this.customDates[property] = newCustomDates[property];
+                }
             }
         }
     }
+
+    updateCustomDate(targetCustomDate, sourceCustomDate) {
+        // Let's update the values
+        sourceCustomDate.values.forEach(newValue => {
+            
+            let wasValueMerged = false;
+
+            targetCustomDate.values.forEach((value, index) => {
+                // If the period is bigger than the original it gets replaced with the new one
+                if (newValue.start < value.start && newValue.end > value.end) {
+                    targetCustomDate.values[index] = newValue;
+                    wasValueMerged = true;
+                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring)) {
+                    // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
+                    if (newValue.end > value.end) {
+                        value.end = newValue.end;
+                        wasValueMerged = true;
+                    }
+                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring)) {
+                    if (newValue.start < value.start) {
+                        value.start = newValue.start;
+                        wasValueMerged = true;
+                    }
+                }
+            });
+
+            if (!wasValueMerged) {
+                targetCustomDate.values.push(newValue);
+            }
+        });
+    }
+
     /**
      * Replaces the existing customDates object with the new one.
      * 
