@@ -458,30 +458,18 @@ export default class Calendar {
             let daysToSelect = [];
 
             const mouseDownDayInfo = this.__mouseDownDayInfo;
-
-            // Clears all the days
-            // for (let iMonth = 0; iMonth < 12; iMonth++) {
-            //     for (let iDay = 0; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
-            //         this.calendarVM.selectedDates.values = [];
-            //         //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "white";
-            //     }
-            // }
-
+           
             // Handles the hovering of the days when in the same month
             if (mouseDownDayInfo.monthIndex === dayInfo.monthIndex) {
 
                 if (dayInfo.dayIndex >= mouseDownDayInfo.dayIndex) {
                     for (let index = mouseDownDayInfo.dayIndex; index <= dayInfo.dayIndex; index++) {
-                        //this._selectHoveredDay(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
                         daysToSelect.push(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
-                        //this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
                     }
 
                 }
                 if (dayInfo.dayIndex <= mouseDownDayInfo.dayIndex) {
                     for (let index = mouseDownDayInfo.dayIndex; index >= dayInfo.dayIndex; index--) {
-                        //this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index].dayDOMElement.style.backgroundColor = "red";
-                        //this._selectHoveredDay(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
                         daysToSelect.push(this.calendarDOM.daysInMonths[mouseDownDayInfo.monthIndex][index]);
                     }
 
@@ -495,8 +483,6 @@ export default class Calendar {
                     if (iMonth === mouseDownDayInfo.monthIndex) {
                         for (let iDay = mouseDownDayInfo.dayIndex; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
                             if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                                 daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
                             }
                         }
@@ -505,9 +491,7 @@ export default class Calendar {
                     if (iMonth === dayInfo.monthIndex) {
                         for (let iDay = 0; iDay <= dayInfo.dayIndex; iDay++) {
                             if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
                                 daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
@@ -515,9 +499,7 @@ export default class Calendar {
                     if (iMonth > mouseDownDayInfo.monthIndex && iMonth < dayInfo.monthIndex) {
                         for (let iDay = 0; iDay <= this.calendarVM.totalNumberOfDays; iDay++) {
                             if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
                                 daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
@@ -531,9 +513,7 @@ export default class Calendar {
                     if (iMonth === mouseDownDayInfo.monthIndex) {
                         for (let iDay = mouseDownDayInfo.dayIndex; iDay >= 0; iDay--) {
                             if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
                                 daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
@@ -542,9 +522,7 @@ export default class Calendar {
 
                         for (let iDay = this.calendarVM.totalNumberOfDays; iDay >= dayInfo.dayIndex; iDay--) {
                             if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
                                 daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
@@ -552,9 +530,7 @@ export default class Calendar {
                     if (iMonth < mouseDownDayInfo.monthIndex && iMonth > dayInfo.monthIndex) {
                         for (let iDay = this.calendarVM.totalNumberOfDays; iDay >= 0; iDay--) {
                             if (this.calendarDOM.daysInMonths[iMonth][iDay].value !== null) {
-                                //this._selectHoveredDay(this.calendarDOM.daysInMonths[iMonth][iDay]);
                                 daysToSelect.push(this.calendarDOM.daysInMonths[iMonth][iDay]);
-                                //this.calendarDOM.daysInMonths[iMonth][iDay].dayDOMElement.style.backgroundColor = "red";
                             }
                         }
                     }
@@ -589,11 +565,7 @@ export default class Calendar {
                 daysToSelect[index].dayDOMElement.className += " " + this.calendarVM.cssClassSelectedDay;
             }
         }
-
-
     }
-
-
 
 
     //TESTING
@@ -893,6 +865,7 @@ export default class Calendar {
      */
     _registerEventHandlers() {
         this._addEventListenerToElement(window, "resize", "_onResize", this);
+        this._addEventListenerToElement(window, "mouseup", "_onMouseUp", this);
     }
 
     /**
@@ -900,6 +873,18 @@ export default class Calendar {
      */
     _onResize() {
         this._fitToContainer();
+    }
+
+    /**
+     * TODO ADD DOC
+     */
+    _onMouseUp(event) {
+        event.preventDefault();
+        this.__mouseDownDayInfo = null;
+        this.calendarVM.selectedDates.values = [];
+        console.log("UP");
+
+        
     }
 
     // PUBLIC FUNCTIONS
