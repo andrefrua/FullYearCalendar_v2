@@ -7,9 +7,10 @@
  * - Update attributes with correct name (property)  - OK
  * - Create the possibility to merge customdates series - OK
  * - Create setters for the VM configuration object - OK
- * - Remove _this and use bind in the function, check the seconds argument on the forEach
- * - Review the customDates merge values
- * - Create a singe event handler for the click on the days element
+ * 
+ * - Remove _this and use bind in the function, check the seconds argument on the forEach - OK
+ * - Review the customDates merge values - Decided that customDates with same properties, those properties will be replaced.
+ * - Create a single event handler for the click on the days element - OK
  * 
  * - Added drag selection - still buggy
  * 
@@ -17,13 +18,7 @@
  * new Dom(calendar)
  * addCallbacks(calendar)
  * 
- * Questions: 
- * - How should readonly props be handled? Check ViewModel?
- * - Should I create a new class for the customDate object?
- * - Some help with the dispose methods, check the one on the Dom.js file.
- * - Move the DOM manupulation methods into the DOM class:
- *      - Should I send the ViewModel into it, making it dependent on another file, or should I send only the needed props?
- *      - What about the event handlers, should they be all defined inside the DOM class? If yes how can I trigger the events on the Calendar class?
+ * Questions:  
  * 
  * 
  * 
@@ -281,6 +276,9 @@ export default class Calendar {
         const dayElement = document.createElement("div");
 
         dayElement.setAttribute("fyc_defaultday", "true");
+        // Used to identify the day when an event is triggered for it
+        dayElement.setAttribute("m", currentMonth);
+        dayElement.setAttribute("d", currentDay);
         dayElement.style.height = this.calendarVM.dayWidth + "px";
         dayElement.style.minWidth = this.calendarVM.dayWidth + "px";
         dayElement.style.fontSize = parseInt(this.calendarVM.dayWidth / 2.1) + "px";
@@ -300,12 +298,6 @@ export default class Calendar {
             dayIndex: currentDay,
             value: null
         }
-
-        // Add the events to be associated to each day.
-        this._addEventListenerToElement(dayElement, "click", "_dayClick", dayInfo);
-        this._addEventListenerToElement(dayElement, "mouseover", "_dayMouseOver", dayInfo);
-        this._addEventListenerToElement(dayElement, "mousedown", "_dayMouseDown", dayInfo);
-        this._addEventListenerToElement(dayElement, "mouseup", "_dayMouseUp", dayInfo);
 
         // Store each one of the days inside the calendarDOM object.
         if (typeof this.calendarDOM.daysInMonths[currentMonth] === "undefined") {
@@ -381,14 +373,13 @@ export default class Calendar {
      * @param {Object} params - Parameters that should be sent to the function.
      */
     _addEventListenerToElement(sender, eventType, functionToCall, params) {
-        var _this = this;
         // For newers browsers
         if (sender.addEventListener) {
-            sender.addEventListener(eventType, function (event) { return _this[functionToCall](event, params); }, false);
+            sender.addEventListener(eventType, function (event) { return this[functionToCall](event, params); }.bind(this), false);
         }
         // For older browsers
         else if (sender.attachEvent) {
-            sender.attachEvent("on" + eventType, function (event) { return _this[functionToCall](event, params); });
+            sender.attachEvent("on" + eventType, function (event) { return this[functionToCall](event, params); }.bind(this));
         }
     }
     /**
@@ -397,10 +388,9 @@ export default class Calendar {
      * 
      * @param {Object} dayInfo - Object representing the day that was clicked.
      */
-    _dayClick(event, dayInfo) {
-        event.preventDefault();
+    _dayClick(dayInfo) {
         // Exits right away if it"s not a valid day.
-        if (!dayInfo.value) return;
+        if (!dayInfo || !dayInfo.value) return;
 
         const dayValue = Utils.convertDateToISOWihoutTimezone(new Date(dayInfo.value));
         const selectedDayIndex = this.calendarVM.selectedDates.values.indexOf(dayValue);
@@ -425,18 +415,15 @@ export default class Calendar {
      * 
      * @param {Object} dayInfo - Object representing the day that was clicked.
      */
-    _dayMouseOver(event, dayInfo) {
-        event.preventDefault();
+    _dayMouseOver(dayInfo) {
         // Exits right away if it's not a valid day or there is so function for the day MouseOver event.
-        if (!dayInfo.value) return;
+        if (!dayInfo || !dayInfo.value) return;
 
         if (dayInfo.value) {
-            const _this = this;
-
             let captionToAdd = "";
             const dayCssClasses = dayInfo.dayDOMElement.className.split(" ");
             dayCssClasses.forEach(function (cssClass) {
-                const customDates = _this.calendarVM.customDates;
+                const customDates = this.calendarVM.customDates;
                 for (let property in customDates) {
                     // Just to confirm that the object actually has the property.
                     if (customDates.hasOwnProperty(property)) {
@@ -449,7 +436,7 @@ export default class Calendar {
                         }
                     }
                 }
-            })
+            }, this);
             dayInfo.dayDOMElement.title = captionToAdd;
             // If the onDayMouseOver function is defined then trigger the call
             if (typeof this.onDayMouseOver === "function") {
@@ -563,15 +550,13 @@ export default class Calendar {
         }
     }
     /**
-     * Handles the dayMouseDown event.
+     * Handles the dayMouseDown event. TODO
      * 
      * @param {Object} event - Event triggered.
      * @param {Object} dayInfo - Object with the information about the day where the event was triggered.
      */
-    _dayMouseDown(event, dayInfo) {
-        event.preventDefault();
-        
-        if(!dayInfo.value) return;
+    _dayMouseDown(dayInfo) {
+        if (!dayInfo || !dayInfo.value) return;
 
         // Creates the object with the mouse down information, for now it only needs the dayInfo object.
         this.__mouseDownInformation = {
@@ -579,14 +564,12 @@ export default class Calendar {
         }
     }
     /**
-     * Handles the dayMouseUp event.
+     * Handles the dayMouseUp event. TODO
      * 
      * @param {Object} event - Event triggered.
      * @param {Object} dayInfo - Object with the information about the day where the event was triggered.
      */
-    _dayMouseUp(event, dayInfo) {
-        event.preventDefault();
-
+    _dayMouseUp() {
         if (this.__mouseDownInformation && this.__mouseDownInformation["tempSelectedDatesValues"]) {
             // Let's add the temporary selected days to the actual selectedDate object
             const tempSelectedDatesValues = this.__mouseDownInformation["tempSelectedDatesValues"];
@@ -775,7 +758,6 @@ export default class Calendar {
      */
     _applyCustomDateStyle(customDates, currentDate) {
         let cssClassToApply = "";
-        const _this = this;
 
         currentDate = currentDate.setHours(0, 0, 0, 0);
 
@@ -787,11 +769,11 @@ export default class Calendar {
                     let startDate = new Date(auxPeriod.start);
                     let endDate = new Date(auxPeriod.end);
 
-                    const isInPeriod = Utils.isDateInPeriod(startDate, endDate, currentDate, auxPeriod.recurring, _this.calendarVM.selectedYear);
+                    const isInPeriod = Utils.isDateInPeriod(startDate, endDate, currentDate, auxPeriod.recurring, this.calendarVM.selectedYear);
                     if (isInPeriod) {
                         cssClassToApply += " " + customDates[property].cssClass;
                     }
-                });
+                }, this);
             }
         }
 
@@ -802,10 +784,10 @@ export default class Calendar {
             // Validates if the value is an actual date
             if (!isNaN(auxDate.valueOf())) {
                 if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
-                    cssClassToApply += " " + _this.calendarVM.cssClassSelectedDay;
+                    cssClassToApply += " " + this.calendarVM.cssClassSelectedDay;
                 }
             }
-        });
+        }, this);
 
         // Apply the style to the weekend days.
         if (this.calendarVM.weekendDays && this.calendarVM.weekendDays.length > 0) {
@@ -837,9 +819,9 @@ export default class Calendar {
                 }
                 if (new Date(currentDate).getDay() === dayNumber) {
                     // Name of the property. A Css class with the same name should exist
-                    cssClassToApply += " " + _this.calendarVM.cssClassWeekendDay;
+                    cssClassToApply += " " + this.calendarVM.cssClassWeekendDay;
                 }
-            });
+            }, this);
         }
 
         return cssClassToApply;
@@ -880,7 +862,75 @@ export default class Calendar {
     _registerEventHandlers() {
         this._addEventListenerToElement(window, "resize", "_onResize", this);
         this._addEventListenerToElement(window, "mouseup", "_onMouseUp", this);
+
+        this._addEventListenerToElement(this.calendarDOM.domElement, "click", "_onCalendarClick", this);
+        this._addEventListenerToElement(this.calendarDOM.domElement, "mouseover", "_onCalendarMouseOver", this);
+        this._addEventListenerToElement(this.calendarDOM.domElement, "mousedown", "_onCalendarMouseDown", this);
+        this._addEventListenerToElement(this.calendarDOM.domElement, "mouseup", "_onCalendarMouseUp", this);
     }
+
+    /**
+     * TODO The day event handlers could be merged since the code is very similar
+     * Create single click event handle for all the calendar instead of having one for each day
+     */
+    _onCalendarClick(event) {
+        event.preventDefault();
+
+        const srcElement = event.srcElement;
+
+        // If the click was triggered on a day element
+        if (srcElement.classList.contains("defaultDay")) {
+            const monthIndex = srcElement.getAttribute("m");
+            const dayIndex = srcElement.getAttribute("d");
+            const dayInfo = this.calendarDOM.daysInMonths[monthIndex][dayIndex];
+
+            this._dayClick(dayInfo);
+        }
+    }
+
+    _onCalendarMouseOver(event) {
+        event.preventDefault();
+
+        const srcElement = event.srcElement;
+
+        // If the click was triggered on a day element
+        if (srcElement.classList.contains("defaultDay")) {
+            const monthIndex = srcElement.getAttribute("m");
+            const dayIndex = srcElement.getAttribute("d");
+            const dayInfo = this.calendarDOM.daysInMonths[monthIndex][dayIndex];
+
+            this._dayMouseOver(dayInfo);
+        }
+    }
+
+    _onCalendarMouseDown(event) {
+        event.preventDefault();
+
+        const srcElement = event.srcElement;
+
+        // If the click was triggered on a day element
+        if (srcElement.classList.contains("defaultDay")) {
+            const monthIndex = srcElement.getAttribute("m");
+            const dayIndex = srcElement.getAttribute("d");
+            const dayInfo = this.calendarDOM.daysInMonths[monthIndex][dayIndex];
+
+            this._dayMouseDown(dayInfo);
+        }
+    }
+
+    _onCalendarMouseUp(event) {
+        event.preventDefault();
+
+        const srcElement = event.srcElement;
+
+        // If the click was triggered on a day element
+        if (srcElement.classList.contains("defaultDay")) {
+            this._dayMouseUp();
+        }
+    }
+
+
+
 
     /**
      * Handler for the _onResize event
@@ -1015,6 +1065,14 @@ export default class Calendar {
     }
     // TODO: Add doc
     dispose() {
+        window.removeEventListener("resize", this._onResize);
+        window.removeEventListener("mouseup", this._onMouseUp);
+
+        this.calendarDOM.domElement.removeEventListener("click", this._onCalendarClick);
+        this.calendarDOM.domElement.removeEventListener("mouseover", this._onCalendarMouseOver);
+        this.calendarDOM.domElement.removeEventListener("mousedown", this._onCalendarMouseDown);
+        this.calendarDOM.domElement.removeEventListener("mouseup", this._onCalendarMouseUp);
+
         this.calendarDOM.dispose();
         delete this.calendarDOM;
         delete this.calendarVM;

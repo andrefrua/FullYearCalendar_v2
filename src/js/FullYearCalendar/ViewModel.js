@@ -393,11 +393,12 @@ export default class ViewModel {
 
         for (let property in newCustomDates) {
             if (newCustomDates.hasOwnProperty(property)) {
-                if (this.customDates.hasOwnProperty(property)) {
-                    this._mergeCustomDateValues(this.customDates[property].values, newCustomDates[property].values);
-                } else {
+                // For now the customDates propeties will always be replaced
+                // if (this.customDates.hasOwnProperty(property)) {
+                //     this._mergeCustomDateValues(this.customDates[property].values, newCustomDates[property].values);
+                // } else {
                     this.customDates[property] = newCustomDates[property];
-                }
+                //}
             }
         }
     }
@@ -486,35 +487,36 @@ export default class ViewModel {
         return normalizedCustomDates;
     }
     // TODO: This needs to be reviewed. What should happen if there is a period with recurring overlapping another without...
-    _mergeCustomDateValues(targetValues, sourceValues) {
-        // Let's update the values
-        sourceValues.forEach(newValue => {
+    // For now this won't be used.
+    // _mergeCustomDateValues(targetValues, sourceValues) {
+    //     // Let's update the values
+    //     sourceValues.forEach(newValue => {
 
-            let wasValueMerged = false;
+    //         let wasValueMerged = false;
 
-            targetValues.forEach((value, index) => {
-                // If the period is bigger than the original it gets replaced with the new one
-                if (newValue.start < value.start && newValue.end > value.end) {
-                    targetValues[index] = newValue;
-                    wasValueMerged = true;
-                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring, this.selectedYear)) {
-                    // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
-                    if (newValue.end > value.end) {
-                        value.end = newValue.end;
-                        wasValueMerged = true;
-                    }
-                } else if (Utils.isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring, this.selectedYear)) {
-                    if (newValue.start < value.start) {
-                        value.start = newValue.start;
-                        wasValueMerged = true;
-                    }
-                }
-            });
+    //         targetValues.forEach((value, index) => {
+    //             // If the period is bigger than the original it gets replaced with the new one
+    //             if (newValue.start < value.start && newValue.end > value.end) {
+    //                 targetValues[index] = newValue;
+    //                 wasValueMerged = true;
+    //             } else if (Utils.isDateInPeriod(value.start, value.end, newValue.start, newValue.recurring, this.selectedYear)) {
+    //                 // If the new start date is inside the period and the end end is greated than the current one, then it's replaced
+    //                 if (newValue.end > value.end) {
+    //                     value.end = newValue.end;
+    //                     wasValueMerged = true;
+    //                 }
+    //             } else if (Utils.isDateInPeriod(value.start, value.end, newValue.end, newValue.recurring, this.selectedYear)) {
+    //                 if (newValue.start < value.start) {
+    //                     value.start = newValue.start;
+    //                     wasValueMerged = true;
+    //                 }
+    //             }
+    //         });
 
-            if (!wasValueMerged) {
-                targetValues.push(newValue);
-            }
-        });
-    }
+    //         if (!wasValueMerged) {
+    //             targetValues.push(newValue);
+    //         }
+    //     });
+    // }
     // #endregion Private methods
 }

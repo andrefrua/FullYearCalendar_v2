@@ -90,7 +90,17 @@ const configObj2 = {
     showNavigationToolBar: true,
     captionNavButtonPreviousYear: 'Previous',
     captionNavButtonNextYear: 'Next',
-    customDates: {}
+    customDates: {
+        spring: {
+            recurring: true,
+            caption: "Spring",
+            cssClass: "spring",
+            values: {
+                start: '2019-03-21',
+                end: '2019-06-21'
+            }
+        }
+    }
 }
 const fullYearCalendar2 = new Calendar(divFullYearCalendar2, configObj2);
 
@@ -131,6 +141,15 @@ btnUpdateSelectedDays1.onclick = function (e) {
             caption: "Selected days",
             cssClass: "importedDay",
             values: selectedDays1
+        },
+        spring: {
+            recurring: true,
+            caption: "Spring",
+            cssClass: "spring",
+            values: {
+                start: '2019-07-22',
+                end: '2019-09-21'
+            }
         }
     }
 
