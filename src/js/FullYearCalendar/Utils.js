@@ -25,6 +25,7 @@ export default {
                 return 0;
         }
     },
+
     /**
      * Changes the year of the received date to the specified year.
      * 
@@ -34,6 +35,7 @@ export default {
     changeYearOnDate(date, year) {
         return new Date(date.setFullYear(year));
     },
+
     /**
      * Checks if a date is inside a period of dates, recurring dates can also be takken into account.
      *  
@@ -55,6 +57,7 @@ export default {
         }
         return false;
     },
+
     /**
      * Converts a date string into a ISO string ignoring the timezone part.
      * 
@@ -63,5 +66,20 @@ export default {
      */
     convertDateToISOWihoutTimezone(dateToConvert) {
         return new Date(dateToConvert.getTime() - (dateToConvert.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
+    },
+
+    /**
+     * Updates a style of a container according to the received information.
+     * 
+     * @param {HTMLElement} container - Container where the elements to be updated are.
+     * @param {string} selector - Query selector to identify the elements to be updated.
+     * @param {string} styleProperty - Name of the style that we want to update.
+     * @param {string} value - The value to be applied to the style.
+     */
+    updateElementsStylePropertyBySelector(container, selector, styleProperty, value) {
+        const elements = container.querySelectorAll(selector);
+        for (let i = 0; i < elements.length; i++) {
+            elements[i].style[styleProperty] = value;
+        }
     }
 }

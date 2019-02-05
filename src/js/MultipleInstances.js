@@ -175,8 +175,6 @@ btnDestroyCalendar1.onclick = function (e) {
     }
 }
 
-
-
 btnGoToYear2.onclick = function (e) {
     fullYearCalendar2.goToYear(parseInt(document.getElementById('inputYearNumber2').value));
 }
