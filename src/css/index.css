@@ -68,13 +68,14 @@
 
  .weekendDay {
      font-weight: bold;
-     background-color: #555;
-     border: 1px solid #555;
-     color: white;
+     background-color: #CCC;
+     border: 1px solid #CCC;
+     color: #333;
  }
+
  .multiSelect {
-    background-color: lightsalmon;
-    border: 1px solid lightsalmon;
+     background-color: lightsalmon;
+     border: 1px solid lightsalmon;
  }
 
  .selectedDay2 {

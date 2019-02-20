@@ -1,8 +1,8 @@
 import Calendar from "./FullYearCalendar/Calendar.js";
 
-const divFullYearCalendar = document.getElementById('divFullYearCalendar')
+const divFullYearCalendar = document.getElementById("divFullYearCalendar");
 
 const configObj = {
-    showNavigationToolBar: true,
-}
+  showNavigationToolBar: true
+};
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);

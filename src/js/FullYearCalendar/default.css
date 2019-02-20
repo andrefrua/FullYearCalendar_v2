@@ -1,6 +1,6 @@
 ﻿@import url("bootstrap.min.css");
-
 /*Month names*/
+
 .fyc_MonthName {
     padding: 0 10px;
     color: #333;
@@ -99,11 +99,11 @@
 
 .fyc_IconPreviousYear {
     padding: 2px;
-    margin: 0 3px;    
+    margin: 0 3px;
 }
 
 .fyc_IconPreviousYear:before {
-    content: "\003c";    
+    content: "\003c";
 }
 
 .fyc_IconNextYear {
