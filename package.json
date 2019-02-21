@@ -1,0 +1,7 @@
+{
+  "name": "full-year-calendar",
+  "version": "1.0.0",
+  "description": "Yearly calendar to show import days for the selected year. Like vacations, holidays, etc...",
+  "scripts": {
+  }
+}
