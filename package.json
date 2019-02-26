@@ -3,5 +3,14 @@
   "version": "1.0.0",
   "description": "Yearly calendar to show import days for the selected year. Like vacations, holidays, etc...",
   "scripts": {
+    "build": "babel src --out-dir dist"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.2.5"
   }
 }
