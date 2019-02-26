@@ -1,47 +1,3 @@
-/**
- * CURRENT ISSUES / DOUBTS:
- *
- * TPC:
- * - Remove _this and use bind in the function, check the seconds argument on the forEach - OK
- * - Review the customDates merge values - Decided that customDates with same properties, those properties will be replaced.
- * - Create a single event handler for the click on the days element - OK
- *
- *
- * - Added drag selection - still buggy
- * - Legends aren't being updated when adding new customDates
- * - I believe that the selectedDays shouldn't have a different list, instead the days should have a property saying if they are selected or not.
- *
- * [element, eventName, handler]
- * new Dom(calendar)
- * addCallbacks(calendar)
- *
- * Future:
- * - Add Babel - Set a structure (src, dist, etc...) - DONE
- * - Change to arrow functions, etc...
- * - Add prettier - DONE
- * - Change to two spaces - DONE
- * - Check CSS custom to be able to override them without issues
- * - BEM - Methodology - CSS
- * - Renaming the variables on the Calendar, VM, check the links on slack.
- * - Make some validations, for example, missing public arguments that are required.
- * - remove getters / setters where not necessary, for example calendar
- * - Change Documentation object types to the actual object types. Use Alias instead of name in the JS Doc
- * - Install jsdoc to check if the documentation is ok. And check the View
- * Model jsdoc config object.
- * - Remove DOM day elements from the DOM and move everytjin into the VM.
- *
- * Questions:
- *
- *
- *
- * Naming convention
- * - Abrev. -
- * - DOM    - Dom
- * - Id.    -
- * - BI     -
- * - JS     - J
- */
-
 "use strict";
 
 import ViewModel from "./ViewModel.js";
@@ -629,9 +585,8 @@ export default class Calendar {
     }
     // For older browsers
     else if (sender.attachEvent) {
-      sender.attachEvent(
-        "on" + eventType,
-        event => this[functionToCall](event, params)
+      sender.attachEvent("on" + eventType, event =>
+        this[functionToCall](event, params)
       );
     }
   }
@@ -884,7 +839,7 @@ export default class Calendar {
     for (let property in customDates) {
       // Just to confirm that the object actually has the property.
       if (customDates.hasOwnProperty(property)) {
-        customDates[property].values.forEach(function(auxPeriod) {
+        customDates[property].values.forEach(auxPeriod => {
           let startDate = new Date(auxPeriod.start);
           let endDate = new Date(auxPeriod.end);
 
@@ -903,7 +858,7 @@ export default class Calendar {
     }
 
     // Re-apply the selected days style in case the year is changed.
-    this.calendarVM.selectedDates.values.forEach(function(auxDate) {
+    this.calendarVM.selectedDates.values.forEach(auxDate => {
       auxDate = new Date(auxDate);
 
       // Validates if the value is an actual date
@@ -916,7 +871,7 @@ export default class Calendar {
 
     // Apply the style to the weekend days.
     if (this.calendarVM.weekendDays && this.calendarVM.weekendDays.length > 0) {
-      this.calendarVM.weekendDays.forEach(function(weekendDay) {
+      this.calendarVM.weekendDays.forEach(weekendDay => {
         let dayNumber = -1;
         switch (weekendDay) {
           case "Sun":
@@ -1111,7 +1066,7 @@ export default class Calendar {
     if (dayInfo.value) {
       let captionToAdd = "";
       const dayCssClasses = dayInfo.dayDOMElement.className.split(" ");
-      dayCssClasses.forEach(function(cssClass) {
+      dayCssClasses.forEach(cssClass => {
         const customDates = this.calendarVM.customDates;
         for (let property in customDates) {
           // Just to confirm that the object actually has the property.

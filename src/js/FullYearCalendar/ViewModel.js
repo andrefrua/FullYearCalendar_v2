@@ -478,7 +478,7 @@ export default class ViewModel {
             values: []
           };
           // Checks if the current date exists in the Array
-          customDates[property].values.forEach(function(auxDate) {
+          customDates[property].values.forEach(auxDate => {
             auxDate = new Date(auxDate);
             const recurring = customDates[property].recurring || false;
             normalizedCustomDates[property].values.push({
@@ -501,7 +501,7 @@ export default class ViewModel {
             values: []
           };
           // Checks if the current date exists in the Array
-          customDates[property].values.forEach(function(auxPeriod) {
+          customDates[property].values.forEach(auxPeriod => {
             let startDate = new Date(auxPeriod.start);
             let endDate = new Date(auxPeriod.end);
             const recurring =
