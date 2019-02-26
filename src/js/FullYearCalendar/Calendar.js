@@ -16,10 +16,10 @@
  * addCallbacks(calendar)
  *
  * Future:
- * - Add Babel - Set a structure (src, dist, etc...)
+ * - Add Babel - Set a structure (src, dist, etc...) - DONE
  * - Change to arrow functions, etc...
  * - Add prettier - DONE
- * - Change to two spaces
+ * - Change to two spaces - DONE
  * - Check CSS custom to be able to override them without issues
  * - BEM - Methodology - CSS
  * - Renaming the variables on the Calendar, VM, check the links on slack.
@@ -55,6 +55,10 @@ export default class Calendar {
   constructor(domElement, config = {}) {
     this.calendarVM = new ViewModel(config);
     this.calendarDOM = new Dom(domElement);
+
+    //BABEL TESTING
+    let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };
+    console.log(z);
 
     this._render();
   }
@@ -619,9 +623,7 @@ export default class Calendar {
     if (sender.addEventListener) {
       sender.addEventListener(
         eventType,
-        function(event) {
-          return this[functionToCall](event, params);
-        }.bind(this),
+        event => this[functionToCall](event, params),
         false
       );
     }
@@ -629,9 +631,7 @@ export default class Calendar {
     else if (sender.attachEvent) {
       sender.attachEvent(
         "on" + eventType,
-        function(event) {
-          return this[functionToCall](event, params);
-        }.bind(this)
+        event => this[functionToCall](event, params)
       );
     }
   }

@@ -1,4 +1,4 @@
-import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
+import Calendar from "../../dist/js/FullYearCalendar/Calendar.js";
 
 const divFullYearCalendar = document.getElementById("divFullYearCalendar");
 
