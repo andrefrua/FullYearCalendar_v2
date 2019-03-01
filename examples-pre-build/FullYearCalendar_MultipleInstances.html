@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>FullYearCalendar - Multiple instances example</title>
+
+    <link
+      href="../src/js/FullYearCalendar/default.css"
+      rel="stylesheet"
+      media="screen"
+    />
+    <link href="css/index.css" rel="stylesheet" media="screen" />
+
+    <script src="https://use.fontawesome.com/cc54a83773.js"></script>
+  </head>
+
+  <body>
+    <div class="calendarContainer">
+      <div class="divControls">
+        <input type="number" id="inputYearNumber1" value="2019" />
+        <input type="button" id="btnGoToYear1" value="Go" />
+        <input
+          type="button"
+          id="btnGoToPreviousYear1"
+          value="< Previous Year"
+        />
+        <input type="button" id="btnGoToNextYear1" value="Next Year >" />
+        <input
+          type="button"
+          id="btnGoToCurrentYear1"
+          value="Go to current year"
+        />
+        <input
+          type="button"
+          id="btnUpdateSelectedDays1"
+          value="Update selected days"
+        />
+        <input
+          type="button"
+          id="btnReplaceSelectedDays1"
+          value="Replace selected days"
+        />
+      </div>
+      <div class="divControls">
+        <b>Cliked on:</b><input type="text" id="inputClickedDay1" readonly />
+        <b>Mouse overed on:</b
+        ><input type="text" id="inputHoveredDay1" readonly />
+        <span>Year changed <span id="inputYearChanged1"> 0 </span> times.</span>
+        <input
+          type="button"
+          id="btnGetSelectedDays1"
+          value="Get selected days"
+        />
+        <div id="divListSelectedDays1"></div>
+        <input type="button" id="btnDestroyCalendar1" value="Destroy" />
+      </div>
+      <div class="divControls">
+        <span class="textAlignLeft">
+          Day width: <input type="number" id="inputDayWidth1" value="25"
+        /></span>
+        <span>
+          <label>
+            <input type="checkbox" id="chkShowWeekDaysNameEachMonth1" />
+            Show day name on each month
+          </label>
+        </span>
+        <span>
+          Week start day
+          <select
+            onchange="fullYearCalendar1.refresh({weekStartDay: this.value})"
+          >
+            <option value="Sun">Sunday</option>
+            <option value="Mon">Monday</option>
+            <option value="Tue">Tuesday</option>
+            <option value="Wed">Wednesday</option>
+            <option value="Thu">Thursday</option>
+            <option value="Fri">Friday</option>
+            <option value="Sat">Saturday</option>
+          </select>
+        </span>
+      </div>
+      <div class="divFullYearCalendar" id="divFullYearCalendar1"></div>
+    </div>
+    <div class="calendarContainer">
+      <div class="divControls">
+        <input type="number" id="inputYearNumber2" value="2019" />
+        <input type="button" id="btnGoToYear2" value="Go" />
+        <input
+          type="button"
+          id="btnGoToPreviousYear2"
+          value="< Previous Year"
+        />
+        <input type="button" id="btnGoToNextYear2" value="Next Year >" />
+        <input
+          type="button"
+          id="btnGoToCurrentYear2"
+          value="Go to current year"
+        />
+      </div>
+      <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
+    </div>
+
+    <script type="module" src="js/MultipleInstances.js"></script>
+  </body>
+</html>

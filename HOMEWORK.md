@@ -7,6 +7,10 @@ TPC:
   - Change Documentation object types to the actual object types. Use Alias instead of name in the JS Doc
   - Install jsdoc to check if the documentation is ok. And check the View Model jsdoc config object.
   - Remove DOM day elements from the DOM and move everytjin into the VM.
+
+  - Improve the build process, at this point I have to maintain two examples folders, one using the built code and
+    another with the pre built code.
+
 OLD:
   - Add Babel to enabled the possibility to use Arrow functions and other ES6 features. - DONE
   - Add prettier extension. - DONE

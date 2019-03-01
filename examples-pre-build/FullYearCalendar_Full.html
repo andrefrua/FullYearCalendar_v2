@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>FullYearCalendar - Full example</title>
+
+    <link
+      href="../src/js/FullYearCalendar/default.css"
+      rel="stylesheet"
+      media="screen"
+    />
+    <link href="css/index.css" rel="stylesheet" media="screen" />
+
+    <script src="https://use.fontawesome.com/cc54a83773.js"></script>
+  </head>
+
+  <body>
+    <div class="calendarContainer">
+      <div class="divControls">
+        <input type="number" id="inputYearNumber" value="2019" />
+        <input type="button" id="btnGoToYear" value="Go" />
+        <input type="button" id="btnGoToPreviousYear" value="< Previous Year" />
+        <input type="button" id="btnGoToNextYear" value="Next Year >" />
+        <input
+          type="button"
+          id="btnGoToCurrentYear"
+          value="Go to current year"
+        />
+      </div>
+      <div class="divControls">
+        <b>Cliked on:</b><input type="text" id="inputClickedDay" readonly />
+        <b>Mouse overed on:</b
+        ><input type="text" id="inputHoveredDay" readonly />
+        <span>Year changed <span id="inputYearChanged"> 0 </span> times.</span>
+        <div id="divListSelectedDays"></div>
+      </div>
+      <div class="divControls">
+        <span class="textAlignLeft">
+          Day width: <input type="number" id="inputDayWidth" value="25"
+        /></span>
+        <span>
+          <label>
+            <input type="checkbox" id="chkShowWeekDaysNameEachMonth" />
+            Show day name on each month
+          </label>
+        </span>
+        <span>
+          Week start day
+          <select id="selectChangeWeekStartDay">
+            <option value="Sun">Sunday</option>
+            <option value="Mon">Monday</option>
+            <option value="Tue">Tuesday</option>
+            <option value="Wed">Wednesday</option>
+            <option value="Thu">Thursday</option>
+            <option value="Fri">Friday</option>
+            <option value="Sat">Saturday</option>
+          </select>
+        </span>
+      </div>
+      <div class="divFullYearCalendar" id="divFullYearCalendar"></div>
+    </div>
+
+    <script type="module" src="js/Full.js"></script>
+  </body>
+</html>
