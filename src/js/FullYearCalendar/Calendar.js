@@ -151,6 +151,7 @@ export default class Calendar {
 
     this.dom.domElement.appendChild(this.dom.mainContainer);
     this.dom.domElement.style.textAlign = this.viewModel.alignInContainer;
+    this.dom.domElement.className = "fyc_MainContainer";
   }
 
   /**

@@ -1,5 +1,8 @@
-﻿@import url("bootstrap.min.css");
-/*Month names*/
+﻿/*Month names*/
+
+.fyc_MainContainer * {
+    box-sizing: border-box;
+}
 
 .fyc_MonthName {
     padding: 0 10px;
