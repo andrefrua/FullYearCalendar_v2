@@ -1,7 +1,7 @@
 TPC:
   - Check CSS custom to be able to override them without issues
   - BEM - Methodology - CSS
-  - Renaming the variables on the Calendar, VM, check the links on slack.
+
   - Make some validations, for example, missing public arguments that are required.
   - remove getters / setters where not necessary, for example calendar
   - Change Documentation object types to the actual object types. Use Alias instead of name in the JS Doc
@@ -12,7 +12,7 @@ OLD:
   - Add prettier extension. - DONE
   - Change to two spaces. - DONE
   - Change the current code to use ES6 features. - DONE
-
+  - Rename redundant variable names on the Calendar.js file. `calendarVM` and `calendarDom`. - DONE
 
 Bugs / Issues:
   - Added drag selection - still buggy
