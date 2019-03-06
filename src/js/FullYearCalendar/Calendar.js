@@ -3,6 +3,8 @@
 import ViewModel from "./ViewModel.js";
 import Utils from "./Utils.js";
 import Dom from "./Dom.js";
+import { CSS_CLASS_NAMES } from "./Enums.js";
+
 /**
  * FullYearCalendar
  * Used to highlight important events for specific days throughout a specified year.
@@ -140,6 +142,7 @@ export default class Calendar {
     this._setSelectedYear(this.viewModel.selectedYear);
     this._fitToContainer();
     this._registerEventHandlers();
+    this._applyStyling();
   }
 
   /**
@@ -151,7 +154,7 @@ export default class Calendar {
 
     this.dom.domElement.appendChild(this.dom.mainContainer);
     this.dom.domElement.style.textAlign = this.viewModel.alignInContainer;
-    this.dom.domElement.className = "fyc_MainContainer";
+    this.dom.domElement.className = CSS_CLASS_NAMES.MAIN_CONTAINER;
   }
 
   /**
@@ -263,7 +266,7 @@ export default class Calendar {
 
     // Container that will be on top of the Months names
     const monthNameContainer = document.createElement("div");
-    monthNameContainer.className = this.viewModel.cssClassMonthName;
+    monthNameContainer.className = CSS_CLASS_NAMES.MONTH_NAME;
     monthNameContainer.style.float = "left";
     monthNameContainer.style.minWidth = this.viewModel.monthNameWidth + "px";
     // Needs an empty space so that the container actual grows.
@@ -271,7 +274,7 @@ export default class Calendar {
 
     // Container that will actually have the Week days names
     const monthContainer = document.createElement("div");
-    monthContainer.className = this.viewModel.cssClassMonthRow;
+    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW;
     monthContainer.style.float = "left";
     // Adds the week days name container to the month container
     const weekDayNamesContainer = this._createDOMElementWeekDayNamesContainer(
@@ -303,7 +306,7 @@ export default class Calendar {
    */
   _createDOMElementMonthName(currentMonth) {
     const monthNameElement = document.createElement("div");
-    monthNameElement.className = this.viewModel.cssClassMonthName;
+    monthNameElement.className = CSS_CLASS_NAMES.MONTH_NAME;
     monthNameElement.style.display = "table-cell";
     monthNameElement.style.verticalAlign = "middle";
     monthNameElement.innerHTML = this.viewModel.monthNames[currentMonth];
@@ -324,7 +327,7 @@ export default class Calendar {
   _createDOMElementMonthContainer() {
     const monthContainer = document.createElement("div");
     monthContainer.style.position = "relative";
-    monthContainer.className = this.viewModel.cssClassMonthRow;
+    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW;
     monthContainer.style.float = "left";
 
     return monthContainer;
@@ -354,7 +357,7 @@ export default class Calendar {
   _createDOMElementDay(currentMonth, currentDay) {
     const dayElement = document.createElement("div");
 
-    dayElement.setAttribute("fyc_defaultday", "true");
+    dayElement.setAttribute("fyc-default-day", "true");
     // Used to identify the day when an event is triggered for it
     dayElement.setAttribute("m", currentMonth);
     dayElement.setAttribute("d", currentDay);
@@ -401,8 +404,8 @@ export default class Calendar {
     dayNameElement.innerHTML = this.viewModel.weekDayNames[
       (currentDay + this.viewModel.weekStartDayNumber) % 7
     ];
-    dayNameElement.className = this.viewModel.cssClassWeekDayName;
-    dayNameElement.setAttribute("fyc_weekdayname", "true");
+    dayNameElement.className = CSS_CLASS_NAMES.WEEK_DAY_NAME;
+    dayNameElement.setAttribute("fyc-week-day-name", "true");
     dayNameElement.style.height = this.viewModel.dayWidth + "px";
     dayNameElement.style.minWidth = this.viewModel.dayWidth + "px";
     dayNameElement.style.fontSize =
@@ -458,35 +461,35 @@ export default class Calendar {
   _addNavigationToolBar() {
     // Main container for the toolbar controls
     const navToolbarWrapper = document.createElement("div");
-    navToolbarWrapper.className = "fyc_NavToolbarWrapper";
+    navToolbarWrapper.className = CSS_CLASS_NAMES.NAV_TOOLBAR_WRAPPER;
 
     // Previous year button navigation
     const divBlockNavLeftButton = document.createElement("div");
-    divBlockNavLeftButton.className = "fyc_NavToolbarContainer";
+    divBlockNavLeftButton.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
     const btnPreviousYear = document.createElement("button");
-    btnPreviousYear.className = this.viewModel.cssClassNavButtonPreviousYear;
+    btnPreviousYear.className = CSS_CLASS_NAMES.NAV_BUTTON_PREVIOUS_YEAR;
     btnPreviousYear.innerText = this.viewModel.captionNavButtonPreviousYear;
     const iconPreviousYear = document.createElement("i");
-    iconPreviousYear.className = this.viewModel.cssClassNavIconPreviousYear;
+    iconPreviousYear.className = CSS_CLASS_NAMES.NAV_ICON_PREVIOUS_YEAR;
     btnPreviousYear.prepend(iconPreviousYear);
     divBlockNavLeftButton.appendChild(btnPreviousYear);
 
     // Current year span
     const divBlockNavCurrentYear = document.createElement("div");
-    divBlockNavCurrentYear.className = "fyc_NavToolbarContainer";
+    divBlockNavCurrentYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
     const spanSelectedYear = document.createElement("span");
-    spanSelectedYear.className = "fyc_NavToolbarSelectedYear";
+    spanSelectedYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_SELECTED_YEAR;
     spanSelectedYear.innerText = this.viewModel.selectedYear;
     divBlockNavCurrentYear.appendChild(spanSelectedYear);
 
     // Next year button navigation
     const divBlockNavRightButton = document.createElement("div");
-    divBlockNavRightButton.className = "fyc_NavToolbarContainer";
+    divBlockNavRightButton.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
     const btnNextYear = document.createElement("button");
-    btnNextYear.className = this.viewModel.cssClassNavButtonNextYear;
+    btnNextYear.className = CSS_CLASS_NAMES.NAV_BUTTON_NEXT_YEAR;
     btnNextYear.innerText = this.viewModel.captionNavButtonNextYear;
     const iconNextYear = document.createElement("i");
-    iconNextYear.className = this.viewModel.cssClassNavIconNextYear;
+    iconNextYear.className = CSS_CLASS_NAMES.NAV_ICON_NEXT_YEAR;
     btnNextYear.appendChild(iconNextYear);
     divBlockNavRightButton.appendChild(btnNextYear);
 
@@ -515,7 +518,7 @@ export default class Calendar {
     if (this.viewModel.showLegend !== true) return;
 
     const legendContainer = document.createElement("div");
-    legendContainer.className = "fyc_legendContainer";
+    legendContainer.className = CSS_CLASS_NAMES.LEGEND_CONTAINER;
 
     for (let property in this.viewModel.customDates) {
       // DefaultDay container that will look similar to the Day cell on the calendar
@@ -526,7 +529,8 @@ export default class Calendar {
 
       // Default Day container
       const divPropertyDefaultDayContainer = document.createElement("div");
-      divPropertyDefaultDayContainer.className = "fyc_legendPropertyDay";
+      divPropertyDefaultDayContainer.className =
+        CSS_CLASS_NAMES.LEGEND_PROPERTY_DAY;
       divPropertyDefaultDayContainer.style.display = "table-cell";
       divPropertyDefaultDayContainer.appendChild(divPropertyDefaultDay);
 
@@ -534,7 +538,7 @@ export default class Calendar {
 
       // Property caption
       const divPropertyCaption = document.createElement("div");
-      divPropertyCaption.className = "fyc_legendPropertyCaption";
+      divPropertyCaption.className = CSS_CLASS_NAMES.LEGEND_PROPERTY_CAPTION;
 
       if (
         this.viewModel.customDates &&
@@ -555,7 +559,7 @@ export default class Calendar {
 
       if (this.viewModel.legendStyle === "Block") {
         const divClearBoth = document.createElement("div");
-        divClearBoth.className = "fyc_legendVerticalClear";
+        divClearBoth.className = CSS_CLASS_NAMES.LEGEND_VERTICAL_CLEAR;
         divClearBoth.style.clear = "both";
         legendContainer.appendChild(divClearBoth);
       }
@@ -594,13 +598,13 @@ export default class Calendar {
   _changeToNormalView() {
     Utils.updateElementsStylePropertyBySelector(
       this.dom.mainContainer,
-      "[fyc_defaultday], .has-fyc_defaultday",
+      "[fyc-default-day], .has-fyc-default-day",
       "width",
       this.viewModel.dayWidth + "px"
     );
     Utils.updateElementsStylePropertyBySelector(
       this.dom.mainContainer,
-      "[fyc_weekdayname], .has-fyc_weekdayname",
+      "[fyc-week-day-name], .has-fyc-week-day-name",
       "width",
       this.viewModel.dayWidth + "px"
     );
@@ -658,13 +662,13 @@ export default class Calendar {
     // Total width divided by six because the month container can have up to 6 weeks
     Utils.updateElementsStylePropertyBySelector(
       this.dom.mainContainer,
-      "[fyc_defaultday], .has-fyc_defaultday",
+      "[fyc-default-day], .has-fyc-default-day",
       "width",
       currentContainerWidth / 6 + "px"
     );
     Utils.updateElementsStylePropertyBySelector(
       this.dom.mainContainer,
-      "[fyc_weekdayname], .has-fyc_weekdayname",
+      "[fyc-week-day-name], .has-fyc-week-day-name",
       "width",
       currentContainerWidth / 6 + "px"
     );
@@ -728,7 +732,7 @@ export default class Calendar {
     if (this.viewModel.showNavigationToolBar === true) {
       // TODO: Add these controls to the DOM and update them directly.
       this.dom.mainContainer.querySelector(
-        ".fyc_NavToolbarSelectedYear"
+        "." + CSS_CLASS_NAMES.NAV_TOOLBAR_SELECTED_YEAR
       ).innerText = this.viewModel.selectedYear;
     }
 
@@ -772,9 +776,7 @@ export default class Calendar {
           : "";
 
       // Stores the Year, Month and Day no the calendar object as [yyyy, month, day]
-      this.dom.daysInMonths[currentMonth][
-        iDayCell
-      ].value = dayCellContent
+      this.dom.daysInMonths[currentMonth][iDayCell].value = dayCellContent
         ? [
             this.viewModel.selectedYear,
             currentMonth + 1,
@@ -786,9 +788,8 @@ export default class Calendar {
         iDayCell
       ].dayDOMElement.innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? "0" + dayCellContent : dayCellContent;
       // Reapply the default Css class for the day
-      this.dom.daysInMonths[currentMonth][
-        iDayCell
-      ].dayDOMElement.className = this.viewModel.cssClassDefaultDay;
+      this.dom.daysInMonths[currentMonth][iDayCell].dayDOMElement.className =
+        CSS_CLASS_NAMES.DEFAULT_DAY;
 
       // Applies Customer dates style to the calendar
       if (dayCellContent !== "") {
@@ -796,8 +797,7 @@ export default class Calendar {
           .value[0]; //Year index
         const monthValue = this.dom.daysInMonths[currentMonth][iDayCell]
           .value[1]; //Month index
-        const dayValue = this.dom.daysInMonths[currentMonth][iDayCell]
-          .value[2]; //Day index
+        const dayValue = this.dom.daysInMonths[currentMonth][iDayCell].value[2]; //Day index
 
         const currentDate = new Date(yearValue, monthValue - 1, dayValue); //Uses the previously stored date information
         this.dom.daysInMonths[currentMonth][
@@ -810,8 +810,7 @@ export default class Calendar {
         // Add the class hideInMobile to the DayCell above and equal to 35 because if that cell is empty then the entire row can be hidden
         if (
           iDayCell >= 35 &&
-          this.dom.daysInMonths[currentMonth][35].dayDOMElement
-            .innerText === ""
+          this.dom.daysInMonths[currentMonth][35].dayDOMElement.innerText === ""
         )
           this.dom.daysInMonths[currentMonth][
             iDayCell
@@ -861,7 +860,7 @@ export default class Calendar {
       // Validates if the value is an actual date
       if (!isNaN(auxDate.valueOf())) {
         if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
-          cssClassToApply += " " + this.viewModel.cssClassSelectedDay;
+          cssClassToApply += " " + CSS_CLASS_NAMES.SELECTED_DAY;
         }
       }
     }, this);
@@ -895,7 +894,7 @@ export default class Calendar {
         }
         if (new Date(currentDate).getDay() === dayNumber) {
           // Name of the property. A Css class with the same name should exist
-          cssClassToApply += " " + this.viewModel.cssClassWeekendDay;
+          cssClassToApply += " " + CSS_CLASS_NAMES.WEEKEND_DAY;
         }
       }, this);
     }
@@ -910,8 +909,7 @@ export default class Calendar {
   _fitToContainer() {
     // If the current width of the container is lower than the total width of the calendar we need to change to mobile view.
     if (
-      this.dom.mainContainer.offsetWidth <
-      this.viewModel.totalCalendarWidth
+      this.dom.mainContainer.offsetWidth < this.viewModel.totalCalendarWidth
     ) {
       this._changeToMobileView();
     } else {
@@ -953,6 +951,17 @@ export default class Calendar {
   }
 
   /**
+   * Applies all styles that might be needed to be applied after all the elements have been added to the dom.
+   */
+  _applyStyling() {
+    const childNodes = this.dom.mainContainer.querySelectorAll("div");
+
+    for (let iChild = 0; iChild < childNodes.length; iChild++) {
+      childNodes[iChild].style.boxSizing = "border-box";
+    }
+  }
+
+  /**
    * Handles the events that were triggered on the the Calendar main container. The events handled are `click`, `mouseover`, `mousedown` and `mouseup`.
    *
    * @param {Object} event Event Object that triggered the event.
@@ -963,7 +972,7 @@ export default class Calendar {
     const srcElement = event.srcElement;
 
     // If the click was triggered on a day element
-    if (srcElement.classList.contains("defaultDay")) {
+    if (srcElement.classList.contains(CSS_CLASS_NAMES.DEFAULT_DAY)) {
       const monthIndex = srcElement.getAttribute("m");
       const dayIndex = srcElement.getAttribute("d");
       const dayInfo = this.dom.daysInMonths[monthIndex][dayIndex];
@@ -1008,10 +1017,10 @@ export default class Calendar {
       this.__mouseDownInformation = null;
       // Clears any possible temporary multi selection
       const elements = this.dom.mainContainer.querySelectorAll(
-        "." + this.viewModel.cssClassMultiSelection
+        "." + CSS_CLASS_NAMES.MULTI_SELECTION
       );
       for (let i = 0; i < elements.length; i++) {
-        elements[i].classList.remove(this.viewModel.cssClassMultiSelection);
+        elements[i].classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
       }
     }
   }
@@ -1037,12 +1046,11 @@ export default class Calendar {
     if (selectedDayIndex > -1) {
       this.viewModel.selectedDates.values.splice(selectedDayIndex, 1);
       dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className
-        .split(" " + this.viewModel.cssClassSelectedDay)
+        .split(" " + CSS_CLASS_NAMES.SELECTED_DAY)
         .join("");
     } else {
       this.viewModel.selectedDates.values.push(dayValue);
-      dayInfo.dayDOMElement.className +=
-        " " + this.viewModel.cssClassSelectedDay;
+      dayInfo.dayDOMElement.className += " " + CSS_CLASS_NAMES.SELECTED_DAY;
     }
 
     // If the onDayClick function is defined then trigger the call
@@ -1143,12 +1151,12 @@ export default class Calendar {
 
       // Changes the style of the multi-selection into selectedDay
       const elements = this.dom.mainContainer.querySelectorAll(
-        "." + this.viewModel.cssClassMultiSelection
+        "." + CSS_CLASS_NAMES.MULTI_SELECTION
       );
       for (let i = 0; i < elements.length; i++) {
         elements[i].classList.replace(
-          this.viewModel.cssClassMultiSelection,
-          this.viewModel.cssClassSelectedDay
+          CSS_CLASS_NAMES.MULTI_SELECTION,
+          CSS_CLASS_NAMES.SELECTED_DAY
         );
       }
     }
@@ -1210,9 +1218,7 @@ export default class Calendar {
             iDay++
           ) {
             if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(
-                this.dom.daysInMonths[iMonth][iDay]
-              );
+              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
             }
           }
         }
@@ -1220,9 +1226,7 @@ export default class Calendar {
         if (iMonth === dayInfo.monthIndex) {
           for (let iDay = 0; iDay <= dayInfo.dayIndex; iDay++) {
             if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(
-                this.dom.daysInMonths[iMonth][iDay]
-              );
+              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
             }
           }
         }
@@ -1231,15 +1235,9 @@ export default class Calendar {
           iMonth > mouseDownDayInfo.monthIndex &&
           iMonth < dayInfo.monthIndex
         ) {
-          for (
-            let iDay = 0;
-            iDay <= this.viewModel.totalNumberOfDays;
-            iDay++
-          ) {
+          for (let iDay = 0; iDay <= this.viewModel.totalNumberOfDays; iDay++) {
             if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(
-                this.dom.daysInMonths[iMonth][iDay]
-              );
+              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
             }
           }
         }
@@ -1255,9 +1253,7 @@ export default class Calendar {
         if (iMonth === mouseDownDayInfo.monthIndex) {
           for (let iDay = mouseDownDayInfo.dayIndex; iDay >= 0; iDay--) {
             if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(
-                this.dom.daysInMonths[iMonth][iDay]
-              );
+              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
             }
           }
         }
@@ -1269,9 +1265,7 @@ export default class Calendar {
             iDay--
           ) {
             if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(
-                this.dom.daysInMonths[iMonth][iDay]
-              );
+              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
             }
           }
         }
@@ -1280,15 +1274,9 @@ export default class Calendar {
           iMonth < mouseDownDayInfo.monthIndex &&
           iMonth > dayInfo.monthIndex
         ) {
-          for (
-            let iDay = this.viewModel.totalNumberOfDays;
-            iDay >= 0;
-            iDay--
-          ) {
+          for (let iDay = this.viewModel.totalNumberOfDays; iDay >= 0; iDay--) {
             if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(
-                this.dom.daysInMonths[iMonth][iDay]
-              );
+              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
             }
           }
         }
@@ -1298,10 +1286,10 @@ export default class Calendar {
     if (tempSelectedDates.length > 0) {
       // Clear possible previously mutli selected days
       const elements = this.dom.mainContainer.querySelectorAll(
-        "." + this.viewModel.cssClassMultiSelection
+        "." + CSS_CLASS_NAMES.MULTI_SELECTION
       );
       for (let i = 0; i < elements.length; i++) {
-        elements[i].classList.remove(this.viewModel.cssClassMultiSelection);
+        elements[i].classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
       }
 
       this.__mouseDownInformation["tempSelectedDatesValues"] = [];
@@ -1312,7 +1300,7 @@ export default class Calendar {
         );
         this.__mouseDownInformation["tempSelectedDatesValues"].push(dayValue);
         tempSelectedDates[index].dayDOMElement.className +=
-          " " + this.viewModel.cssClassMultiSelection;
+          " " + CSS_CLASS_NAMES.MULTI_SELECTION;
       }
     }
   }

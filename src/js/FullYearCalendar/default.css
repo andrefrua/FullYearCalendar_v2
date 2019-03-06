@@ -1,119 +1,192 @@
-﻿/*Month names*/
+﻿/*
+* FullYearCalendar main container.
+*/
 
-.fyc_MainContainer * {
-    box-sizing: border-box;
+.fyc-main-container {
+    border: 1px solid #ccc;
+    background-color: #fffff6;
+    padding: 5px;
+    margin: 5px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #fff;
 }
 
-.fyc_MonthName {
+/*
+ * Month name container.
+ */
+
+.fyc-month-name {
     padding: 0 10px;
     color: #333;
     text-align: right;
 }
 
-/* WeekDay names */
+/*
+ * Week day name container.
+ */
 
-.fyc_WeekDayName {
-    background-Color: #DDD;
+.fyc-week-day-name {
+    background-color: #DDD;
     color: #666;
     padding: 2px;
 }
 
-/* Month row */
+/*
+ * Month row container.
+ */
 
-.fyc_MonthRow {
+.fyc-month-row {
     margin-bottom: 5px;
 }
 
-/* Default day */
+/*
+ * Default day container.
+ */
 
-.fyc_DefaultDay {
+.fyc-default-day {
     color: #333;
     border: 1px solid #DDD;
 }
 
-.fyc_DefaultDay:not(:empty):hover {
+.fyc-default-day:not(:empty):hover {
     background-color: #333;
     color: #ddd;
     cursor: pointer;
 }
 
-.fyc_DefaultDay:last-child {
+.fyc-default-day:last-child {
     border-right: 1px solid #DDD;
 }
 
-.fyc_DefaultDay:nth-child(7n+0) {
+.fyc-default-day:nth-child(7n+0) {
     border-right: 1px solid #BBB;
 }
 
-.fyc_SelectedDay {
+/*
+ * Style to be applied to the selected day.
+ */
+
+.fyc-selected-day {
     background-color: #AAA;
 }
 
-.fyc_WeekendDay {
+/*
+ * Style to be applied to the weekend days.
+ */
+
+.fyc-weekend-day {
     font-weight: bold;
     background-color: #DDD;
     border: 1px solid #DDD;
 }
 
-.fyc_MultiSelection {
+/*
+ * Style to be applied when doing a multiple day selection.
+ */
+
+.fyc-multi-selection {
     background-color: #777;
     color: #fff;
 }
 
-/* Legend containers styles */
+/********************************************/
 
-.fyc_legendContainer {
+/******* Legend styles **********************/
+
+/********************************************/
+
+/*
+ * Legend container.
+ */
+
+.fyc-legend-container {
     padding: 2px;
 }
 
-.fyc_legendPropertyDay {
+/*
+ * Legend property day container.
+ */
+
+.fyc-legend-property-day {
     border: 1px solid #BBB;
 }
 
-.fyc_legendPropertyCaption {
+/*
+ * Legend property caption.
+ */
+
+.fyc-legend-property-caption {
     padding: 0 5px;
 }
 
-.fyc_legendVerticalClear {
+/*
+ * Legend vertical clear (only applied when legend style is set to `block`.
+ */
+
+.fyc-legend-vertical-clear {
     margin-top: 5px;
 }
 
-/* Navigation toolbar */
+/********************************************/
 
-.fyc_NavToolbarWrapper {
+/******* Navigation toolbar *****************/
+
+/********************************************/
+
+/*
+ * Navigation toolbar wrapper.
+ */
+
+.fyc-nav-toolbar-wrapper {
     text-align: center;
 }
 
-.fyc_NavToolbarContainer {
+/*
+ * Navigation toolbar container (there is one container per control).
+ */
+
+.fyc-nav-toolbar-container {
     display: inline-block;
     margin-bottom: 5px;
 }
 
-.fyc_NavToolbarSelectedYear {
+/*
+ * Selected year container.
+ */
+
+.fyc-nav-toolbar-selected-year {
     margin: 0 100px;
 }
 
-.fyc_NavButtonPreviousYear, .fyc_NavButtonNextYear {
-    background-Color: #DDD;
+/*
+ * Navigation buttons.
+ */
+
+.fyc-nav-button-previous-year, .fyc-nav-button-next-year {
+    background-color: #DDD;
     color: #666;
     padding: 2px 5px;
     font-size: 1vw;
 }
 
-.fyc_IconPreviousYear {
+/*
+ * Navigation icon button.
+ */
+
+.fyc-icon-previous-year, .fyc-icon-next-year {
     padding: 2px;
     margin: 0 3px;
 }
 
-.fyc_IconPreviousYear:before {
+.fyc-icon-previous-year:before {
     content: "\003c";
+    font-weight: 700;
 }
 
-.fyc_IconNextYear {
-    padding: 2px;
-    margin: 0 3px;
-}
-
-.fyc_IconNextYear:before {
+.fyc-icon-next-year:before {
     content: "\003e";
+    font-weight: 700;
 }

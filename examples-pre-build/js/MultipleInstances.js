@@ -27,16 +27,6 @@ const configObj1 = {
   showLegend: true,
   legendStyle: "Inline",
   showNavigationToolBar: true,
-  cssClassMonthRow: "monthRow",
-  cssClassMonthName: "monthName",
-  cssClassWeekDayName: "weekDayName",
-  cssClassDefaultDay: "defaultDay",
-  cssClassSelectedDay: "selectedDay",
-  cssClassMultiSelection: "multiSelect",
-  cssClassNavButtonPreviousYear: "btn btn-default btn-sm",
-  cssClassNavButtonNextYear: "btn btn-default btn-sm",
-  cssClassNavIconPreviousYear: "fa fa-chevron-left",
-  cssClassNavIconNextYear: "fa fa-chevron-right",
   captionNavButtonPreviousYear: "",
   captionNavButtonNextYear: "",
   customDates: {
@@ -101,10 +91,8 @@ fullYearCalendar1.onYearChanged = function(selectedYear) {
 const divFullYearCalendar2 = document.getElementById("divFullYearCalendar2");
 const configObj2 = {
   selectedYear: 2019,
-  cssClassSelectedDay: "selectedDay2",
   showLegend: true,
   weekendDays: ["Sat", "Sun"],
-  cssClassWeekendDay: "weekendDay",
   showWeekDaysNameEachMonth: true,
   showNavigationToolBar: true,
   captionNavButtonPreviousYear: "Previous",
