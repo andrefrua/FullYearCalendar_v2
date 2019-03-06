@@ -1,4 +1,4 @@
-import Calendar from "../../dist/js/FullYearCalendar/Calendar.js";
+import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
 
 // Create the instance for the calendar
 const divFullYearCalendar1 = document.getElementById("divFullYearCalendar1");
@@ -98,10 +98,10 @@ const configObj2 = {
   captionNavButtonPreviousYear: "Previous",
   captionNavButtonNextYear: "Next",
   customDates: {
-    spring: {
+    somePeriod: {
       recurring: true,
-      caption: "Spring",
-      cssClass: "spring",
+      caption: "Some period to update",
+      cssClass: "somePeriod",
       values: {
         start: "2019-03-21",
         end: "2019-06-21"
@@ -153,10 +153,10 @@ btnUpdateSelectedDays1.onclick = function(e) {
       cssClass: "importedDay",
       values: selectedDays1
     },
-    spring: {
+    somePeriod: {
       recurring: true,
-      caption: "Spring",
-      cssClass: "spring",
+      caption: "Some period updated",
+      cssClass: "somePeriod",
       values: {
         start: "2019-07-22",
         end: "2019-09-21"

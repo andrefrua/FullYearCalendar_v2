@@ -1,0 +1,216 @@
+/************************
+** Custom dates styles **
+************************/
+
+.calendar2 .somePeriod {
+  background-color: darkred;
+  border: 1px solid darkred;
+}
+
+.calendar2 .importedDay {
+  background-color: darkorchid;
+  border: 1px solid darkorchid;
+}
+
+/***********************************************************
+***********************************************************
+* Override of the default FullYearCalendar Css Classes.
+***********************************************************
+**********************************************************/
+
+/*
+* FullYearCalendar main container.
+*/
+
+.calendar2 .fyc-main-container {
+  border: 1px solid #000;
+  background-color: #333;
+  padding: 5px;
+  margin: 5px;
+}
+
+/*
+* Month name container.
+*/
+
+.calendar2 .fyc-month-name {
+  padding: 0 10px;
+  color: #ccc;
+  text-align: right;
+}
+
+/*
+* Week day name container.
+*/
+
+.calendar2 .fyc-week-day-name {
+  background-color: #333;
+  color: #ccc;
+  border: 1px solid #ccc;
+  padding: 2px;
+  border-bottom: none;
+}
+
+/*
+* Month row container.
+*/
+
+.calendar2 .fyc-month-row {
+  margin-bottom: 5px;
+}
+
+/*
+* Default day container.
+*/
+
+.calendar2 .fyc-default-day {
+  color: #ccc;
+  border: 1px solid #DDD;
+}
+
+.calendar2 .fyc-default-day:not(:empty):hover {
+  background-color: lightskyblue;
+  border: 1px solid lightskyblue;
+  color: #333;
+  cursor: pointer;
+}
+
+.calendar2 .fyc-default-day:last-child {
+  border-right: 1px solid #DDD;
+}
+
+.calendar2 .fyc-default-day:nth-child(7n+0) {
+  border-right: 1px solid #BBB;
+}
+
+/*
+* Style to be applied to the selected day.
+*/
+
+.calendar2 .fyc-selected-day {
+  background-color: plum;
+  border: 1px solid plum;
+  color: #333;
+}
+
+/*
+* Style to be applied to the weekend days.
+*/
+
+.calendar2 .fyc-weekend-day {
+  font-weight: bold;
+  background-color: #CCC;
+  border: 1px solid #CCC;
+  color: #333;
+}
+
+/*
+* Style to be applied when doing a multiple day selection.
+*/
+
+.calendar2 .fyc-multi-selection {
+  background-color: lightsalmon;
+  border: 1px solid lightsalmon;
+  color: #333;
+}
+
+/********************************************/
+
+/******* Legend styles **********************/
+
+/********************************************/
+
+/*
+* Legend container.
+*/
+
+.calendar2 .fyc-legend-container {
+  padding: 2px;
+}
+
+/*
+* Legend property day container.
+*/
+
+.calendar2 .fyc-legend-property-day {
+  border: 1px solid #BBB;
+}
+
+/*
+* Legend property caption.
+*/
+
+.calendar2 .fyc-legend-property-caption {
+  padding: 0 5px;
+  color: #ccc;
+}
+
+/*
+* Legend vertical clear (only applied when legend style is set to `block`.
+*/
+
+.calendar2 .fyc-legend-vertical-clear {
+  margin-top: 5px;
+}
+
+/********************************************/
+
+/******* Navigation toolbar *****************/
+
+/********************************************/
+
+/*
+* Navigation toolbar wrapper.
+*/
+
+.calendar2 .fyc-nav-toolbar-wrapper {
+  text-align: center;
+}
+
+/*
+* Navigation toolbar container (there is one container per control).
+*/
+
+.calendar2 .fyc-nav-toolbar-container {
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+/*
+* Selected year container.
+*/
+
+.calendar2 .fyc-nav-toolbar-selected-year {
+  margin: 0 100px;
+  color: #ccc;
+}
+
+/*
+* Navigation buttons.
+*/
+
+.calendar2 .fyc-nav-button-previous-year, .fyc-nav-button-next-year {
+  background-color: #DDD;
+  color: #666;
+  padding: 2px 5px;
+  font-size: 1vw;
+}
+
+/*
+* Navigation icon button.
+*/
+
+.calendar2 .fyc-icon-previous-year, .fyc-icon-next-year {
+  padding: 2px;
+  margin: 0 3px;
+}
+
+.calendar2 .fyc-icon-previous-year:before {
+  content: "\003c";
+  font-weight: 700;
+}
+
+.calendar2 .fyc-icon-next-year:before {
+  content: "\003e";
+  font-weight: 700;
+}
