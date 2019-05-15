@@ -1,34 +1,18 @@
+Endireitar nomes dos eventos face aos métodos das acções.
+   On change event ainda não está feito.
+   On method directamente sem o dispatcher pelo meio
+   ViewModel.days falta e refactor de Day.
+   Fix removeEventListeners no window
+   this._onResize = this._onResize.bind(this)
+
 TPC:
-  - Make some validations, for example, missing public arguments that are required.
-  - remove getters / setters where not necessary, for example calendar
-  - Change Documentation object types to the actual object types. Use Alias instead of name in the JS Doc
-  - Install jsdoc to check if the documentation is ok. And check the View Model jsdoc config object.
-  - Remove DOM day elements from the DOM and move everytjin into the VM.
+1. Endireitar o Calendar
+2. Chamar acções do ViewModel para todas as acções mesmo que para mocks do lado do ViewModel
+3. Afinar alguns dos nomes dos métodos, se calhar em caminho
+4. Stretch goal: endireitar os add/remove event listeners - DONE
 
-  - Improve the build process, at this point I have to maintain two examples folders, one using the built code and
-    another with the pre built code.
-
-OLD:
-  - Add Babel to enabled the possibility to use Arrow functions and other ES6 features. - DONE
-  - Add prettier extension. - DONE
-  - Change to two spaces. - DONE
-  - Change the current code to use ES6 features. - DONE
-  - Rename redundant variable names on the Calendar.js file. `calendarVM` and `calendarDom`. - DONE
-  - Check CSS custom to be able to override them without issues. - DONE
-  - BEM - Methodology. DONE
-
-Bugs / Issues:
-  - Added drag selection - still buggy
-  - Legends aren't being updated when adding new customDates
-  - I believe that the selectedDays shouldn't have a different list, instead the days should have a property saying if they are selected or not.
-
-
-Questions / Doubts:
-
-
-Naming convention
-- Abrev. -
-- DOM    - Dom
-- Id.    -
-- BI     -
-- JS     - J
+5. Update the Render of the calendar in response to the selectedYear change instead of the way it is at the moment - DONE
+6. Add the eventListeners for the navigation buttons using the element itself. - DONE
+7. ViewModel.days falta e refactor de Day + acção para fazer o update do calendário - DONE
+8. Render the calendar in response to the selection of the year - DONE
+9. The event listener should automatically attach the handler when created - DONE - I'm not pleased with the solution.

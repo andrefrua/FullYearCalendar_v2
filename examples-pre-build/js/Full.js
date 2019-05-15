@@ -6,23 +6,9 @@ const configObj = {
   selectedYear: new Date().getFullYear(),
   dayWidth: 25,
   showWeekDaysNameEachMonth: false,
-  monthNames: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec"
-  ],
-  weekDayNames: ["Su", "Mo", "Th", "We", "Tu", "Fr", "Sa"],
-  weekStartDay: "Sun",
-  weekendDays: ["Sat", "Sun"],
+  locale: "pt-PT",
+  weekStartDay: 0, // Sunday
+  weekendDays: [0, 6],
   alignInContainer: "center",
   showLegend: true,
   legendStyle: "Inline",
@@ -69,22 +55,22 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.onDayClick = function(dayContainer, clickedDate) {
-  document.getElementById(
-    "inputClickedDay"
-  ).value = clickedDate.toISOString().slice(0, 10);
-};
-fullYearCalendar.onDayMouseOver = function(dayContainer, clickedDate) {
-  document.getElementById(
-    "inputHoveredDay"
-  ).value = clickedDate.toISOString().slice(0, 10);
-};
-fullYearCalendar.onYearChanged = function(selectedYear) {
-  let inputYearChanged = document.getElementById("inputYearChanged");
-  inputYearChanged.innerText = !isNaN(inputYearChanged.innerText)
-    ? parseInt(inputYearChanged.innerText) + 1
-    : 0;
-};
+// fullYearCalendar.onDayClick = function(dayContainer, clickedDate) {
+//   document.getElementById(
+//     "inputClickedDay"
+//   ).value = clickedDate.toISOString().slice(0, 10);
+// };
+// fullYearCalendar.onDayMouseOver = function(dayContainer, clickedDate) {
+//   document.getElementById(
+//     "inputHoveredDay"
+//   ).value = clickedDate.toISOString().slice(0, 10);
+// };
+// fullYearCalendar.onYearChanged = function(selectedYear) {
+//   let inputYearChanged = document.getElementById("inputYearChanged");
+//   inputYearChanged.innerText = !isNaN(inputYearChanged.innerText)
+//     ? parseInt(inputYearChanged.innerText) + 1
+//     : 0;
+// };
 
 /** Outside controls */
 

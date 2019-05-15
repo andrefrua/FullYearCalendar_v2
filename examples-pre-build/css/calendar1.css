@@ -71,6 +71,11 @@
 * Default day container.
 */
 
+.calendar1 .fyc-empty-day {
+  color: #333;
+  border: 1px solid #DDD;
+}
+
 .calendar1 .fyc-default-day {
   color: #333;
   border: 1px solid #DDD;

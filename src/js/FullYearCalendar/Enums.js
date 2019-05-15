@@ -1,15 +1,13 @@
-"use strict";
-
 /**
- * TODO
+ * Property names used on the viewModel. This properties can be overriden by the users.
+ *
  * @const {Array}
  */
 export const PROPERTY_NAMES = [
   // Default properties
   "dayWidth",
   "showWeekDaysNameEachMonth",
-  "monthNames",
-  "weekDayNames",
+  "locale",
   "alignInContainer",
   "selectedYear",
   "weekStartDay",
@@ -23,15 +21,11 @@ export const PROPERTY_NAMES = [
   // Custom dates
   "customDates",
   "selectedDates"
-  // Calculated properties - READONLY
-  // "totalNumberOfDays",
-  // "weekStartDayNumber",
-  // "monthNameWidth",
-  // "totalCalendarWidth"
 ];
 
 /**
- * TODO
+ * Css class names for the calendar elements. These classes can be used to change the calendar appearance.
+ *
  * @const {Object}
  */
 export const CSS_CLASS_NAMES = {
@@ -39,6 +33,7 @@ export const CSS_CLASS_NAMES = {
   MONTH_NAME: "fyc-month-name",
   WEEK_DAY_NAME: "fyc-week-day-name",
   MONTH_ROW: "fyc-month-row",
+  EMPTY_DAY: "fyc-empty-day",
   DEFAULT_DAY: "fyc-default-day",
   SELECTED_DAY: "fyc-selected-day",
   WEEKEND_DAY: "fyc-weekend-day",
@@ -54,4 +49,17 @@ export const CSS_CLASS_NAMES = {
   NAV_BUTTON_NEXT_YEAR: "fyc-nav-button-next-year",
   NAV_ICON_PREVIOUS_YEAR: "fyc-icon-previous-year",
   NAV_ICON_NEXT_YEAR: "fyc-icon-next-year"
+};
+
+/**
+ * Option values that can be used with Intl to represent a part or multiple parts of a date.
+ *
+ * @const {Object}
+ */
+export const REPRESENTATION_VALUES = {
+  LONG: "long",
+  SHORT: "short",
+  NARROW: "narrow",
+  NUMERIC: "numeric",
+  TWO_DIGIT: "2-digit"
 };

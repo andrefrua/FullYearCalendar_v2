@@ -6,23 +6,9 @@ const configObj1 = {
   selectedYear: new Date().getFullYear(),
   dayWidth: 20,
   showWeekDaysNameEachMonth: false,
-  monthNames: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec"
-  ],
-  weekDayNames: ["Su", "Mo", "Th", "We", "Tu", "Fr", "Sa"],
-  weekStartDay: "Sun",
-  weekendDays: ["Sat", "Sun"],
+  locale: "en-US",
+  weekStartDay: 0,
+  weekendDays: [0, 6],
   alignInContainer: "center",
   showLegend: true,
   legendStyle: "Inline",
@@ -92,7 +78,7 @@ const divFullYearCalendar2 = document.getElementById("divFullYearCalendar2");
 const configObj2 = {
   selectedYear: 2019,
   showLegend: true,
-  weekendDays: ["Sat", "Sun"],
+  weekendDays: [0, 6],
   showWeekDaysNameEachMonth: true,
   showNavigationToolBar: true,
   captionNavButtonPreviousYear: "Previous",
@@ -145,13 +131,13 @@ chkShowWeekDaysNameEachMonth1.onchange = function(e) {
 };
 
 btnUpdateSelectedDays1.onclick = function(e) {
-  const selectedDays1 = fullYearCalendar1.getSelectedDays();
+  const importedDaysFromCalendar1 = fullYearCalendar1.getSelectedDays();
 
   const customDates = {
-    selectedDays: {
-      caption: "Selected days",
+    importedDay: {
+      caption: "Selected days from Calendar 1",
       cssClass: "importedDay",
-      values: selectedDays1
+      values: importedDaysFromCalendar1
     },
     somePeriod: {
       recurring: true,

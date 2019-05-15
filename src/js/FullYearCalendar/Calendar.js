@@ -1,866 +1,202 @@
-"use strict";
+/**
+ * TODOs:
+ * - Needs a better way to handle the mobile view mode. As of now when in mobile view there are days
+ * shown wrongly. The `hideInMobile` is not being used anymore.
+ * - Some events should be available to the users, via callback or something else. As it was before:
+ *  - Year changed - `this.onYearChanged()`
+ *  - Day mouse hover - `this.onDayMouseOver()`
+ *  - Day mouse down - `this.onDayMouseDown()`
+ *  - Day mouse up - `this.onDayMouseUp()`
+ */
 
 import ViewModel from "./ViewModel.js";
 import Utils from "./Utils.js";
 import Dom from "./Dom.js";
+import EventListeners from "./EventListeners/EventListeners.js";
+import EventListener from "./EventListeners/EventListener.js";
 import { CSS_CLASS_NAMES } from "./Enums.js";
 
 /**
- * FullYearCalendar
  * Used to highlight important events for specific days throughout a specified year.
+ *
+ * @export
+ * @class Calendar
  */
 export default class Calendar {
+  /**
+   * Creates an instance of Calendar.
+   *
+   * @param {Object} domElement
+   * @param {Object} [config={}]
+   *
+   * @memberof Calendar
+   */
   constructor(domElement, config = {}) {
     this.viewModel = new ViewModel(config);
-    this.dom = new Dom(domElement);
+    // Object that stores the DOM elements needed by the Calendar.
+    this._dom = new Dom(domElement, this.viewModel);
+    // Array that will store all the eventListeners needed for the Calendar to work.
+    this._eventListeners = new EventListeners();
+    // Object that stores the information related to the mouse down event.
+    this._mouseDownInformation = null;
 
+    this._init();
     this._render();
   }
 
   // #region Getters and Setters
+
   /**
    * Object representing the ViewMdel used by the Calendar.
    *
    * @type {Object}
+   * @memberof Calendar
    */
   get viewModel() {
     return this._viewModel;
   }
+
   set viewModel(value) {
     this._viewModel = value;
   }
-  /**
-   * Object that stores DOM elements needed by the Calendar.
-   *
-   * @type {Object}
-   */
-  get dom() {
-    return this._dom;
-  }
-  set dom(value) {
-    this._dom = value;
-  }
+
   // #endregion Getters and Setters
-
-  // #region Public methods
-
-  /**
-   * Changes the current selected year to the next one.
-   */
-  goToNextYear() {
-    this._setSelectedYear(this.viewModel.selectedYear + 1);
-  }
-
-  /**
-   * Changes the current selected year to the previous one.
-   */
-  goToPreviousYear() {
-    this._setSelectedYear(this.viewModel.selectedYear - 1);
-  }
-
-  /**
-   * Changes the current selected year to the received one, as long as it is greater than 1970.
-   * @param {Number} yearToShow - Year to navigate to.
-   */
-  goToYear(yearToShow) {
-    yearToShow =
-      typeof yearToShow === "number" && yearToShow > 1970 ? yearToShow : null;
-
-    yearToShow ? this._setSelectedYear(yearToShow) : null;
-  }
-
-  /**
-   * Gets an array of all selected days
-   *
-   * @returns {Array} Selected days
-   */
-  getSelectedDays() {
-    return this.viewModel.selectedDates.values.slice();
-  }
-
-  // TODO: Add doc
-  refresh(config) {
-    this.viewModel.update(config);
-    this.dom.clear();
-
-    this._render();
-  }
-
-  // TODO: Add doc
-  refreshCustomDates(customDates, keepPrevious = true) {
-    if (keepPrevious) {
-      this.viewModel.updateCustomDates(customDates);
-    } else {
-      this.viewModel.replaceCustomDates(customDates);
-    }
-
-    this._setSelectedYear(this.viewModel.selectedYear);
-  }
-
-  // TODO: Add doc
-  dispose() {
-    window.removeEventListener("resize", this._onResize);
-    window.removeEventListener("mouseup", this._onMouseUp);
-
-    this.dom.domElement.removeEventListener(
-      "click",
-      this._onCalendarEventTriggered
-    );
-    this.dom.domElement.removeEventListener(
-      "mouseover",
-      this._onCalendarEventTriggered
-    );
-    this.dom.domElement.removeEventListener(
-      "mousedown",
-      this._onCalendarEventTriggered
-    );
-    this.dom.domElement.removeEventListener(
-      "mouseup",
-      this._onCalendarEventTriggered
-    );
-
-    this.dom.dispose();
-    delete this.dom;
-    delete this.viewModel;
-  }
-  // #endregion Public methods
 
   // #region Private methods
 
   /**
-   * Adds the DOM elements needed to to render the calendar
-   */
-  _render() {
-    this._createMainContainer();
-
-    this._addDOMMonth();
-
-    if (this.viewModel.showNavigationToolBar === true)
-      this._addNavigationToolBar();
-    if (this.viewModel.showLegend === true) this._addLegend();
-
-    this._setSelectedYear(this.viewModel.selectedYear);
-    this._fitToContainer();
-    this._registerEventHandlers();
-    this._applyStyling();
-  }
-
-  /**
-   * Creates the main container for the calendar and adds it to the received DOM element object.
-   */
-  _createMainContainer() {
-    this.dom.mainContainer = document.createElement("div");
-    this.dom.mainContainer.style.display = "inline-block";
-
-    this.dom.domElement.appendChild(this.dom.mainContainer);
-    this.dom.domElement.style.textAlign = this.viewModel.alignInContainer;
-    this.dom.domElement.className = CSS_CLASS_NAMES.MAIN_CONTAINER;
-  }
-
-  /**
-   * Adds a row for each month to the main container with the corresponding elements for the days.
-   */
-  _addDOMMonth() {
-    for (var iMonth = 0; iMonth < 12; iMonth++) {
-      // We need to have a container for the month name element so we can use vertical alignment
-      const monthNameContainer = document.createElement("div");
-      monthNameContainer.style.float = "left";
-
-      const monthContainer = this._createDOMElementMonthContainer();
-      const clearFixElement = this._createDOMClearFixElement();
-
-      // Adds the week days name container if `showWeekDaysNameEachMonth` is set to true
-      const weekDayNamesContainer = this._createDOMElementWeekDayNamesContainer(
-        true
-      );
-      this._addDOMDayName(weekDayNamesContainer);
-      this._addDOMElement(monthContainer, weekDayNamesContainer);
-
-      // Adds the days elements to the month container
-      this._addDOMDay(iMonth, monthContainer);
-
-      this._addDOMElement(
-        monthNameContainer,
-        this._createDOMElementMonthName(iMonth)
-      );
-      this._addDOMElement(this.dom.mainContainer, monthNameContainer);
-
-      this._addDOMElement(this.dom.mainContainer, monthContainer);
-      this._addDOMElement(this.dom.mainContainer, clearFixElement);
-    }
-    if (!this.viewModel.showWeekDaysNameEachMonth) {
-      this._addDOMWeekDayNameOnTop();
-    }
-  }
-
-  /**
-   * Adds the DOM elements for the days.
+   * Creates all the initial structure, adds the event listeners and event handlers.
    *
-   * @param {Number} currentMonth - Number of the month (Between 0 and 11).
-   * @param {HTMLElement} monthContainer - Container where the elements will be added.
+   * @private
+   * @memberof Calendar
    */
-  _addDOMDay(currentMonth, monthContainer) {
-    // Each week will have the days elements inside
-    let weekElement = null;
+  _init = () => {
+    this._dom.createStructure();
+    this._addEventListeners();
 
-    // Add an element for each day.
-    for (let iDay = 0; iDay <= this.viewModel.totalNumberOfDays; iDay++) {
-      // Creates a new container at the start of each week
-      if (iDay % 7 === 0) {
-        weekElement = this._createDOMElementWeek();
-      }
-
-      this._addDOMElement(
-        weekElement,
-        this._createDOMElementDay(currentMonth, iDay)
-      );
-      this._addDOMElement(monthContainer, weekElement);
-    }
-  }
-
-  /**
-   * Adds the DOM elements for the days.
-   *
-   * @param {Number} currentMonth - Number of the month (Between 0 and 11).
-   * @param {HTMLElement} monthContainer - Container where the elements will be added.
-   */
-  _addDOMDayName(monthContainer) {
-    //Each week will have the days elements inside
-    let weekElement = null;
-
-    // Add an element for each day.
-    for (var iDay = 0; iDay <= this.viewModel.totalNumberOfDays; iDay++) {
-      //Creates a new container at the start of each week
-      if (iDay % 7 === 0) {
-        weekElement = this._createDOMElementWeek(true);
-      }
-
-      this._addDOMElement(weekElement, this._createDOMElementDayName(iDay));
-      this._addDOMElement(monthContainer, weekElement);
-    }
-  }
-
-  /**
-   * Returns a DOM element with the name of the days of the week.
-   *
-   * @return {HTMLElement} - DOM element with the name of the days of the week.
-   */
-  _createDOMElementWeekDayNamesContainer(isMonthly) {
-    const weekDayNamesContainer = document.createElement("div");
-    weekDayNamesContainer.className = isMonthly
-      ? "divWeekDayNamesMonthly"
-      : "divWeekDayNamesYearly";
-    // Hides the container if we just want to have one container with the week names at the top.
-    if (!this.viewModel.showWeekDaysNameEachMonth && !isMonthly) {
-      weekDayNamesContainer.style.display = "none";
-    }
-    return weekDayNamesContainer;
-  }
-
-  /**
-   * Adds a container with the week day names at the top of the calendar.
-   */
-  _addDOMWeekDayNameOnTop() {
-    // Creates one container to be placed at the top of the calendar
-    const weekDayNamesOnTopContainer = document.createElement("div");
-
-    // Container that will be on top of the Months names
-    const monthNameContainer = document.createElement("div");
-    monthNameContainer.className = CSS_CLASS_NAMES.MONTH_NAME;
-    monthNameContainer.style.float = "left";
-    monthNameContainer.style.minWidth = this.viewModel.monthNameWidth + "px";
-    // Needs an empty space so that the container actual grows.
-    monthNameContainer.innerHTML = "&nbsp;";
-
-    // Container that will actually have the Week days names
-    const monthContainer = document.createElement("div");
-    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW;
-    monthContainer.style.float = "left";
-    // Adds the week days name container to the month container
-    const weekDayNamesContainer = this._createDOMElementWeekDayNamesContainer(
-      false
+    /**
+     * TODO: We should simply be listening to the change event instead of a specific event, receiving the information
+     * of which property was changed.
+     * Maybe use a prefix like _did_ to identify what really happened.
+     */
+    this.viewModel.eventDispatcher.on(
+      "daySelectionChanged",
+      this._daySelectedChangedHandler.bind(this)
     );
-    this._addDOMDayName(weekDayNamesContainer);
-
-    // Adding the actual elements to the dom
-    this._addDOMElement(monthContainer, weekDayNamesContainer);
-    this._addDOMElement(weekDayNamesOnTopContainer, monthNameContainer);
-    this._addDOMElement(weekDayNamesOnTopContainer, monthContainer);
-    this._addDOMElement(
-      weekDayNamesOnTopContainer,
-      this._createDOMClearFixElement()
+    this.viewModel.eventDispatcher.on(
+      "yearSelectionChanged",
+      this._yearSelectedChangedHandler.bind(this)
     );
-
-    //Adds the names to the top of the main Calendar container
-    this._addDOMElementOnTop(
-      this.dom.mainContainer,
-      weekDayNamesOnTopContainer
-    );
-  }
+  };
 
   /**
-   * Returns a DOM element with the configurations to show the month name.
+   * Renders the days and other needed parts of the dom.
    *
-   * @param {Number} currentMonth - Number of the month (Between 0 and 11).
-   * @return {HTMLElement} - DOM Element with the actual month name.
+   * @private
+   * @memberof Calendar
    */
-  _createDOMElementMonthName(currentMonth) {
-    const monthNameElement = document.createElement("div");
-    monthNameElement.className = CSS_CLASS_NAMES.MONTH_NAME;
-    monthNameElement.style.display = "table-cell";
-    monthNameElement.style.verticalAlign = "middle";
-    monthNameElement.innerHTML = this.viewModel.monthNames[currentMonth];
-    monthNameElement.style.fontSize =
-      parseInt(this.viewModel.dayWidth / 2) + "px";
-    monthNameElement.style.height = this.viewModel.dayWidth + "px";
-    monthNameElement.style.minWidth = this.viewModel.monthNameWidth + "px";
+  _render = () => {
+    this._renderDays();
 
-    return monthNameElement;
-  }
+    this._dom.updateYear();
+  };
 
   /**
-   * Returns a DOM element with the configurations needed to create a week container.
-   * This is the container where the weeks elements should be added.
+   * TODO: The change to the Dom should be done by the Dom object instead.
+   * Refreshes the legend container, clearing it's current content and adding the new values inside the CustomDates
+   * object.
    *
-   * @return {HTMLElement} - DOM element with the container for the weeks.
+   * @private
+   * @memberof Calendar
    */
-  _createDOMElementMonthContainer() {
-    const monthContainer = document.createElement("div");
-    monthContainer.style.position = "relative";
-    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW;
-    monthContainer.style.float = "left";
-
-    return monthContainer;
-  }
-
-  /**
-   * Returns a DOM element with the configurations needed to create a week element.
-   *
-   * @param {boolean} isWeekDayName - Flag informing if it"s a week day name element or a default day element.
-   * @return {HTMLElement} - DOM element representing a week.
-   */
-  _createDOMElementWeek(isWeekDayName) {
-    const weekElement = document.createElement("div");
-    weekElement.className = "weekContainer" + (isWeekDayName ? " weekDay" : "");
-    weekElement.style.float = "left";
-
-    return weekElement;
-  }
-
-  /**
-   * Returns a DOM element with the configurations for a day.
-   *
-   * @param {Number} currentMonth - Number of the month (Between 0 and 11).
-   * @param {Number} currentDay - Number of the day (Between 0 and the `totalNumberOfDays` property).
-   * @return {HTMLElement} - The DOM element representing the day.
-   */
-  _createDOMElementDay(currentMonth, currentDay) {
-    const dayElement = document.createElement("div");
-
-    dayElement.setAttribute("fyc-default-day", "true");
-    // Used to identify the day when an event is triggered for it
-    dayElement.setAttribute("m", currentMonth);
-    dayElement.setAttribute("d", currentDay);
-    dayElement.style.height = this.viewModel.dayWidth + "px";
-    dayElement.style.minWidth = this.viewModel.dayWidth + "px";
-    dayElement.style.fontSize = parseInt(this.viewModel.dayWidth / 2.1) + "px";
-    dayElement.style.display = "table-cell";
-    dayElement.style.textAlign = "center";
-    dayElement.style.verticalAlign = "middle";
-
-    // These elements are only used for mobile view.
-    if (currentDay > 37) {
-      dayElement.setAttribute("fyc_isdummyday", true);
-      dayElement.style.display = "none";
-    }
-
-    const dayInfo = {
-      dayDOMElement: dayElement,
-      monthIndex: currentMonth,
-      dayIndex: currentDay,
-      value: null,
-      selected: false
-    };
-
-    // Store each one of the days inside the dom object.
-    if (typeof this.dom.daysInMonths[currentMonth] === "undefined") {
-      this.dom.daysInMonths[currentMonth] = [];
-    }
-    this.dom.daysInMonths[currentMonth].push(dayInfo);
-
-    return dayElement;
-  }
-
-  /**
-   * Returns a DOM element with the configurations for a day name.
-   *
-   * @param {Number} currentDay - Number of the day (Between 0 and the `totalNumberOfDays` property).
-   * @return {HTMLElement} - The DOM element representing the day name.
-   */
-  _createDOMElementDayName(currentDay) {
-    const dayNameElement = document.createElement("div");
-
-    // Current day + starting week day number - 1 (because of the zero index)
-    dayNameElement.innerHTML = this.viewModel.weekDayNames[
-      (currentDay + this.viewModel.weekStartDayNumber) % 7
-    ];
-    dayNameElement.className = CSS_CLASS_NAMES.WEEK_DAY_NAME;
-    dayNameElement.setAttribute("fyc-week-day-name", "true");
-    dayNameElement.style.height = this.viewModel.dayWidth + "px";
-    dayNameElement.style.minWidth = this.viewModel.dayWidth + "px";
-    dayNameElement.style.fontSize =
-      parseInt(this.viewModel.dayWidth / 2.1) + "px";
-    dayNameElement.style.display = "table-cell";
-    dayNameElement.style.textAlign = "center";
-    dayNameElement.style.verticalAlign = "middle";
-
-    // These elements are only used for mobile view.
-    if (currentDay > 37) {
-      dayNameElement.setAttribute("fyc_isdummyday", true);
-      dayNameElement.style.display = "none";
-    }
-
-    return dayNameElement;
-  }
-
-  /**
-   * Returns a DOM element used to force a line break after it has been placed.
-   *
-   * @return {HTMLElement} - The element that forces the line break.
-   */
-  _createDOMClearFixElement() {
-    //Adds a clear div so the next month shows under the previous one
-    const clearFixElement = document.createElement("div");
-    clearFixElement.style.clear = "both";
-    return clearFixElement;
-  }
-
-  /**
-   * Adds a child DOM element to a parent DOM element.
-   *
-   * @param {HTMLElement} parent - DOM element where we want to append the child.
-   * @param {HTMLElement} domElement - Child element to be added to the parent.
-   */
-  _addDOMElement(parent, domElement) {
-    parent.appendChild(domElement);
-  }
-
-  /**
-   * Adds a child DOM element at the top of the parent element.
-   *
-   * @param {HTMLElement} parent - DOM element where we want to append the child.
-   * @param {HTMLElement} domElement - Child element to be added to the parent.
-   */
-  _addDOMElementOnTop(parent, domElement) {
-    parent.insertBefore(domElement, parent.firstChild);
-  }
-
-  /**
-   * Creates the Html elements for the navigation toolbar and adds them to the main container at the top
-   */
-  _addNavigationToolBar() {
-    // Main container for the toolbar controls
-    const navToolbarWrapper = document.createElement("div");
-    navToolbarWrapper.className = CSS_CLASS_NAMES.NAV_TOOLBAR_WRAPPER;
-
-    // Previous year button navigation
-    const divBlockNavLeftButton = document.createElement("div");
-    divBlockNavLeftButton.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
-    const btnPreviousYear = document.createElement("button");
-    btnPreviousYear.className = CSS_CLASS_NAMES.NAV_BUTTON_PREVIOUS_YEAR;
-    btnPreviousYear.innerText = this.viewModel.captionNavButtonPreviousYear;
-    const iconPreviousYear = document.createElement("i");
-    iconPreviousYear.className = CSS_CLASS_NAMES.NAV_ICON_PREVIOUS_YEAR;
-    btnPreviousYear.prepend(iconPreviousYear);
-    divBlockNavLeftButton.appendChild(btnPreviousYear);
-
-    // Current year span
-    const divBlockNavCurrentYear = document.createElement("div");
-    divBlockNavCurrentYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
-    const spanSelectedYear = document.createElement("span");
-    spanSelectedYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_SELECTED_YEAR;
-    spanSelectedYear.innerText = this.viewModel.selectedYear;
-    divBlockNavCurrentYear.appendChild(spanSelectedYear);
-
-    // Next year button navigation
-    const divBlockNavRightButton = document.createElement("div");
-    divBlockNavRightButton.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
-    const btnNextYear = document.createElement("button");
-    btnNextYear.className = CSS_CLASS_NAMES.NAV_BUTTON_NEXT_YEAR;
-    btnNextYear.innerText = this.viewModel.captionNavButtonNextYear;
-    const iconNextYear = document.createElement("i");
-    iconNextYear.className = CSS_CLASS_NAMES.NAV_ICON_NEXT_YEAR;
-    btnNextYear.appendChild(iconNextYear);
-    divBlockNavRightButton.appendChild(btnNextYear);
-
-    // Adds the event listeners to the previous and next buttons.
-    this._addEventListenerToElement(
-      btnPreviousYear,
-      "click",
-      "goToPreviousYear"
-    );
-    this._addEventListenerToElement(btnNextYear, "click", "goToNextYear");
-
-    navToolbarWrapper.appendChild(divBlockNavLeftButton);
-    navToolbarWrapper.appendChild(divBlockNavCurrentYear);
-    navToolbarWrapper.appendChild(divBlockNavRightButton);
-
-    this.dom.mainContainer.insertBefore(
-      navToolbarWrapper,
-      this.dom.mainContainer.firstChild
-    );
-  }
-
-  /**
-   * Adds the legend to the FullYearCalendar according to each propoerty defined on the CustomDates object.
-   */
-  _addLegend() {
+  _refreshLegend = () => {
     if (this.viewModel.showLegend !== true) return;
 
-    const legendContainer = document.createElement("div");
-    legendContainer.className = CSS_CLASS_NAMES.LEGEND_CONTAINER;
+    const legendContainer = this._dom.domElement.querySelector(
+      `.${CSS_CLASS_NAMES.LEGEND_CONTAINER}`
+    );
 
-    for (let property in this.viewModel.customDates) {
-      // DefaultDay container that will look similar to the Day cell on the calendar
-      const divPropertyDefaultDay = document.createElement("div");
-      divPropertyDefaultDay.className = property;
-      divPropertyDefaultDay.style.width = this.viewModel.dayWidth + "px";
-      divPropertyDefaultDay.style.height = this.viewModel.dayWidth + "px";
-
-      // Default Day container
-      const divPropertyDefaultDayContainer = document.createElement("div");
-      divPropertyDefaultDayContainer.className =
-        CSS_CLASS_NAMES.LEGEND_PROPERTY_DAY;
-      divPropertyDefaultDayContainer.style.display = "table-cell";
-      divPropertyDefaultDayContainer.appendChild(divPropertyDefaultDay);
-
-      legendContainer.appendChild(divPropertyDefaultDayContainer);
-
-      // Property caption
-      const divPropertyCaption = document.createElement("div");
-      divPropertyCaption.className = CSS_CLASS_NAMES.LEGEND_PROPERTY_CAPTION;
-
-      if (
-        this.viewModel.customDates &&
-        this.viewModel.customDates[property] &&
-        this.viewModel.customDates[property].caption
-      ) {
-        divPropertyCaption.innerText = this.viewModel.customDates[
-          property
-        ].caption;
-      } else {
-        divPropertyCaption.innerText = property;
-      }
-
-      divPropertyCaption.style.display = "table-cell";
-      divPropertyCaption.style.verticalAlign = "middle";
-
-      legendContainer.appendChild(divPropertyCaption);
-
-      if (this.viewModel.legendStyle === "Block") {
-        const divClearBoth = document.createElement("div");
-        divClearBoth.className = CSS_CLASS_NAMES.LEGEND_VERTICAL_CLEAR;
-        divClearBoth.style.clear = "both";
-        legendContainer.appendChild(divClearBoth);
-      }
+    while (legendContainer.firstChild) {
+      legendContainer.removeChild(legendContainer.firstChild);
     }
-    this.dom.mainContainer.appendChild(legendContainer);
-  }
+
+    this._createLegendElements(legendContainer);
+  };
 
   /**
-   * Adds an event listener of the provided type to the specified element.
+   * Renders the days in the Calendar container using the `viewModel.days` array.
    *
-   * @param {Object} sender - Element to which the event should be associated to.
-   * @param {String} eventType - Event type (click, mouseover, or any other possible type).
-   * @param {String} functionToCall - Name of the function that should be called when the event is fired.
-   * @param {Object} params - Parameters that should be sent to the function.
+   * @private
+   * @memberof Calendar
    */
-  _addEventListenerToElement(sender, eventType, functionToCall, params) {
-    // For newers browsers
-    if (sender.addEventListener) {
-      sender.addEventListener(
-        eventType,
-        event => this[functionToCall](event, params),
-        false
+  _renderDays = () => {
+    const vm = this.viewModel;
+
+    // Clears all the day elements
+    this._dom.clearAllDaysElements();
+
+    vm.days.forEach(day => {
+      const dayDomElement = this._dom.getDayElement(
+        day.monthIndex,
+        day.dayIndex
       );
-    }
-    // For older browsers
-    else if (sender.attachEvent) {
-      sender.attachEvent("on" + eventType, event =>
-        this[functionToCall](event, params)
+
+      // Updates the day dom element.
+      dayDomElement.innerText = day.getDayNumber();
+      dayDomElement.className = CSS_CLASS_NAMES.DEFAULT_DAY;
+
+      // Let's apply the custom dates styles to the day
+      dayDomElement.className += this._applyCustomDateStyle(
+        this.viewModel.customDates,
+        day
       );
-    }
-  }
-
-  /**
-   * Change the view mode to Normal view.
-   */
-  _changeToNormalView() {
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      "[fyc-default-day], .has-fyc-default-day",
-      "width",
-      this.viewModel.dayWidth + "px"
-    );
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      "[fyc-week-day-name], .has-fyc-week-day-name",
-      "width",
-      this.viewModel.dayWidth + "px"
-    );
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".weekContainer.weekDay:nth-child(n+2)",
-      "display",
-      "block"
-    );
-
-    // Hides the dummy days because on big format they aren"t needed.
-    // NOTE: The order between the hideInMobile and fyc_isdummyday can"t be changed or it won"t work
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".hideInMobile",
-      "display",
-      "table-cell"
-    );
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      "[fyc_isdummyday], .has-fyc_isdummyday",
-      "display",
-      "none"
-    );
-
-    // WeekDays names handling
-    if (!this.viewModel.showWeekDaysNameEachMonth) {
-      Utils.updateElementsStylePropertyBySelector(
-        this.dom.mainContainer,
-        ".divWeekDayNamesMonthly",
-        "display",
-        "none"
-      );
-    }
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".divWeekDayNamesYearly",
-      "display",
-      "block"
-    );
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".monthName",
-      "text-align",
-      "right"
-    );
-  }
-
-  /**
-   * Change the view mode to Mobile view.
-   */
-  _changeToMobileView() {
-    const currentContainerWidth = this.dom.mainContainer.offsetWidth;
-
-    // Total width divided by six because the month container can have up to 6 weeks
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      "[fyc-default-day], .has-fyc-default-day",
-      "width",
-      currentContainerWidth / 6 + "px"
-    );
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      "[fyc-week-day-name], .has-fyc-week-day-name",
-      "width",
-      currentContainerWidth / 6 + "px"
-    );
-
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".weekContainer.weekDay:nth-child(n+2)",
-      "display",
-      "none"
-    );
-
-    // Shows the dummy days because on small format they are needed -
-    // NOTE: The order between the hideInMobile and fyc_isdummyday can"t be changed or it won"t work
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      "[fyc_isdummyday], .has-fyc_isdummyday",
-      "display",
-      "table-cell"
-    );
-
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".hideInMobile",
-      "display",
-      "none"
-    );
-
-    // WeekDays names handling
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".divWeekDayNamesMonthly",
-      "display",
-      "block"
-    );
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".divWeekDayNamesYearly",
-      "display",
-      "none"
-    );
-    Utils.updateElementsStylePropertyBySelector(
-      this.dom.mainContainer,
-      ".monthName",
-      "text-align",
-      "left"
-    );
-  }
-
-  /**
-   * Changes the calendar to reflect the year that was actually selected.
-   *
-   * @param {Number} currentYear - Year to be rendered.
-   */
-  _setSelectedYear(newSelectedYear) {
-    this.viewModel.selectedYear = newSelectedYear;
-
-    for (let iMonth = 0; iMonth < 12; iMonth++) {
-      this._setMonth(iMonth);
-    }
-
-    if (this.viewModel.showNavigationToolBar === true) {
-      // TODO: Add these controls to the DOM and update them directly.
-      this.dom.mainContainer.querySelector(
-        "." + CSS_CLASS_NAMES.NAV_TOOLBAR_SELECTED_YEAR
-      ).innerText = this.viewModel.selectedYear;
-    }
-
-    if (typeof this.onYearChanged === "function") {
-      this.onYearChanged(this.viewModel.selectedYear);
-    }
-  }
-
-  /**
-   * Changes the days elements for the received month.
-   *
-   * @param {Number} currentMonth - Value of the month that will be used.
-   */
-  _setMonth(currentMonth) {
-    // Gets the first day of the month so we know in which cell the month should start
-    let firstDayOfMonth =
-      new Date(this.viewModel.selectedYear, currentMonth, 1).getDay() -
-      this.viewModel.weekStartDayNumber;
-    firstDayOfMonth =
-      firstDayOfMonth < 0 ? 7 + firstDayOfMonth : firstDayOfMonth;
-
-    // Calculate the last day of the month
-    const lastDayOfMonth = new Date(
-      this.viewModel.selectedYear,
-      currentMonth + 1,
-      1,
-      -1
-    ).getDate();
-
-    // Loops through all the days cell created previously and changes it"s content accordingly
-    for (
-      let iDayCell = 0;
-      iDayCell < this.dom.daysInMonths[currentMonth].length;
-      iDayCell++
-    ) {
-      // If it's an actual day for the current month then adds the correct day if not then adds an empty string
-      const dayCellContent =
-        iDayCell >= firstDayOfMonth &&
-        iDayCell < firstDayOfMonth + lastDayOfMonth
-          ? iDayCell - firstDayOfMonth + 1
-          : "";
-
-      // Stores the Year, Month and Day no the calendar object as [yyyy, month, day]
-      this.dom.daysInMonths[currentMonth][iDayCell].value = dayCellContent
-        ? [
-            this.viewModel.selectedYear,
-            currentMonth + 1,
-            iDayCell - firstDayOfMonth + 1
-          ]
-        : null;
-      // Adds the content to the actual Html cell
-      this.dom.daysInMonths[currentMonth][
-        iDayCell
-      ].dayDOMElement.innerText = dayCellContent; //dayCellContent && dayCellContent < 10 ? "0" + dayCellContent : dayCellContent;
-      // Reapply the default Css class for the day
-      this.dom.daysInMonths[currentMonth][iDayCell].dayDOMElement.className =
-        CSS_CLASS_NAMES.DEFAULT_DAY;
-
-      // Applies Customer dates style to the calendar
-      if (dayCellContent !== "") {
-        const yearValue = this.dom.daysInMonths[currentMonth][iDayCell]
-          .value[0]; //Year index
-        const monthValue = this.dom.daysInMonths[currentMonth][iDayCell]
-          .value[1]; //Month index
-        const dayValue = this.dom.daysInMonths[currentMonth][iDayCell].value[2]; //Day index
-
-        const currentDate = new Date(yearValue, monthValue - 1, dayValue); //Uses the previously stored date information
-        this.dom.daysInMonths[currentMonth][
-          iDayCell
-        ].dayDOMElement.className += this._applyCustomDateStyle(
-          this.viewModel.customDates,
-          currentDate
-        );
-      } else {
-        // Add the class hideInMobile to the DayCell above and equal to 35 because if that cell is empty then the entire row can be hidden
-        if (
-          iDayCell >= 35 &&
-          this.dom.daysInMonths[currentMonth][35].dayDOMElement.innerText === ""
-        )
-          this.dom.daysInMonths[currentMonth][
-            iDayCell
-          ].dayDOMElement.className += " hideInMobile"; //This class will be used to hide these cell when in Mobile mode
-      }
-    }
-  }
+    });
+  };
 
   /**
    * Checks the possible Custom dates that can be added to the Calendar.
    *
    * @param {Array} customDates - Represents the Calendar initial object
-   * @param {Date} currentDate - Current date
-   * @return {String} The name of the Css Class that should be applied to the day. The name will be the same as the property defined on the CustomDates object
+   * @param {Day} day - Current day
+   * @return {String} The name of the Css Class that should be applied to the day. The name will be the same as
+   * the property defined on the CustomDates object
+   *
+   * @private
+   * @memberof Calendar
    */
-  _applyCustomDateStyle(customDates, currentDate) {
+  _applyCustomDateStyle = (customDates, day) => {
     let cssClassToApply = "";
 
-    currentDate = currentDate.setHours(0, 0, 0, 0);
-
     // Loops through all the the properties in the CustomDates object.
-    for (let property in customDates) {
+    Object.keys(customDates).forEach(property => {
       // Just to confirm that the object actually has the property.
-      if (customDates.hasOwnProperty(property)) {
+      if (Object.prototype.hasOwnProperty.call(customDates, property)) {
         customDates[property].values.forEach(auxPeriod => {
-          let startDate = new Date(auxPeriod.start);
-          let endDate = new Date(auxPeriod.end);
+          const startDate = new Date(auxPeriod.start);
+          const endDate = new Date(auxPeriod.end);
 
           const isInPeriod = Utils.isDateInPeriod(
             startDate,
             endDate,
-            currentDate,
+            day.date,
             auxPeriod.recurring,
             this.viewModel.selectedYear
           );
           if (isInPeriod) {
-            cssClassToApply += " " + customDates[property].cssClass;
+            cssClassToApply += ` ${customDates[property].cssClass}`;
           }
         }, this);
       }
-    }
+    });
 
     // Re-apply the selected days style in case the year is changed.
-    this.viewModel.selectedDates.values.forEach(auxDate => {
-      auxDate = new Date(auxDate);
+    this.viewModel.selectedDates.values.forEach(selectedDate => {
+      const newDate = new Date(selectedDate);
 
       // Validates if the value is an actual date
-      if (!isNaN(auxDate.valueOf())) {
-        if (currentDate === auxDate.setHours(0, 0, 0, 0)) {
-          cssClassToApply += " " + CSS_CLASS_NAMES.SELECTED_DAY;
+      if (!Number.isNaN(newDate.valueOf())) {
+        if (day.date.setHours(0, 0, 0, 0) === newDate.setHours(0, 0, 0, 0)) {
+          cssClassToApply += ` ${CSS_CLASS_NAMES.SELECTED_DAY}`;
         }
       }
     }, this);
@@ -868,441 +204,564 @@ export default class Calendar {
     // Apply the style to the weekend days.
     if (this.viewModel.weekendDays && this.viewModel.weekendDays.length > 0) {
       this.viewModel.weekendDays.forEach(weekendDay => {
-        let dayNumber = -1;
-        switch (weekendDay) {
-          case "Sun":
-            dayNumber = 0;
-            break;
-          case "Mon":
-            dayNumber = 1;
-            break;
-          case "Tue":
-            dayNumber = 2;
-            break;
-          case "Wed":
-            dayNumber = 3;
-            break;
-          case "Thu":
-            dayNumber = 4;
-            break;
-          case "Fri":
-            dayNumber = 5;
-            break;
-          case "Sat":
-            dayNumber = 6;
-            break;
-        }
-        if (new Date(currentDate).getDay() === dayNumber) {
+        if (day.date.getDay() === weekendDay) {
           // Name of the property. A Css class with the same name should exist
-          cssClassToApply += " " + CSS_CLASS_NAMES.WEEKEND_DAY;
+          cssClassToApply += ` ${CSS_CLASS_NAMES.WEEKEND_DAY}`;
         }
       }, this);
     }
 
     return cssClassToApply;
-  }
+  };
 
   /**
-   * Fits the calendar to the parent container size. If the calendar is too large then it will change
-   * to mobile view mode.
-   */
-  _fitToContainer() {
-    // If the current width of the container is lower than the total width of the calendar we need to change to mobile view.
-    if (
-      this.dom.mainContainer.offsetWidth < this.viewModel.totalCalendarWidth
-    ) {
-      this._changeToMobileView();
-    } else {
-      this._changeToNormalView();
-    }
-  }
-
-  /**
-   * Register the event handlers that are needed.
-   */
-  _registerEventHandlers() {
-    this._addEventListenerToElement(window, "resize", "_onResize", this);
-    this._addEventListenerToElement(window, "mouseup", "_onMouseUp", this);
-
-    this._addEventListenerToElement(
-      this.dom.domElement,
-      "click",
-      "_onCalendarEventTriggered",
-      this
-    );
-    this._addEventListenerToElement(
-      this.dom.domElement,
-      "mouseover",
-      "_onCalendarEventTriggered",
-      this
-    );
-    this._addEventListenerToElement(
-      this.dom.domElement,
-      "mousedown",
-      "_onCalendarEventTriggered",
-      this
-    );
-    this._addEventListenerToElement(
-      this.dom.domElement,
-      "mouseup",
-      "_onCalendarEventTriggered",
-      this
-    );
-  }
-
-  /**
-   * Applies all styles that might be needed to be applied after all the elements have been added to the dom.
-   */
-  _applyStyling() {
-    const childNodes = this.dom.mainContainer.querySelectorAll("div");
-
-    for (let iChild = 0; iChild < childNodes.length; iChild++) {
-      childNodes[iChild].style.boxSizing = "border-box";
-    }
-  }
-
-  /**
-   * Handles the events that were triggered on the the Calendar main container. The events handled are `click`, `mouseover`, `mousedown` and `mouseup`.
+   * Adds all the event listeners to the elements using the private `eventListeners` object.
    *
-   * @param {Object} event Event Object that triggered the event.
+   * @private
+   * @memberof Calendar
    */
-  _onCalendarEventTriggered(event) {
+  _addEventListeners() {
+    // Window listeners
+    this._eventListeners.add(
+      new EventListener(window, "resize", this._onResize)
+    );
+    this._eventListeners.add(
+      new EventListener(window, "mouseup", this._onMouseUp)
+    );
+    // Calendar container listeners, essencially for days elements
+    this._eventListeners.add(
+      new EventListener(
+        this._dom.domElement,
+        "click",
+        this._onCalendarEventTriggered
+      )
+    );
+    this._eventListeners.add(
+      new EventListener(
+        this._dom.domElement,
+        "mouseover",
+        this._onCalendarEventTriggered
+      )
+    );
+    this._eventListeners.add(
+      new EventListener(
+        this._dom.domElement,
+        "mousedown",
+        this._onCalendarEventTriggered
+      )
+    );
+    this._eventListeners.add(
+      new EventListener(
+        this._dom.domElement,
+        "mouseup",
+        this._onCalendarEventTriggered
+      )
+    );
+    // Other elements
+    this._eventListeners.add(
+      new EventListener(
+        this._dom.buttonNavPreviousYear,
+        "click",
+        this.goToPreviousYear
+      )
+    );
+    this._eventListeners.add(
+      new EventListener(this._dom.buttonNavNextYear, "click", this.goToNextYear)
+    );
+  }
+
+  /**
+   * Handler triggered when the `viewModel.days.selected` property is changed.
+   *
+   * @param {Day} day - Day object where the selection change has happened.
+   *
+   * @private
+   * @memberof Calendar
+   */
+  _daySelectedChangedHandler = day => {
+    // Get the dom element for day
+    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
+
+    if (!dayDomElement) {
+      return;
+    }
+
+    const selectedDatesValues = this.viewModel.selectedDates.values;
+
+    // Selects the day if it wasn't already selected and unselects if it was selected
+    if (day.selected) {
+      dayDomElement.className += ` ${CSS_CLASS_NAMES.SELECTED_DAY}`;
+
+      // Adds the day to the selectedDates list
+      selectedDatesValues.push(day.getISOFormattedDate());
+    } else {
+      dayDomElement.className = dayDomElement.className
+        .split(` ${CSS_CLASS_NAMES.SELECTED_DAY}`)
+        .join("");
+
+      // Removes the day from the selected dates list
+      const selectedDayIndex = selectedDatesValues.indexOf(
+        day.getISOFormattedDate()
+      );
+      selectedDatesValues.splice(selectedDayIndex, 1);
+    }
+  };
+
+  /**
+   * Handler triggered when the `viewModel.selectedYear` property is changed.
+   *
+   * @private
+   * @memberof Calendar
+   */
+  _yearSelectedChangedHandler = () => {
+    this._render();
+  };
+
+  /**
+   * Handles the events that were triggered on the the Calendar main container.
+   * The events handled are `click`, `mouseover`, `mousedown` and `mouseup`.
+   *
+   * @param {Object} event - Event Object that triggered the event.
+   *
+   * @private
+   * @memberof Calendar
+   */
+  _onCalendarEventTriggered = event => {
     event.preventDefault();
 
-    const srcElement = event.srcElement;
+    const { srcElement } = event;
 
     // If the click was triggered on a day element
     if (srcElement.classList.contains(CSS_CLASS_NAMES.DEFAULT_DAY)) {
-      const monthIndex = srcElement.getAttribute("m");
-      const dayIndex = srcElement.getAttribute("d");
-      const dayInfo = this.dom.daysInMonths[monthIndex][dayIndex];
+      const monthIndex = parseInt(srcElement.getAttribute("m"), 10);
+      const dayIndex = parseInt(srcElement.getAttribute("d"), 10);
+      const day = this.viewModel.days.find(
+        auxDay =>
+          auxDay.monthIndex === monthIndex && auxDay.dayIndex === dayIndex
+      );
+
+      if (!day) return;
 
       switch (event.type) {
         case "click":
-          this._dayClick(dayInfo);
+          this.viewModel.toggleDaySelected(day);
           break;
         case "mouseover":
-          this._dayMouseOver(dayInfo);
+          // TODO: Apply the same logic has the on click.
+          this._dayMouseOver(day);
           break;
         case "mousedown":
-          this._dayMouseDown(dayInfo);
+          // TODO: Apply the same logic has the on click.
+          this._dayMouseDown(day);
           break;
         case "mouseup":
-          this._dayMouseUp(dayInfo);
+          // TODO: Apply the same logic has the on click.
+          this._dayMouseUp(day);
           break;
         default:
-          return;
       }
     }
-  }
+  };
 
   /**
-   * Handler for the _onResize event
+   * Handler for the _onResize event.
+   *
+   * @private
+   * @memberof Calendar
    */
-  _onResize() {
-    this._fitToContainer();
-  }
+  _onResize = () => {
+    this._dom.fitToContainer();
+  };
 
   /**
+   * TODO: The Dom changes should be handled by the Dom object.
    * Handles the mouseup event when triggered on the window object.
    * Used to clear the multi selection when the mouse up event happens outside any valid day element.
    *
-   * @param {Object} event Object that triggered the event.
+   * @param {Object} event - Object that triggered the event.
+   *
+   * @private
+   * @memberof Calendar
    */
-  _onMouseUp(event) {
+  _onMouseUp = event => {
     event.preventDefault();
 
-    if (this.__mouseDownInformation !== null) {
+    if (this._mouseDownInformation !== null) {
       // Resets the mouse down information object
-      this.__mouseDownInformation = null;
+      this._mouseDownInformation = null;
       // Clears any possible temporary multi selection
-      const elements = this.dom.mainContainer.querySelectorAll(
-        "." + CSS_CLASS_NAMES.MULTI_SELECTION
+      const elements = this._dom.mainContainer.querySelectorAll(
+        `.${CSS_CLASS_NAMES.MULTI_SELECTION}`
       );
-      for (let i = 0; i < elements.length; i++) {
+      for (let i = 0; i < elements.length; i += 1) {
         elements[i].classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
       }
     }
-  }
+  };
 
-  /**
-   * Handles the `click` event for a day element and then calls the `onDayClick` function.
-   * The `onDayClick` function can be implemented by the users of the calendar to add extra logic when clicking on a day.
-   *
-   * @param {Object} dayInfo - Object representing the day that was clicked.
-   */
-  _dayClick(dayInfo) {
-    // Exits right away if it"s not a valid day.
-    if (!dayInfo || !dayInfo.value) return;
-
-    const dayValue = Utils.convertDateToISOWihoutTimezone(
-      new Date(dayInfo.value)
-    );
-    const selectedDayIndex = this.viewModel.selectedDates.values.indexOf(
-      dayValue
-    );
-
-    // Selects the day if it wasn't already selected and unselects if it was selected
-    if (selectedDayIndex > -1) {
-      this.viewModel.selectedDates.values.splice(selectedDayIndex, 1);
-      dayInfo.dayDOMElement.className = dayInfo.dayDOMElement.className
-        .split(" " + CSS_CLASS_NAMES.SELECTED_DAY)
-        .join("");
-    } else {
-      this.viewModel.selectedDates.values.push(dayValue);
-      dayInfo.dayDOMElement.className += " " + CSS_CLASS_NAMES.SELECTED_DAY;
-    }
-
-    // If the onDayClick function is defined then trigger the call
-    if (typeof this.onDayClick === "function") {
-      this.onDayClick(dayInfo.dayDOMElement, new Date(dayInfo.value));
-    }
-  }
   /**
    * Handles the `mouseover` event for a day element and then calls the `onDayMouseOver` function.
-   * The `onDayMouseOver` function can be implemented by the users of the calendar to add extra logic when hovering on a day.
+   * The `onDayMouseOver` function can be implemented by the users of the calendar to add extra logic when hovering
+   * on a day.
    *
-   * @param {Object} dayInfo - Object representing the day that was clicked.
+   * @param {Day} day - Object representing the day that was hovered.
+   *
+   * @private
+   * @memberof Calendar
    */
-  _dayMouseOver(dayInfo) {
+  _dayMouseOver = day => {
     // Exits right away if it's not a valid day or there is so function for the day MouseOver event.
-    if (!dayInfo || !dayInfo.value) return;
+    if (!day) return;
 
-    if (dayInfo.value) {
-      let captionToAdd = "";
-      const dayCssClasses = dayInfo.dayDOMElement.className.split(" ");
-      dayCssClasses.forEach(cssClass => {
-        const customDates = this.viewModel.customDates;
-        for (let property in customDates) {
-          // Just to confirm that the object actually has the property.
-          if (customDates.hasOwnProperty(property)) {
-            // Checks if all the needed properties exist in the object and if the css class is the same.
-            if (
-              customDates[property] &&
-              customDates[property].cssClass &&
-              customDates[property].cssClass.constructor === String &&
-              customDates[property].caption &&
-              customDates[property].caption.constructor === String &&
-              cssClass === customDates[property].cssClass
-            ) {
-              captionToAdd += customDates[property].caption + "\n";
-            }
+    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
+
+    let captionToAdd = "";
+    const dayCssClasses = dayDomElement.className.split(" ");
+    dayCssClasses.forEach(cssClass => {
+      const {
+        viewModel: { customDates }
+      } = this;
+
+      Object.keys(customDates).forEach(property => {
+        // Just to confirm that the object actually has the property.
+        if (Object.prototype.hasOwnProperty.call(customDates, property)) {
+          // Checks if all the needed properties exist in the object and if the css class is the same.
+          if (
+            customDates[property] &&
+            customDates[property].cssClass &&
+            customDates[property].cssClass.constructor === String &&
+            customDates[property].caption &&
+            customDates[property].caption.constructor === String &&
+            cssClass === customDates[property].cssClass
+          ) {
+            captionToAdd += `${customDates[property].caption}\n`;
           }
         }
-      }, this);
-      dayInfo.dayDOMElement.title = captionToAdd;
-      // If the onDayMouseOver function is defined then trigger the call
-      if (typeof this.onDayMouseOver === "function") {
-        this.onDayMouseOver(dayInfo.dayDOMElement, new Date(dayInfo.value));
-      }
-      if (this.__mouseDownInformation) {
-        this._handleMultiSelection(dayInfo);
-      }
+      });
+    }, this);
+    dayDomElement.title = captionToAdd;
+
+    if (this._mouseDownInformation) {
+      this._handleMultiSelection(day);
     }
-  }
+  };
 
   /**
    * Handles the `mousedown` event for a day element and then calls the `onDayMouseDown` function.
-   * The `onDayMouseDown` function can be implemented by the users of the calendar to add extra logic when pressing the mouse button down on a day.
+   * The `onDayMouseDown` function can be implemented by the users of the calendar to add extra logic when pressing
+   * the mouse button down on a day.
    *
-   * @param {Object} dayInfo - Object with the information about the day where the event was triggered.
+   * @param {Day} day - Object with the information about the day where the event was triggered.
+   *
+   * @private
+   * @memberof Calendar
    */
-  _dayMouseDown(dayInfo) {
-    if (!dayInfo || !dayInfo.value) return;
+  _dayMouseDown = day => {
+    if (!day) return;
 
     // Creates the object with the mouse down information, for now it only needs the dayInfo object.
-    this.__mouseDownInformation = {
-      dayInfo: dayInfo
-    };
-
-    // If the onDayMouseDown function is defined then trigger the call
-    if (typeof this.onDayMouseDown === "function") {
-      this.onDayMouseDown(dayInfo.dayDOMElement, new Date(dayInfo.value));
-    }
-  }
+    this._mouseDownInformation = { day };
+  };
 
   /**
    * Handles the `mouseup` event for a day element and then calls the `onDayMouseUp` function.
-   * The `onDayMouseUp` function can be implemented by the users of the calendar to add extra logic when releasing the mouse button from a day.
+   * The `onDayMouseUp` function can be implemented by the users of the calendar to add extra logic when releasing
+   * the mouse button from a day.
    *
-   * @param {Object} dayInfo - Object with the information about the day where the event was triggered.
+   * @private
+   * @memberof Calendar
    */
-  _dayMouseUp(dayInfo) {
+  _dayMouseUp = () => {
     if (
-      this.__mouseDownInformation &&
-      this.__mouseDownInformation["tempSelectedDatesValues"]
+      this._mouseDownInformation &&
+      this._mouseDownInformation.tempSelectedDays
     ) {
       // Let's add the temporary selected days to the actual selectedDate object
-      const tempSelectedDatesValues = this.__mouseDownInformation[
-        "tempSelectedDatesValues"
-      ];
+      const { tempSelectedDays } = this._mouseDownInformation;
 
-      for (let index = 0; index < tempSelectedDatesValues.length; index++) {
+      for (let index = 0; index < tempSelectedDays.length; index += 1) {
         if (
-          this.viewModel.selectedDates.values.indexOf(
-            tempSelectedDatesValues[index]
-          ) < 0
+          this.viewModel.selectedDates.values.indexOf(tempSelectedDays[index]) <
+          0
         ) {
-          this.viewModel.selectedDates.values.push(
-            tempSelectedDatesValues[index]
-          );
+          // Toggles the day selection
+          this.viewModel.toggleDaySelected(tempSelectedDays[index]);
         }
       }
 
       // Changes the style of the multi-selection into selectedDay
-      const elements = this.dom.mainContainer.querySelectorAll(
-        "." + CSS_CLASS_NAMES.MULTI_SELECTION
+      const elements = this._dom.mainContainer.querySelectorAll(
+        `.${CSS_CLASS_NAMES.MULTI_SELECTION}`
       );
-      for (let i = 0; i < elements.length; i++) {
+      for (let i = 0; i < elements.length; i += 1) {
         elements[i].classList.replace(
           CSS_CLASS_NAMES.MULTI_SELECTION,
           CSS_CLASS_NAMES.SELECTED_DAY
         );
       }
     }
-    this.__mouseDownInformation = null;
-
-    // If the onDayMouseUp function is defined then trigger the call
-    if (typeof this.onDayMouseUp === "function") {
-      this.onDayMouseUp(dayInfo.dayDOMElement, new Date(dayInfo.value));
-    }
-  }
+    this._mouseDownInformation = null;
+  };
 
   /**
    * Handles the multi hovering.
    *
-   * @param {Object} dayInfo Information about the day that is currenlty being hovered.
+   * @param {Day} day - Object representing the day where the `mouseup` event happened.
+   *
+   * @private
+   * @memberof Calendar
    */
-  _handleMultiSelection(dayInfo) {
-    const mouseDownDayInfo = this.__mouseDownInformation.dayInfo;
-
-    const tempSelectedDates = [];
+  _handleMultiSelection = day => {
+    const initialMonthIndex = this._mouseDownInformation.day.monthIndex;
+    const initialDayIndex = this._mouseDownInformation.day.dayIndex;
+    const currentMonthIndex = day.monthIndex;
+    const currentDayIndex = day.dayIndex;
+    const totalNrDays = this.viewModel.getTotalNumberOfDays();
+    const tempSelectedDays = [];
 
     // Handles the hovering of the days when in the same month
-    if (mouseDownDayInfo.monthIndex === dayInfo.monthIndex) {
-      if (dayInfo.dayIndex >= mouseDownDayInfo.dayIndex) {
+    if (initialMonthIndex === currentMonthIndex) {
+      if (currentDayIndex >= initialDayIndex) {
         for (
-          let index = mouseDownDayInfo.dayIndex;
-          index <= dayInfo.dayIndex;
-          index++
+          let index = initialDayIndex;
+          index <= currentDayIndex;
+          index += 1
         ) {
-          tempSelectedDates.push(
-            this.dom.daysInMonths[mouseDownDayInfo.monthIndex][index]
+          tempSelectedDays.push(
+            Utils.getDayByIndex(this.viewModel.days, initialMonthIndex, index)
           );
         }
       }
-      if (dayInfo.dayIndex <= mouseDownDayInfo.dayIndex) {
+      if (currentDayIndex <= initialDayIndex) {
         for (
-          let index = mouseDownDayInfo.dayIndex;
-          index >= dayInfo.dayIndex;
-          index--
+          let index = initialDayIndex;
+          index >= currentDayIndex;
+          index -= 1
         ) {
-          tempSelectedDates.push(
-            this.dom.daysInMonths[mouseDownDayInfo.monthIndex][index]
+          tempSelectedDays.push(
+            Utils.getDayByIndex(this.viewModel.days, initialMonthIndex, index)
           );
         }
       }
     }
 
-    if (mouseDownDayInfo.monthIndex < dayInfo.monthIndex) {
+    if (initialMonthIndex < currentMonthIndex) {
       for (
-        let iMonth = mouseDownDayInfo.monthIndex;
-        iMonth <= dayInfo.monthIndex;
-        iMonth++
+        let iMonth = initialMonthIndex;
+        iMonth <= currentMonthIndex;
+        iMonth += 1
       ) {
         // Fill all the days until the end of the month
-        if (iMonth === mouseDownDayInfo.monthIndex) {
-          for (
-            let iDay = mouseDownDayInfo.dayIndex;
-            iDay <= this.viewModel.totalNumberOfDays;
-            iDay++
-          ) {
-            if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
+        if (iMonth === initialMonthIndex) {
+          for (let iDay = initialDayIndex; iDay <= totalNrDays; iDay += 1) {
+            const currentDay = Utils.getDayByIndex(
+              this.viewModel.days,
+              iMonth,
+              iDay
+            );
+            if (currentDay && currentDay.date !== null) {
+              tempSelectedDays.push(currentDay);
             }
           }
         }
         // Fill the days from the start of the month up until the currently hovered day
-        if (iMonth === dayInfo.monthIndex) {
-          for (let iDay = 0; iDay <= dayInfo.dayIndex; iDay++) {
-            if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
+        if (iMonth === currentMonthIndex) {
+          for (let iDay = 0; iDay <= currentDayIndex; iDay += 1) {
+            const currentDay = Utils.getDayByIndex(
+              this.viewModel.days,
+              iMonth,
+              iDay
+            );
+            if (currentDay && currentDay.date !== null) {
+              tempSelectedDays.push(currentDay);
             }
           }
         }
         // Fills the days in between the starting month and the ending month
-        if (
-          iMonth > mouseDownDayInfo.monthIndex &&
-          iMonth < dayInfo.monthIndex
-        ) {
-          for (let iDay = 0; iDay <= this.viewModel.totalNumberOfDays; iDay++) {
-            if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
+        if (iMonth > initialMonthIndex && iMonth < currentMonthIndex) {
+          for (let iDay = 0; iDay <= totalNrDays; iDay += 1) {
+            const currentDay = Utils.getDayByIndex(
+              this.viewModel.days,
+              iMonth,
+              iDay
+            );
+            if (currentDay && currentDay.date !== null) {
+              tempSelectedDays.push(currentDay);
             }
           }
         }
       }
     }
-    if (mouseDownDayInfo.monthIndex > dayInfo.monthIndex) {
+    if (initialMonthIndex > currentMonthIndex) {
       for (
-        let iMonth = mouseDownDayInfo.monthIndex;
-        iMonth >= dayInfo.monthIndex;
-        iMonth--
+        let iMonth = initialMonthIndex;
+        iMonth >= currentMonthIndex;
+        iMonth -= 1
       ) {
         // Fill all the days until the end of the month
-        if (iMonth === mouseDownDayInfo.monthIndex) {
-          for (let iDay = mouseDownDayInfo.dayIndex; iDay >= 0; iDay--) {
-            if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
+        if (iMonth === initialMonthIndex) {
+          for (let iDay = initialDayIndex; iDay >= 0; iDay -= 1) {
+            const currentDay = Utils.getDayByIndex(
+              this.viewModel.days,
+              iMonth,
+              iDay
+            );
+            if (currentDay && currentDay.date !== null) {
+              tempSelectedDays.push(currentDay);
             }
           }
         }
         // Fill the days from the start of the month up until the currently hovered day
-        if (iMonth === dayInfo.monthIndex) {
-          for (
-            let iDay = this.viewModel.totalNumberOfDays;
-            iDay >= dayInfo.dayIndex;
-            iDay--
-          ) {
-            if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
+        if (iMonth === currentMonthIndex) {
+          for (let iDay = totalNrDays; iDay >= currentDayIndex; iDay -= 1) {
+            const currentDay = Utils.getDayByIndex(
+              this.viewModel.days,
+              iMonth,
+              iDay
+            );
+            if (currentDay && currentDay.date !== null) {
+              tempSelectedDays.push(currentDay);
             }
           }
         }
         // Fills the days in between the starting month and the ending month
-        if (
-          iMonth < mouseDownDayInfo.monthIndex &&
-          iMonth > dayInfo.monthIndex
-        ) {
-          for (let iDay = this.viewModel.totalNumberOfDays; iDay >= 0; iDay--) {
-            if (this.dom.daysInMonths[iMonth][iDay].value !== null) {
-              tempSelectedDates.push(this.dom.daysInMonths[iMonth][iDay]);
+        if (iMonth < initialMonthIndex && iMonth > currentMonthIndex) {
+          for (let iDay = totalNrDays; iDay >= 0; iDay -= 1) {
+            const currentDay = Utils.getDayByIndex(
+              this.viewModel.days,
+              iMonth,
+              iDay
+            );
+            if (currentDay && currentDay.date !== null) {
+              tempSelectedDays.push(currentDay);
             }
           }
         }
       }
     }
 
-    if (tempSelectedDates.length > 0) {
+    if (tempSelectedDays.length > 0) {
+      // TODO: The Dom change should be done on the Dom object instead,
       // Clear possible previously mutli selected days
-      const elements = this.dom.mainContainer.querySelectorAll(
-        "." + CSS_CLASS_NAMES.MULTI_SELECTION
+      const elements = this._dom.mainContainer.querySelectorAll(
+        `.${CSS_CLASS_NAMES.MULTI_SELECTION}`
       );
-      for (let i = 0; i < elements.length; i++) {
+      for (let i = 0; i < elements.length; i += 1) {
         elements[i].classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
       }
 
-      this.__mouseDownInformation["tempSelectedDatesValues"] = [];
+      this._mouseDownInformation.tempSelectedDays = [];
       // Adds the css class for multi selection
-      for (let index = 0; index < tempSelectedDates.length; index++) {
-        const dayValue = Utils.convertDateToISOWihoutTimezone(
-          new Date(tempSelectedDates[index].value)
+      for (let index = 0; index < tempSelectedDays.length; index += 1) {
+        this._mouseDownInformation.tempSelectedDays.push(
+          tempSelectedDays[index]
         );
-        this.__mouseDownInformation["tempSelectedDatesValues"].push(dayValue);
-        tempSelectedDates[index].dayDOMElement.className +=
-          " " + CSS_CLASS_NAMES.MULTI_SELECTION;
+
+        const dayDomElement = this._dom.getDayElement(
+          tempSelectedDays[index].monthIndex,
+          tempSelectedDays[index].dayIndex
+        );
+        // TODO: The Dom change should be done on the Dom object instead,
+        dayDomElement.className += ` ${CSS_CLASS_NAMES.MULTI_SELECTION}`;
       }
     }
-  }
+  };
+
   // #endregion Private methods
+
+  // #region Public methods
+
+  /**
+   * Changes the current selected year to the next one.
+   *
+   * @memberof Calendar
+   */
+  goToNextYear = () => {
+    // TODO: This should be an intention instead of changing the viewModel directly
+    this.viewModel.changeYearSelected(this.viewModel.selectedYear + 1);
+  };
+
+  /**
+   * Changes the current selected year to the previous one.
+   *
+   * @memberof Calendar
+   */
+  goToPreviousYear = () => {
+    // TODO: This should be an intention instead of changing the viewModel directly
+    this.viewModel.changeYearSelected(this.viewModel.selectedYear - 1);
+  };
+
+  /**
+   * Changes the current selected year to the received one, as long as it is greater than 1970.
+   *
+   * @param {Number} yearToShow - Year to navigate to.
+   *
+   * @memberof Calendar
+   */
+  goToYear = yearToShow => {
+    // TODO: This should be an intention instead of changing the viewModel directly
+    const newSelectedYear =
+      typeof yearToShow === "number" && yearToShow > 1970 ? yearToShow : null;
+
+    if (newSelectedYear) {
+      this.viewModel.changeYearSelected(newSelectedYear);
+    }
+  };
+
+  /**
+   * TODO: This is not working at the moment.
+   * Gets an array of all selected days
+   *
+   * @memberof Calendar
+   */
+  getSelectedDays = () => {
+    const selectedDays = this.viewModel.days.filter(day => day.selected);
+    return selectedDays.map(day => day.getISOFormattedDate());
+  }
+
+  /**
+   * TODO: Add Doc
+   *
+   * @param {Object} config
+   * @memberof Calendar
+   */
+  refresh = config => {
+    this.viewModel.update(config);
+    this._dom.clear();
+
+    this._render();
+  };
+
+  /**
+   * TODO: Add Doc
+   *
+   * @param {Object} customDates
+   * @param {boolean} [keepPrevious=true]
+   * @memberof Calendar
+   */
+  refreshCustomDates = (customDates, keepPrevious = true) => {
+    if (keepPrevious) {
+      this.viewModel.updateCustomDates(customDates);
+    } else {
+      this.viewModel.replaceCustomDates(customDates);
+    }
+
+    this._setSelectedYear(this.viewModel.selectedYear);
+    this._refreshLegend();
+  };
+
+  /**
+   * TODO: Add Doc
+   *
+   * @memberof Calendar
+   */
+  dispose = () => {
+    this._eventListeners.removeAll();
+
+    this._dom.dispose();
+    delete this._dom;
+    delete this.viewModel;
+  };
+
+  // #endregion Public methods
 }

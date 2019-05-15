@@ -46,6 +46,11 @@
  * Default day container.
  */
 
+.fyc-empty-day {
+    color: #333;
+    border: 1px solid #DDD;
+}
+
 .fyc-default-day {
     color: #333;
     border: 1px solid #DDD;
