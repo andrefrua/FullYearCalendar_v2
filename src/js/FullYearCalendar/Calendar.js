@@ -7,6 +7,8 @@
  *  - Day mouse hover - `this.onDayMouseOver()`
  *  - Day mouse down - `this.onDayMouseDown()`
  *  - Day mouse up - `this.onDayMouseUp()`
+ * - CustomDates problem. When a period is set between two years the period won't be shown.
+ * - Legend refreshing is not really good. Refactoring might be in order.
  */
 
 import ViewModel from "./ViewModel.js";
@@ -106,7 +108,6 @@ export default class Calendar {
   };
 
   /**
-   * TODO: The change to the Dom should be done by the Dom object instead.
    * Refreshes the legend container, clearing it's current content and adding the new values inside the CustomDates
    * object.
    *
@@ -116,15 +117,7 @@ export default class Calendar {
   _refreshLegend = () => {
     if (this.viewModel.showLegend !== true) return;
 
-    const legendContainer = this._dom.domElement.querySelector(
-      `.${CSS_CLASS_NAMES.LEGEND_CONTAINER}`
-    );
-
-    while (legendContainer.firstChild) {
-      legendContainer.removeChild(legendContainer.firstChild);
-    }
-
-    this._createLegendElements(legendContainer);
+    this._dom.updateLegendElements();
   };
 
   /**
@@ -309,6 +302,11 @@ export default class Calendar {
     }
   };
 
+  /**
+   * TODO: Add doc
+   *
+   * @memberof Calendar
+   */
   _dayMultiSelectingChangedHandler = day => {
     // Get the dom element for day
     const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
@@ -363,15 +361,19 @@ export default class Calendar {
       switch (event.type) {
         case "click":
           this.viewModel.setDaySelected(day, !day.selected);
+          this.viewModel.eventDispatcher.dispatch("dayMouseClicked", day);
           break;
         case "mousedown":
           this.viewModel.multiSelectStart(day);
+          this.viewModel.eventDispatcher.dispatch("dayMouseDowned", day);
           break;
         case "mouseover":
           this.viewModel.multiSelectAdd(day);
+          this.viewModel.eventDispatcher.dispatch("dayMouseHovered", day);
           break;
         case "mouseup":
           this.viewModel.multiSelectEnd(day);
+          this.viewModel.eventDispatcher.dispatch("dayMouseUpped", day);
           break;
         default:
       }
@@ -474,6 +476,7 @@ export default class Calendar {
     this.viewModel.update(config);
     this._dom.clear();
 
+    this._init();
     this._render();
   };
 
@@ -491,7 +494,7 @@ export default class Calendar {
       this.viewModel.replaceCustomDates(customDates);
     }
 
-    this._setSelectedYear(this.viewModel.selectedYear);
+    this._render();
     this._refreshLegend();
   };
 

@@ -16,3 +16,8 @@ TPC:
 7. ViewModel.days falta e refactor de Day + acção para fazer o update do calendário - DONE
 8. Render the calendar in response to the selection of the year - DONE
 9. The event listener should automatically attach the handler when created - DONE
+
+QUESTION:
+1. About the events:
+   a. I want to be able to trigger event that the users can listen to, I think this can easily be done with the
+   eventDispatcher use, but there might be a better way. Check the DaysMouseActions example.

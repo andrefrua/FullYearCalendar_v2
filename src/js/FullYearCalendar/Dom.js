@@ -24,6 +24,7 @@ export default class Dom {
     this.buttonNavPreviousYear = null;
     this.buttonNavNextYear = null;
     this.spanSelectedYear = null;
+    this.legendContainer = null;
   }
 
   // #region Getters and Setters
@@ -202,7 +203,11 @@ export default class Dom {
     let weekElement = null;
 
     // Add an element for each day.
-    for (let iDay = 0; iDay <= this.viewModel.getTotalNumberOfDays(); iDay += 1) {
+    for (
+      let iDay = 0;
+      iDay <= this.viewModel.getTotalNumberOfDays();
+      iDay += 1
+    ) {
       // Creates a new container at the start of each week
       if (iDay % 7 === 0) {
         weekElement = this._createWeekElement(true);
@@ -275,7 +280,11 @@ export default class Dom {
     let weekElement = null;
 
     // Add an element for each day.
-    for (let iDay = 0; iDay <= this.viewModel.getTotalNumberOfDays(); iDay += 1) {
+    for (
+      let iDay = 0;
+      iDay <= this.viewModel.getTotalNumberOfDays();
+      iDay += 1
+    ) {
       // Creates a new container at the start of each week
       if (iDay % 7 === 0) {
         weekElement = this._createWeekElement();
@@ -448,10 +457,11 @@ export default class Dom {
 
     const legendContainer = document.createElement("div");
     legendContainer.className = CSS_CLASS_NAMES.LEGEND_CONTAINER;
-
-    this._createLegendElements(legendContainer);
+    this.legendContainer = legendContainer;
 
     DomUtils.addElement(this.mainContainer, legendContainer);
+
+    this.updateLegendElements();
   };
 
   /**
@@ -461,14 +471,20 @@ export default class Dom {
    * @private
    * @memberof Dom
    */
-  _createLegendElements = legendContainer => {
+  updateLegendElements = () => {
     const vm = this.viewModel;
+
+    while (this.legendContainer.firstChild) {
+      this.legendContainer.removeChild(this.legendContainer.firstChild);
+    }
+
     Object.keys(vm.customDates).forEach(property => {
       // DefaultDay container that will look similar to the Day cell on the calendar
       const divPropertyDefaultDay = document.createElement("div");
       divPropertyDefaultDay.className = property;
       divPropertyDefaultDay.style.width = `${vm.dayWidth}px`;
       divPropertyDefaultDay.style.height = `${vm.dayWidth}px`;
+      divPropertyDefaultDay.style.boxSizing = "border-box";
 
       // Default Day container
       const divPropertyDefaultDayContainer = document.createElement("div");
@@ -480,7 +496,7 @@ export default class Dom {
         divPropertyDefaultDayContainer,
         divPropertyDefaultDay
       );
-      DomUtils.addElement(legendContainer, divPropertyDefaultDayContainer);
+      DomUtils.addElement(this.legendContainer, divPropertyDefaultDayContainer);
 
       // Property caption
       const divPropertyCaption = document.createElement("div");
@@ -499,14 +515,14 @@ export default class Dom {
       divPropertyCaption.style.display = "table-cell";
       divPropertyCaption.style.verticalAlign = "middle";
 
-      DomUtils.addElement(legendContainer, divPropertyCaption);
+      DomUtils.addElement(this.legendContainer, divPropertyCaption);
 
       if (vm.legendStyle === "Block") {
         const divClearBoth = document.createElement("div");
         divClearBoth.className = CSS_CLASS_NAMES.LEGEND_VERTICAL_CLEAR;
         divClearBoth.style.clear = "both";
 
-        DomUtils.addElement(legendContainer, divClearBoth);
+        DomUtils.addElement(this.legendContainer, divClearBoth);
       }
     });
   };

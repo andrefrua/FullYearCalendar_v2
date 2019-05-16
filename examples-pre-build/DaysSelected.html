@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>FullYearCalendar - Days hovered example</title>
+    <title>FullYearCalendar - Days selection example</title>
     <link
       href="../src/js/FullYearCalendar/default.css"
       rel="stylesheet"
@@ -12,10 +12,11 @@
 
   <body>
     <div class="divControls">
-      <span>Mouse hovered on:</span><input type="text" id="inputHoveredDay" readonly />
+      <input type="button" id="btnGetSelectedDays" value="Get selected days" />
     </div>
+    <div id="divListSelectedDays"></div>
     <div id="divFullYearCalendar"></div>
 
-    <script type="module" src="js/DaysMouseOver.js"></script>
+    <script type="module" src="js/DaysSelected.js"></script>
   </body>
 </html>

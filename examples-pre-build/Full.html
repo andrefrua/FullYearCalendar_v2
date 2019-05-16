@@ -19,6 +19,11 @@
           id="btnGoToCurrentYear"
           value="Go to current year"
         />
+        <input
+          type="button"
+          id="btnAddNewCustomDates"
+          value="Add summer"
+        />
       </div>
       <div class="divControls">
         <span>Cliked on:</span
@@ -41,13 +46,21 @@
         <span>
           Week start day
           <select id="selectChangeWeekStartDay">
-            <option value="Sun">Sunday</option>
-            <option value="Mon">Monday</option>
-            <option value="Tue">Tuesday</option>
-            <option value="Wed">Wednesday</option>
-            <option value="Thu">Thursday</option>
-            <option value="Fri">Friday</option>
-            <option value="Sat">Saturday</option>
+            <option value="0">Sunday</option>
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
+            <option value="6">Saturday</option>
+          </select>
+        </span>
+        <span>
+          Locale
+          <select id="selectLocale">
+            <option value="en-US">English US</option>
+            <option value="pt-PT">Portuguese</option>
+            <option value="fr-FR">French</option>
           </select>
         </span>
       </div>

@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>FullYearCalendar - Multiple instances example</title>
+
+    <link href="css/calendar1.css" rel="stylesheet" media="screen" />
+    <link href="css/calendar2.css" rel="stylesheet" media="screen" />
+    <link href="css/index.css" rel="stylesheet" media="screen" />
+  </head>
+
+  <body>
+    <div class="calendar1 calendarContainer">
+      <div class="divControls">
+        <input
+          type="button"
+          id="btnAddSelectedDaysToBelowCalendar"
+          value="Add selected days below"
+        />
+        <input
+          type="button"
+          id="btnReplaceSelectedDaysOnBelowCalendar"
+          value="Replace selected days"
+        />
+        <input type="button" id="btnDestroyCalendar1" value="Destroy" />
+      </div>
+
+      <div class="divFullYearCalendar" id="divFullYearCalendar1"></div>
+    </div>
+    <div class="calendar2 calendarContainer">
+      <div class="divFullYearCalendar" id="divFullYearCalendar2"></div>
+    </div>
+
+    <script type="module" src="js/MultipleInstances.js"></script>
+  </body>
+</html>

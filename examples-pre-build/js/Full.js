@@ -1,12 +1,29 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
 
+const inputClickedDay = document.getElementById("inputClickedDay");
+const inputHoveredDay = document.getElementById("inputHoveredDay");
+const inputYearChanged = document.getElementById("inputYearChanged");
+const btnGoToYear = document.getElementById("btnGoToYear");
+const btnGoToPreviousYear = document.getElementById("btnGoToPreviousYear");
+const btnGoToNextYear = document.getElementById("btnGoToNextYear");
+const btnGoToCurrentYear = document.getElementById("btnGoToCurrentYear");
+const inputDayWidth = document.getElementById("inputDayWidth");
+const chkShowWeekDaysNameEachMonth = document.getElementById(
+  "chkShowWeekDaysNameEachMonth"
+);
+const selectChangeWeekStartDay = document.getElementById(
+  "selectChangeWeekStartDay"
+);
+const selectLocale = document.getElementById("selectLocale");
+const btnAddNewCustomDates = document.getElementById("btnAddNewCustomDates");
+
 const divFullYearCalendar = document.getElementById("divFullYearCalendar");
 
 const configObj = {
   selectedYear: new Date().getFullYear(),
   dayWidth: 25,
   showWeekDaysNameEachMonth: false,
-  locale: "pt-PT",
+  locale: selectLocale.value,
   weekStartDay: 0, // Sunday
   weekendDays: [0, 6],
   alignInContainer: "center",
@@ -16,11 +33,6 @@ const configObj = {
   captionNavButtonPreviousYear: "",
   captionNavButtonNextYear: "",
   customDates: {
-    weekend: {
-      caption: "Weekend",
-      cssClass: "weekend",
-      values: "Sat,Sun"
-    },
     vacations: {
       caption: "Vacations",
       cssClass: "vacations",
@@ -55,51 +67,80 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-// fullYearCalendar.onDayClick = function(dayContainer, clickedDate) {
-//   document.getElementById(
-//     "inputClickedDay"
-//   ).value = clickedDate.toISOString().slice(0, 10);
-// };
-// fullYearCalendar.onDayMouseOver = function(dayContainer, clickedDate) {
-//   document.getElementById(
-//     "inputHoveredDay"
-//   ).value = clickedDate.toISOString().slice(0, 10);
-// };
-// fullYearCalendar.onYearChanged = function(selectedYear) {
-//   let inputYearChanged = document.getElementById("inputYearChanged");
-//   inputYearChanged.innerText = !isNaN(inputYearChanged.innerText)
-//     ? parseInt(inputYearChanged.innerText) + 1
-//     : 0;
-// };
+fullYearCalendar.viewModel.eventDispatcher.on("dayMouseClicked", day => {
+  inputClickedDay.value = day.date.toISOString().slice(0, 10);
+});
+
+fullYearCalendar.viewModel.eventDispatcher.on("dayMouseHovered", day => {
+  inputHoveredDay.value = day.date.toISOString().slice(0, 10);
+});
+
+fullYearCalendar.viewModel.eventDispatcher.on("yearSelectionChanged", () => {
+  inputYearChanged.innerText = !Number.isNaN(inputYearChanged.innerText)
+    ? parseInt(inputYearChanged.innerText, 10) + 1
+    : 0;
+});
 
 /** Outside controls */
 
-btnGoToYear.onclick = function(e) {
+btnGoToYear.onclick = event => {
+  event.preventDefault();
   fullYearCalendar.goToYear(
-    parseInt(document.getElementById("inputYearNumber").value)
+    parseInt(document.getElementById("inputYearNumber").value, 10)
   );
 };
 
-btnGoToPreviousYear.onclick = function(e) {
+btnGoToPreviousYear.onclick = event => {
+  event.preventDefault();
   fullYearCalendar.goToPreviousYear();
 };
 
-btnGoToNextYear.onclick = function(e) {
+btnGoToNextYear.onclick = event => {
+  event.preventDefault();
   fullYearCalendar.goToNextYear();
 };
 
-btnGoToCurrentYear.onclick = function(e) {
+btnGoToCurrentYear.onclick = event => {
+  event.preventDefault();
   fullYearCalendar.goToYear(new Date().getFullYear());
 };
 
-inputDayWidth.onchange = function(e) {
-  fullYearCalendar.refresh({ dayWidth: this.value });
+inputDayWidth.onchange = event => {
+  fullYearCalendar.refresh({ dayWidth: event.srcElement.value });
 };
 
-chkShowWeekDaysNameEachMonth.onchange = function(e) {
-  fullYearCalendar.refresh({ showWeekDaysNameEachMonth: this.checked });
+chkShowWeekDaysNameEachMonth.onchange = event => {
+  fullYearCalendar.refresh({
+    showWeekDaysNameEachMonth: event.srcElement.checked
+  });
 };
 
-selectChangeWeekStartDay.onchange = function(e) {
-  fullYearCalendar.refresh({ weekStartDay: this.value });
+selectChangeWeekStartDay.onchange = event => {
+  fullYearCalendar.refresh({
+    weekStartDay: parseInt(event.srcElement.value, 10)
+  });
+};
+
+selectLocale.onchange = event => {
+  fullYearCalendar.refresh({
+    locale: event.srcElement.value
+  });
+};
+
+btnAddNewCustomDates.onclick = event => {
+  event.preventDefault();
+
+  const customDates = {
+    summer: {
+      caption: "Summer",
+      cssClass: "summer",
+      values: {
+        recurring: true,
+        start: "2019-06-22",
+        end: "2019-09-21"
+      }
+    }
+  };
+
+  fullYearCalendar.refreshCustomDates(customDates, true);
 };

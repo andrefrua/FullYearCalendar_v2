@@ -22,18 +22,7 @@ export default class ViewModel {
       this[propName] = config && config[propName];
     });
 
-    this.monthNames = Utils.getMonthNamesList(
-      this.locale,
-      REPRESENTATION_VALUES.LONG
-    );
-    this.weekDayNames = Utils.getWeekdayNamesList(
-      this.locale,
-      REPRESENTATION_VALUES.NARROW
-    );
-    this.days = this._createDaysArray();
-    // TODO: I don't like having to store this temporary information this way
-    this.multiSelectStartDay = null;
-    this.eventDispatcher = new EventDispatcher();
+    this._updateFixedProperties();
   }
 
   // #region Getters and Setters
@@ -271,6 +260,26 @@ export default class ViewModel {
   // #region Private methods
 
   /**
+   * TODO: Add doc
+   *
+   * @memberof ViewModel
+   */
+  _updateFixedProperties = () => {
+    this.monthNames = Utils.getMonthNamesList(
+      this.locale,
+      REPRESENTATION_VALUES.LONG
+    );
+    this.weekDayNames = Utils.getWeekdayNamesList(
+      this.locale,
+      REPRESENTATION_VALUES.NARROW
+    );
+    this.days = this._createDaysArray();
+    // TODO: I don't like having to store this temporary information this way
+    this.multiSelectStartDay = null;
+    this.eventDispatcher = new EventDispatcher();
+  };
+
+  /**
    * Normalizes the customDate object.
    * TODO: This functions needs some refactoring...
    * @param {Object} customDates
@@ -485,6 +494,7 @@ export default class ViewModel {
         this[property] = config[property];
       }
     });
+    this._updateFixedProperties();
   };
 
   /**
@@ -548,6 +558,11 @@ export default class ViewModel {
     }
   };
 
+  /**
+   * TODO: Add doc
+   *
+   * @memberof ViewModel
+   */
   multiSelectEnd = () => {
     if (this.multiSelectStartDay) {
       this.days
