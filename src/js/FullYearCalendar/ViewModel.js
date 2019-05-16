@@ -31,7 +31,8 @@ export default class ViewModel {
       REPRESENTATION_VALUES.NARROW
     );
     this.days = this._createDaysArray();
-
+    // TODO: I don't like having to store this temporary information this way
+    this.multiSelectStartDay = null;
     this.eventDispatcher = new EventDispatcher();
   }
 
@@ -440,9 +441,19 @@ export default class ViewModel {
    * @param {Day} day
    * @memberof ViewModel
    */
-  toggleDaySelected = day => {
-    day.selected = !day.selected;
+  setDaySelected = (day, selected) => {
+    day.selected = selected;
     this.eventDispatcher.dispatch("daySelectionChanged", day);
+  };
+
+  /**
+   * TODO: Add doc
+   *
+   * @memberof ViewModel
+   */
+  setDayMultiSelecting = (day, multiSelecting) => {
+    day.multiSelecting = multiSelecting;
+    this.eventDispatcher.dispatch("dayMultiSelectingChanged", day);
   };
 
   /**
@@ -501,6 +512,56 @@ export default class ViewModel {
    */
   replaceCustomDates = newCustomDates => {
     this.customDates = this._normalizeCustomDates(newCustomDates);
+  };
+
+  // TESTING
+  multiSelectStart = day => {
+    this.multiSelectStartDay = day;
+  };
+
+  multiSelectAdd = day => {
+    if (this.multiSelectStartDay) {
+      const startDayIndex = this.days.indexOf(this.multiSelectStartDay);
+      const currentDayIndex = this.days.indexOf(day);
+
+      // Filters the days that are between the startDay index and the current day index or vice-versa
+      const daysToMultiSelect = this.days.filter((dayToFilter, index) => {
+        return (
+          (index >= startDayIndex && index <= currentDayIndex) ||
+          (index >= currentDayIndex && index <= startDayIndex)
+        );
+      });
+
+      // Disables the MultiSelect flag for the days that should not be in the multi selection.
+      this.days
+        .filter(
+          dayToRemove =>
+            !daysToMultiSelect.includes(dayToRemove) &&
+            dayToRemove.multiSelecting
+        )
+        .forEach(auxDay => this.setDayMultiSelecting(auxDay, false));
+
+      // Enables the MultiSelect on the days that matched the selection
+      daysToMultiSelect.forEach(auxDay =>
+        this.setDayMultiSelecting(auxDay, true)
+      );
+    }
+  };
+
+  multiSelectEnd = () => {
+    if (this.multiSelectStartDay) {
+      this.days
+        .filter(auxDay => auxDay.multiSelecting)
+        .forEach(dayToSelect => {
+          // Disable the multiSelecting flag for the day
+          this.setDayMultiSelecting(dayToSelect, false);
+          // Proceed with the actual selection of the day
+          this.setDaySelected(dayToSelect, true);
+        });
+
+      // Clear the MultiSelectingInfo object
+      this.multiSelectStartDay = null;
+    }
   };
 
   // #endregion Public methods

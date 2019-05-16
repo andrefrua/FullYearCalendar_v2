@@ -87,6 +87,10 @@ export default class Calendar {
       "yearSelectionChanged",
       this._yearSelectedChangedHandler.bind(this)
     );
+    this.viewModel.eventDispatcher.on(
+      "dayMultiSelectingChanged",
+      this._dayMultiSelectingChangedHandler.bind(this)
+    );
   };
 
   /**
@@ -290,20 +294,34 @@ export default class Calendar {
 
     // Selects the day if it wasn't already selected and unselects if it was selected
     if (day.selected) {
-      dayDomElement.className += ` ${CSS_CLASS_NAMES.SELECTED_DAY}`;
+      dayDomElement.classList.add(CSS_CLASS_NAMES.SELECTED_DAY);
 
       // Adds the day to the selectedDates list
       selectedDatesValues.push(day.getISOFormattedDate());
     } else {
-      dayDomElement.className = dayDomElement.className
-        .split(` ${CSS_CLASS_NAMES.SELECTED_DAY}`)
-        .join("");
+      dayDomElement.classList.remove(CSS_CLASS_NAMES.SELECTED_DAY);
 
       // Removes the day from the selected dates list
       const selectedDayIndex = selectedDatesValues.indexOf(
         day.getISOFormattedDate()
       );
       selectedDatesValues.splice(selectedDayIndex, 1);
+    }
+  };
+
+  _dayMultiSelectingChangedHandler = day => {
+    // Get the dom element for day
+    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
+
+    if (!dayDomElement) {
+      return;
+    }
+
+    // Selects the day if it wasn't already selected and unselects if it was selected
+    if (day.multiSelecting) {
+      dayDomElement.classList.add(CSS_CLASS_NAMES.MULTI_SELECTION);
+    } else {
+      dayDomElement.classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
     }
   };
 
@@ -344,19 +362,16 @@ export default class Calendar {
 
       switch (event.type) {
         case "click":
-          this.viewModel.toggleDaySelected(day);
-          break;
-        case "mouseover":
-          // TODO: Apply the same logic has the on click.
-          this._dayMouseOver(day);
+          this.viewModel.setDaySelected(day, !day.selected);
           break;
         case "mousedown":
-          // TODO: Apply the same logic has the on click.
-          this._dayMouseDown(day);
+          this.viewModel.multiSelectStart(day);
+          break;
+        case "mouseover":
+          this.viewModel.multiSelectAdd(day);
           break;
         case "mouseup":
-          // TODO: Apply the same logic has the on click.
-          this._dayMouseUp(day);
+          this.viewModel.multiSelectEnd(day);
           break;
         default:
       }
@@ -386,284 +401,14 @@ export default class Calendar {
   _onMouseUp = event => {
     event.preventDefault();
 
-    if (this._mouseDownInformation !== null) {
+    if (this.viewModel.multiSelectStartDay !== null) {
       // Resets the mouse down information object
-      this._mouseDownInformation = null;
+      this.viewModel.multiSelectStartDay = null;
+
       // Clears any possible temporary multi selection
-      const elements = this._dom.mainContainer.querySelectorAll(
-        `.${CSS_CLASS_NAMES.MULTI_SELECTION}`
-      );
-      for (let i = 0; i < elements.length; i += 1) {
-        elements[i].classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
-      }
-    }
-  };
-
-  /**
-   * Handles the `mouseover` event for a day element and then calls the `onDayMouseOver` function.
-   * The `onDayMouseOver` function can be implemented by the users of the calendar to add extra logic when hovering
-   * on a day.
-   *
-   * @param {Day} day - Object representing the day that was hovered.
-   *
-   * @private
-   * @memberof Calendar
-   */
-  _dayMouseOver = day => {
-    // Exits right away if it's not a valid day or there is so function for the day MouseOver event.
-    if (!day) return;
-
-    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
-
-    let captionToAdd = "";
-    const dayCssClasses = dayDomElement.className.split(" ");
-    dayCssClasses.forEach(cssClass => {
-      const {
-        viewModel: { customDates }
-      } = this;
-
-      Object.keys(customDates).forEach(property => {
-        // Just to confirm that the object actually has the property.
-        if (Object.prototype.hasOwnProperty.call(customDates, property)) {
-          // Checks if all the needed properties exist in the object and if the css class is the same.
-          if (
-            customDates[property] &&
-            customDates[property].cssClass &&
-            customDates[property].cssClass.constructor === String &&
-            customDates[property].caption &&
-            customDates[property].caption.constructor === String &&
-            cssClass === customDates[property].cssClass
-          ) {
-            captionToAdd += `${customDates[property].caption}\n`;
-          }
-        }
-      });
-    }, this);
-    dayDomElement.title = captionToAdd;
-
-    if (this._mouseDownInformation) {
-      this._handleMultiSelection(day);
-    }
-  };
-
-  /**
-   * Handles the `mousedown` event for a day element and then calls the `onDayMouseDown` function.
-   * The `onDayMouseDown` function can be implemented by the users of the calendar to add extra logic when pressing
-   * the mouse button down on a day.
-   *
-   * @param {Day} day - Object with the information about the day where the event was triggered.
-   *
-   * @private
-   * @memberof Calendar
-   */
-  _dayMouseDown = day => {
-    if (!day) return;
-
-    // Creates the object with the mouse down information, for now it only needs the dayInfo object.
-    this._mouseDownInformation = { day };
-  };
-
-  /**
-   * Handles the `mouseup` event for a day element and then calls the `onDayMouseUp` function.
-   * The `onDayMouseUp` function can be implemented by the users of the calendar to add extra logic when releasing
-   * the mouse button from a day.
-   *
-   * @private
-   * @memberof Calendar
-   */
-  _dayMouseUp = () => {
-    if (
-      this._mouseDownInformation &&
-      this._mouseDownInformation.tempSelectedDays
-    ) {
-      // Let's add the temporary selected days to the actual selectedDate object
-      const { tempSelectedDays } = this._mouseDownInformation;
-
-      for (let index = 0; index < tempSelectedDays.length; index += 1) {
-        if (
-          this.viewModel.selectedDates.values.indexOf(tempSelectedDays[index]) <
-          0
-        ) {
-          // Toggles the day selection
-          this.viewModel.toggleDaySelected(tempSelectedDays[index]);
-        }
-      }
-
-      // Changes the style of the multi-selection into selectedDay
-      const elements = this._dom.mainContainer.querySelectorAll(
-        `.${CSS_CLASS_NAMES.MULTI_SELECTION}`
-      );
-      for (let i = 0; i < elements.length; i += 1) {
-        elements[i].classList.replace(
-          CSS_CLASS_NAMES.MULTI_SELECTION,
-          CSS_CLASS_NAMES.SELECTED_DAY
-        );
-      }
-    }
-    this._mouseDownInformation = null;
-  };
-
-  /**
-   * Handles the multi hovering.
-   *
-   * @param {Day} day - Object representing the day where the `mouseup` event happened.
-   *
-   * @private
-   * @memberof Calendar
-   */
-  _handleMultiSelection = day => {
-    const initialMonthIndex = this._mouseDownInformation.day.monthIndex;
-    const initialDayIndex = this._mouseDownInformation.day.dayIndex;
-    const currentMonthIndex = day.monthIndex;
-    const currentDayIndex = day.dayIndex;
-    const totalNrDays = this.viewModel.getTotalNumberOfDays();
-    const tempSelectedDays = [];
-
-    // Handles the hovering of the days when in the same month
-    if (initialMonthIndex === currentMonthIndex) {
-      if (currentDayIndex >= initialDayIndex) {
-        for (
-          let index = initialDayIndex;
-          index <= currentDayIndex;
-          index += 1
-        ) {
-          tempSelectedDays.push(
-            Utils.getDayByIndex(this.viewModel.days, initialMonthIndex, index)
-          );
-        }
-      }
-      if (currentDayIndex <= initialDayIndex) {
-        for (
-          let index = initialDayIndex;
-          index >= currentDayIndex;
-          index -= 1
-        ) {
-          tempSelectedDays.push(
-            Utils.getDayByIndex(this.viewModel.days, initialMonthIndex, index)
-          );
-        }
-      }
-    }
-
-    if (initialMonthIndex < currentMonthIndex) {
-      for (
-        let iMonth = initialMonthIndex;
-        iMonth <= currentMonthIndex;
-        iMonth += 1
-      ) {
-        // Fill all the days until the end of the month
-        if (iMonth === initialMonthIndex) {
-          for (let iDay = initialDayIndex; iDay <= totalNrDays; iDay += 1) {
-            const currentDay = Utils.getDayByIndex(
-              this.viewModel.days,
-              iMonth,
-              iDay
-            );
-            if (currentDay && currentDay.date !== null) {
-              tempSelectedDays.push(currentDay);
-            }
-          }
-        }
-        // Fill the days from the start of the month up until the currently hovered day
-        if (iMonth === currentMonthIndex) {
-          for (let iDay = 0; iDay <= currentDayIndex; iDay += 1) {
-            const currentDay = Utils.getDayByIndex(
-              this.viewModel.days,
-              iMonth,
-              iDay
-            );
-            if (currentDay && currentDay.date !== null) {
-              tempSelectedDays.push(currentDay);
-            }
-          }
-        }
-        // Fills the days in between the starting month and the ending month
-        if (iMonth > initialMonthIndex && iMonth < currentMonthIndex) {
-          for (let iDay = 0; iDay <= totalNrDays; iDay += 1) {
-            const currentDay = Utils.getDayByIndex(
-              this.viewModel.days,
-              iMonth,
-              iDay
-            );
-            if (currentDay && currentDay.date !== null) {
-              tempSelectedDays.push(currentDay);
-            }
-          }
-        }
-      }
-    }
-    if (initialMonthIndex > currentMonthIndex) {
-      for (
-        let iMonth = initialMonthIndex;
-        iMonth >= currentMonthIndex;
-        iMonth -= 1
-      ) {
-        // Fill all the days until the end of the month
-        if (iMonth === initialMonthIndex) {
-          for (let iDay = initialDayIndex; iDay >= 0; iDay -= 1) {
-            const currentDay = Utils.getDayByIndex(
-              this.viewModel.days,
-              iMonth,
-              iDay
-            );
-            if (currentDay && currentDay.date !== null) {
-              tempSelectedDays.push(currentDay);
-            }
-          }
-        }
-        // Fill the days from the start of the month up until the currently hovered day
-        if (iMonth === currentMonthIndex) {
-          for (let iDay = totalNrDays; iDay >= currentDayIndex; iDay -= 1) {
-            const currentDay = Utils.getDayByIndex(
-              this.viewModel.days,
-              iMonth,
-              iDay
-            );
-            if (currentDay && currentDay.date !== null) {
-              tempSelectedDays.push(currentDay);
-            }
-          }
-        }
-        // Fills the days in between the starting month and the ending month
-        if (iMonth < initialMonthIndex && iMonth > currentMonthIndex) {
-          for (let iDay = totalNrDays; iDay >= 0; iDay -= 1) {
-            const currentDay = Utils.getDayByIndex(
-              this.viewModel.days,
-              iMonth,
-              iDay
-            );
-            if (currentDay && currentDay.date !== null) {
-              tempSelectedDays.push(currentDay);
-            }
-          }
-        }
-      }
-    }
-
-    if (tempSelectedDays.length > 0) {
-      // TODO: The Dom change should be done on the Dom object instead,
-      // Clear possible previously mutli selected days
-      const elements = this._dom.mainContainer.querySelectorAll(
-        `.${CSS_CLASS_NAMES.MULTI_SELECTION}`
-      );
-      for (let i = 0; i < elements.length; i += 1) {
-        elements[i].classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
-      }
-
-      this._mouseDownInformation.tempSelectedDays = [];
-      // Adds the css class for multi selection
-      for (let index = 0; index < tempSelectedDays.length; index += 1) {
-        this._mouseDownInformation.tempSelectedDays.push(
-          tempSelectedDays[index]
-        );
-
-        const dayDomElement = this._dom.getDayElement(
-          tempSelectedDays[index].monthIndex,
-          tempSelectedDays[index].dayIndex
-        );
-        // TODO: The Dom change should be done on the Dom object instead,
-        dayDomElement.className += ` ${CSS_CLASS_NAMES.MULTI_SELECTION}`;
-      }
+      this.viewModel.days
+        .filter(auxDay => auxDay.multiSelecting)
+        .forEach(auxDay => this.viewModel.setDayMultiSelecting(auxDay, false));
     }
   };
 
@@ -717,7 +462,7 @@ export default class Calendar {
   getSelectedDays = () => {
     const selectedDays = this.viewModel.days.filter(day => day.selected);
     return selectedDays.map(day => day.getISOFormattedDate());
-  }
+  };
 
   /**
    * TODO: Add Doc
