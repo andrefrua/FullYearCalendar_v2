@@ -10,8 +10,8 @@ export default class Day {
   /**
    * Creates an instance of Day.
    *
-   * @param {number} monthIndex - Index of the month (Between 0 and 11).
-   * @param {number} dayIndex - Number of the day (Between 0 and the value returned by `getTotalNumberOfDays()`).
+   * @param {number} monthIndex - Index of the month, starting from 0.
+   * @param {number} dayIndex - Index of the day, starting from 0.
    *
    * @memberof Day
    */
@@ -40,7 +40,7 @@ export default class Day {
   }
 
   /**
-   * Number of the day (Between 0 and the value returned by `viewModel.getTotalNumberOfDays()`).
+   * Number of the day, starting from 0.
    *
    * @type {number}
    * @memberof Day

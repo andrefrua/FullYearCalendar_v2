@@ -1,14 +1,12 @@
 /**
  * TODOs:
- * - Needs a better way to handle the mobile view mode. As of now when in mobile view there are days
- * shown wrongly. The `hideInMobile` is not being used anymore.
  * - Some events should be available to the users, via callback or something else. As it was before:
  *  - Year changed - `this.onYearChanged()`
  *  - Day mouse hover - `this.onDayMouseOver()`
  *  - Day mouse down - `this.onDayMouseDown()`
  *  - Day mouse up - `this.onDayMouseUp()`
  * - CustomDates problem. When a period is set between two years the period won't be shown.
- * - Legend refreshing is not really good. Refactoring might be in order.
+ * - There is a problem with the event handling. It seems that the handlers aren't being removed :(
  */
 
 import ViewModel from "./ViewModel.js";
@@ -475,6 +473,7 @@ export default class Calendar {
   refresh = config => {
     this.viewModel.update(config);
     this._dom.clear();
+    this._eventListeners.removeAll();
 
     this._init();
     this._render();

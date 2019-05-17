@@ -426,7 +426,7 @@ export default class ViewModel {
    *
    * @memberof ViewModel
    */
-  getTotalNumberOfDays = () => 37;
+  getTotalNumberOfDays = () => 42;//37;
 
   /**
    * The width of the month container. This is based on the day width times 4.
@@ -437,12 +437,12 @@ export default class ViewModel {
 
   /**
    * Returns the total calendar width.
-   * `this.getTotalNumberOfDays() + 1` = Total amount of days drawn,
    *
    * @memberof ViewModel
    */
   getTotalCalendarWidth = () =>
-    this.getMonthNameWidth() + this.dayWidth * this.getTotalNumberOfDays() + 1;
+    this.getMonthNameWidth() +
+    this.dayWidth * (this.getTotalNumberOfDays() - 4);
 
   /**
    * TODO: Add doc

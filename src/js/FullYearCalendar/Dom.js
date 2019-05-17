@@ -205,7 +205,7 @@ export default class Dom {
     // Add an element for each day.
     for (
       let iDay = 0;
-      iDay <= this.viewModel.getTotalNumberOfDays();
+      iDay < this.viewModel.getTotalNumberOfDays();
       iDay += 1
     ) {
       // Creates a new container at the start of each week
@@ -237,18 +237,17 @@ export default class Dom {
   /**
    * Returns a DOM element with the configurations for a day name.
    *
-   * @param {Number} currentDay - Number of the day (Between 0 and the value returned by
-   * `viewModel.getTotalNumberOfDays()`).
+   * @param {number} dayIndex - Number of the day, starting from 0.
    * @returns {HTMLElement} - The DOM element representing the day name.
    * @private
    * @memberof Dom
    */
-  _createDayNameElement = currentDay => {
+  _createDayNameElement = dayIndex => {
     const vm = this.viewModel;
     const dayNameElement = document.createElement("div");
 
     dayNameElement.innerText =
-      vm.weekDayNames[(currentDay + vm.weekStartDay) % 7];
+      vm.weekDayNames[(dayIndex + vm.weekStartDay) % 7];
     dayNameElement.className = CSS_CLASS_NAMES.WEEK_DAY_NAME;
     dayNameElement.setAttribute("fyc-week-day-name", "true");
     dayNameElement.style.height = `${vm.dayWidth}px`;
@@ -259,7 +258,7 @@ export default class Dom {
     dayNameElement.style.verticalAlign = "middle";
 
     // These elements are only used for mobile view.
-    if (currentDay > 37) {
+    if (dayIndex > 37) {
       dayNameElement.setAttribute("fyc_isdummyday", true);
       dayNameElement.style.display = "none";
     }
@@ -282,7 +281,7 @@ export default class Dom {
     // Add an element for each day.
     for (
       let iDay = 0;
-      iDay <= this.viewModel.getTotalNumberOfDays();
+      iDay < this.viewModel.getTotalNumberOfDays();
       iDay += 1
     ) {
       // Creates a new container at the start of each week
@@ -301,8 +300,8 @@ export default class Dom {
   /**
    * Returns a DOM element with the configurations for a day.
    *
-   * @param {Number} monthIndex - Index of the month (Between 0 and 11).
-   * @param {Number} dayIndex - Index of the day (Between 0 and the value returned by `getTotalNumberOfDays()`).
+   * @param {Number} monthIndex - Index of the month, starting from 0.
+   * @param {Number} dayIndex - Index of the day, starting from 0.
    * @returns {HTMLElement} - The DOM element representing the day.
    * @private
    * @memberof Dom
@@ -603,6 +602,14 @@ export default class Dom {
       "text-align",
       "right"
     );
+
+    // Shows all the weekContainers
+    const weekContainers = this.mainContainer.querySelectorAll(
+      ".weekContainer"
+    );
+    weekContainers.forEach(weekContainer => {
+      weekContainer.style.display = "block";
+    });
   };
 
   /**
@@ -669,6 +676,23 @@ export default class Dom {
       "text-align",
       "left"
     );
+
+    // Hides the weekContainer that aren't necessary for each month
+    for (let monthIndex = 0; monthIndex <= 11; monthIndex += 1) {
+      // Fetch the last day in the month
+      const lastDayInMonth = this.viewModel.days
+        .filter(auxDay => auxDay.monthIndex === monthIndex)
+        .slice(-1)[0];
+
+      if (lastDayInMonth && lastDayInMonth.dayIndex < 35) {
+        const dayDomElement = this.getDayElement(
+          lastDayInMonth.monthIndex,
+          lastDayInMonth.dayIndex
+        );
+
+        dayDomElement.parentElement.nextElementSibling.style.display = "none";
+      }
+    }
   };
 
   // #endregion Private methods
@@ -713,8 +737,8 @@ export default class Dom {
   /**
    * Gets the dom element that represent the day with the received month and day indexes.
    *
-   * @param {Number} monthIndex - Index of the month (Between 0 and 11).
-   * @param {Number} dayIndex - Index of the day (Between 0 and the value returned `getTotalNumberOfDays()` property).
+   * @param {Number} monthIndex - Index of the month, starting from 0.
+   * @param {Number} dayIndex - Index of the day, starting from 0.
    * @returns {HTMLElement} - The dom element representing the day.
    * @memberof Dom
    */
