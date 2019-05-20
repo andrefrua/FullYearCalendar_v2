@@ -421,12 +421,12 @@ export default class ViewModel {
 
   /**
    * Returns the total number of days
-   * It's set to 37 + 4 (To fill gap on mobile view) because it's the maximum possible value to attain with the gap
-   * between starting and end of days in the month.
+   * It's set to 42 to fill gaps on mobile view because it's the maximum possible value to attain with the gap
+   * between starting and end of days in the month, however on normal view only 38 days will be visible.
    *
    * @memberof ViewModel
    */
-  getTotalNumberOfDays = () => 42;//37;
+  getTotalNumberOfDays = () => 42;
 
   /**
    * The width of the month container. This is based on the day width times 4.

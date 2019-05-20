@@ -12,8 +12,7 @@
 import ViewModel from "./ViewModel.js";
 import Utils from "./Utils.js";
 import Dom from "./Dom.js";
-import EventListeners from "./EventListeners/EventListeners.js";
-import EventListener from "./EventListeners/EventListener.js";
+import EventHandlers from "./Events/EventHandlers.js";
 import { CSS_CLASS_NAMES } from "./Enums.js";
 
 /**
@@ -36,7 +35,8 @@ export default class Calendar {
     // Object that stores the DOM elements needed by the Calendar.
     this._dom = new Dom(domElement, this.viewModel);
     // Array that will store all the eventListeners needed for the Calendar to work.
-    this._eventListeners = new EventListeners();
+    this._eventHandlers = new EventHandlers();
+
     // Object that stores the information related to the mouse down event.
     this._mouseDownInformation = null;
 
@@ -216,52 +216,43 @@ export default class Calendar {
    * @memberof Calendar
    */
   _addEventListeners() {
-    // Window listeners
-    this._eventListeners.add(
-      new EventListener(window, "resize", this._onResize)
+    this._eventHandlers.createAndAddListener(window, "resize", e =>
+      this._onResize(e)
     );
-    this._eventListeners.add(
-      new EventListener(window, "mouseup", this._onMouseUp)
+    this._eventHandlers.createAndAddListener(window, "mouseup", e =>
+      this._onMouseUp(e)
     );
+
     // Calendar container listeners, essencially for days elements
-    this._eventListeners.add(
-      new EventListener(
-        this._dom.domElement,
-        "click",
-        this._onCalendarEventTriggered
-      )
+    this._eventHandlers.createAndAddListener(this._dom.domElement, "click", e =>
+      this._onCalendarEventTriggered(e)
     );
-    this._eventListeners.add(
-      new EventListener(
-        this._dom.domElement,
-        "mouseover",
-        this._onCalendarEventTriggered
-      )
+    this._eventHandlers.createAndAddListener(
+      this._dom.domElement,
+      "mouseover",
+      e => this._onCalendarEventTriggered(e)
     );
-    this._eventListeners.add(
-      new EventListener(
-        this._dom.domElement,
-        "mousedown",
-        this._onCalendarEventTriggered
-      )
+    this._eventHandlers.createAndAddListener(
+      this._dom.domElement,
+      "mousedown",
+      e => this._onCalendarEventTriggered(e)
     );
-    this._eventListeners.add(
-      new EventListener(
-        this._dom.domElement,
-        "mouseup",
-        this._onCalendarEventTriggered
-      )
+    this._eventHandlers.createAndAddListener(
+      this._dom.domElement,
+      "mouseup",
+      e => this._onCalendarEventTriggered(e)
     );
+
     // Other elements
-    this._eventListeners.add(
-      new EventListener(
-        this._dom.buttonNavPreviousYear,
-        "click",
-        this.goToPreviousYear
-      )
+    this._eventHandlers.createAndAddListener(
+      this._dom.buttonNavPreviousYear,
+      "click",
+      e => this.goToPreviousYear(e)
     );
-    this._eventListeners.add(
-      new EventListener(this._dom.buttonNavNextYear, "click", this.goToNextYear)
+    this._eventHandlers.createAndAddListener(
+      this._dom.buttonNavNextYear,
+      "click",
+      e => this.goToNextYear(e)
     );
   }
 
@@ -473,7 +464,7 @@ export default class Calendar {
   refresh = config => {
     this.viewModel.update(config);
     this._dom.clear();
-    this._eventListeners.removeAll();
+    this._eventHandlers.removeAll();
 
     this._init();
     this._render();
@@ -503,7 +494,7 @@ export default class Calendar {
    * @memberof Calendar
    */
   dispose = () => {
-    this._eventListeners.removeAll();
+    this._eventHandlers.removeAll();
 
     this._dom.dispose();
     delete this._dom;
