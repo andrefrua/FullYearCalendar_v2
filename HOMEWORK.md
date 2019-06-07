@@ -7,8 +7,8 @@ Endireitar nomes dos eventos face aos métodos das acções.
 
 TPC:
 1. Endireitar o Calendar
-2. Chamar acções do ViewModel para todas as acções mesmo que para mocks do lado do ViewModel
-3. Afinar alguns dos nomes dos métodos, se calhar em caminho
+2. Chamar acções do ViewModel para todas as acções mesmo que para mocks do lado do ViewModel DONE
+3. Afinar alguns dos nomes dos métodos, se calhar em caminho IN PROGRESS
 4. Stretch goal: endireitar os add/remove event listeners - DONE
 
 5. Update the Render of the calendar in response to the selectedYear change instead of the way it is at the moment - DONE

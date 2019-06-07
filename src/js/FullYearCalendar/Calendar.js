@@ -1,16 +1,17 @@
 /**
  * TODOs:
- * - Some events should be available to the users, via callback or something else. As it was before:
- *  - Year changed - `this.onYearChanged()`
- *  - Day mouse hover - `this.onDayMouseOver()`
- *  - Day mouse down - `this.onDayMouseDown()`
- *  - Day mouse up - `this.onDayMouseUp()`
  * - CustomDates problem. When a period is set between two years the period won't be shown.
- * - There is a problem with the event handling. It seems that the handlers aren't being removed :(
+ * - We should simply be listening to the change event instead of a specific event, receiving the information
+ *  of which property was changed. Maybe use a prefix like _did_ to identify what really happened.
+ * - An "Intention" should be created instead of directly triggering changes on the ViewModel.
+ * - Check the props in all the classes and change them to private where it makes sense.
+ * - Maybe it would make sense to create an object for the CustomDates array, if not create a better documentation
+ * so it's easier to create new custom dates.
+ * - The `viewModel.selectedDays` should be changed to store a list of days instead of a list of dates.
  */
 
 import ViewModel from "./ViewModel.js";
-import Utils from "./Utils.js";
+import * as Utils from "./Utils.js";
 import Dom from "./Dom.js";
 import EventHandlers from "./Events/EventHandlers.js";
 import { CSS_CLASS_NAMES } from "./Enums.js";
@@ -74,20 +75,15 @@ export default class Calendar {
     this._dom.createStructure();
     this._addEventListeners();
 
-    /**
-     * TODO: We should simply be listening to the change event instead of a specific event, receiving the information
-     * of which property was changed.
-     * Maybe use a prefix like _did_ to identify what really happened.
-     */
-    this.viewModel.eventDispatcher.on(
+    this.viewModel.on(
       "daySelectionChanged",
       this._daySelectedChangedHandler.bind(this)
     );
-    this.viewModel.eventDispatcher.on(
+    this.viewModel.on(
       "yearSelectionChanged",
       this._yearSelectedChangedHandler.bind(this)
     );
-    this.viewModel.eventDispatcher.on(
+    this.viewModel.on(
       "dayMultiSelectingChanged",
       this._dayMultiSelectingChangedHandler.bind(this)
     );
@@ -244,16 +240,18 @@ export default class Calendar {
     );
 
     // Other elements
-    this._eventHandlers.createAndAddListener(
-      this._dom.buttonNavPreviousYear,
-      "click",
-      e => this.goToPreviousYear(e)
-    );
-    this._eventHandlers.createAndAddListener(
-      this._dom.buttonNavNextYear,
-      "click",
-      e => this.goToNextYear(e)
-    );
+    if (this.viewModel.showNavigationToolBar) {
+      this._eventHandlers.createAndAddListener(
+        this._dom.buttonNavPreviousYear,
+        "click",
+        e => this.goToPreviousYear(e)
+      );
+      this._eventHandlers.createAndAddListener(
+        this._dom.buttonNavNextYear,
+        "click",
+        e => this.goToNextYear(e)
+      );
+    }
   }
 
   /**
@@ -292,8 +290,11 @@ export default class Calendar {
   };
 
   /**
-   * TODO: Add doc
+   * Handler triggered when the `viewModel.days.multiSelecting` property is changed.
    *
+   * @param {Day} day - Day object where the multiSelecting change has happened.
+   *
+   * @private
    * @memberof Calendar
    */
   _dayMultiSelectingChangedHandler = day => {
@@ -350,19 +351,15 @@ export default class Calendar {
       switch (event.type) {
         case "click":
           this.viewModel.setDaySelected(day, !day.selected);
-          this.viewModel.eventDispatcher.dispatch("dayMouseClicked", day);
           break;
         case "mousedown":
           this.viewModel.multiSelectStart(day);
-          this.viewModel.eventDispatcher.dispatch("dayMouseDowned", day);
           break;
         case "mouseover":
           this.viewModel.multiSelectAdd(day);
-          this.viewModel.eventDispatcher.dispatch("dayMouseHovered", day);
           break;
         case "mouseup":
           this.viewModel.multiSelectEnd(day);
-          this.viewModel.eventDispatcher.dispatch("dayMouseUpped", day);
           break;
         default:
       }
@@ -380,7 +377,6 @@ export default class Calendar {
   };
 
   /**
-   * TODO: The Dom changes should be handled by the Dom object.
    * Handles the mouseup event when triggered on the window object.
    * Used to clear the multi selection when the mouse up event happens outside any valid day element.
    *
@@ -392,15 +388,7 @@ export default class Calendar {
   _onMouseUp = event => {
     event.preventDefault();
 
-    if (this.viewModel.multiSelectStartDay !== null) {
-      // Resets the mouse down information object
-      this.viewModel.multiSelectStartDay = null;
-
-      // Clears any possible temporary multi selection
-      this.viewModel.days
-        .filter(auxDay => auxDay.multiSelecting)
-        .forEach(auxDay => this.viewModel.setDayMultiSelecting(auxDay, false));
-    }
+    this.viewModel.clearMultiSelection();
   };
 
   // #endregion Private methods
@@ -413,7 +401,6 @@ export default class Calendar {
    * @memberof Calendar
    */
   goToNextYear = () => {
-    // TODO: This should be an intention instead of changing the viewModel directly
     this.viewModel.changeYearSelected(this.viewModel.selectedYear + 1);
   };
 
@@ -423,7 +410,6 @@ export default class Calendar {
    * @memberof Calendar
    */
   goToPreviousYear = () => {
-    // TODO: This should be an intention instead of changing the viewModel directly
     this.viewModel.changeYearSelected(this.viewModel.selectedYear - 1);
   };
 
@@ -435,7 +421,6 @@ export default class Calendar {
    * @memberof Calendar
    */
   goToYear = yearToShow => {
-    // TODO: This should be an intention instead of changing the viewModel directly
     const newSelectedYear =
       typeof yearToShow === "number" && yearToShow > 1970 ? yearToShow : null;
 
@@ -445,7 +430,6 @@ export default class Calendar {
   };
 
   /**
-   * TODO: This is not working at the moment.
    * Gets an array of all selected days
    *
    * @memberof Calendar
@@ -456,7 +440,7 @@ export default class Calendar {
   };
 
   /**
-   * TODO: Add Doc
+   * Refreshes the Calendar by updating the ViewModel object with modified propety changes.
    *
    * @param {Object} config
    * @memberof Calendar
@@ -471,7 +455,7 @@ export default class Calendar {
   };
 
   /**
-   * TODO: Add Doc
+   * Refreshes the CustomDates object.
    *
    * @param {Object} customDates
    * @param {boolean} [keepPrevious=true]
@@ -489,7 +473,7 @@ export default class Calendar {
   };
 
   /**
-   * TODO: Add Doc
+   * Destroys all the calendar Dom elements, objects and events.
    *
    * @memberof Calendar
    */

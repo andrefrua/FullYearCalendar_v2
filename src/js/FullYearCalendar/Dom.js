@@ -17,7 +17,6 @@ export default class Dom {
    * @memberof Dom
    */
   constructor(domElement, viewModel) {
-    // TODO: Check if these props should be private or public.
     this.domElement = domElement;
     this.viewModel = viewModel;
 

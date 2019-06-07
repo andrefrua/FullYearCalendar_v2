@@ -2,12 +2,12 @@ import Event from "./Event.js";
 
 export default class EventDispatcher {
   constructor() {
-    this.events = {};
+    this.__events = {};
   }
 
   dispatch = (eventName, data) => {
     // Get the event from the list
-    const event = this.events[eventName];
+    const event = this.__events[eventName];
 
     // Fire the event if it exists
     if (event) {
@@ -17,12 +17,12 @@ export default class EventDispatcher {
 
   on = (eventName, callback) => {
     // Get the event from the events list
-    let event = this.events[eventName];
+    let event = this.__events[eventName];
 
     // Create the event if it doesn't exist yet. NOTE: Maybe I should simply throw an error instead.
     if (!event) {
       event = new Event(eventName);
-      this.events[eventName] = event;
+      this.__events[eventName] = event;
     }
 
     // Now let's add the callback to the event
@@ -31,14 +31,14 @@ export default class EventDispatcher {
 
   off = (eventName, callback) => {
     // Get the correct event
-    const event = this.events[eventName];
+    const event = this.__events[eventName];
 
     // Check that both the event and the callback exists
     if (event && event.callbacks.indexOf(callback) > -1) {
       event.unregisterCallback(callback);
       // If the event has no more callbacks, removed it
       if (event.callbacks.length === 0) {
-        delete this.events[eventName];
+        delete this.__events[eventName];
       }
     }
   };

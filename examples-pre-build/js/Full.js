@@ -1,7 +1,7 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
 
-const inputClickedDay = document.getElementById("inputClickedDay");
-const inputHoveredDay = document.getElementById("inputHoveredDay");
+const inputLastSelectedDay = document.getElementById("inputLastSelectedDay");
+const inputLastHoveredDay = document.getElementById("inputLastHoveredDay");
 const inputYearChanged = document.getElementById("inputYearChanged");
 const btnGoToYear = document.getElementById("btnGoToYear");
 const btnGoToPreviousYear = document.getElementById("btnGoToPreviousYear");
@@ -61,21 +61,32 @@ const configObj = {
         end: "2019-06-21",
         recurring: true
       }
+    },
+    multiyear: {
+      caption: "Multi Year",
+      cssClass: "multiyear",
+      values: {
+        start: "2019-12-21",
+        end: "2020-01-21",
+        recurring: true
+      }
     }
   }
 };
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.eventDispatcher.on("dayMouseClicked", day => {
-  inputClickedDay.value = day.date.toISOString().slice(0, 10);
+fullYearCalendar.viewModel.on("daySelectionChanged", day => {
+  if (day.selected) {
+    inputLastSelectedDay.value = day.date.toISOString().slice(0, 10);
+  }
 });
 
-fullYearCalendar.viewModel.eventDispatcher.on("dayMouseHovered", day => {
-  inputHoveredDay.value = day.date.toISOString().slice(0, 10);
+fullYearCalendar.viewModel.on("dayHovered", day => {
+  inputLastHoveredDay.value = day.date.toISOString().slice(0, 10);
 });
 
-fullYearCalendar.viewModel.eventDispatcher.on("yearSelectionChanged", () => {
+fullYearCalendar.viewModel.on("yearSelectionChanged", () => {
   inputYearChanged.innerText = !Number.isNaN(inputYearChanged.innerText)
     ? parseInt(inputYearChanged.innerText, 10) + 1
     : 0;

@@ -1,5 +1,5 @@
 import { PROPERTY_NAMES, REPRESENTATION_VALUES } from "./Enums.js";
-import Utils from "./Utils.js";
+import * as Utils from "./Utils.js";
 import Day from "./Day.js";
 import EventDispatcher from "./Events/EventDispatcher.js";
 
@@ -9,7 +9,7 @@ import EventDispatcher from "./Events/EventDispatcher.js";
  * @export
  * @class ViewModel
  */
-export default class ViewModel {
+export default class ViewModel extends EventDispatcher {
   /**
    * Creates an instance of ViewModel.
    *
@@ -17,6 +17,8 @@ export default class ViewModel {
    * @memberof ViewModel
    */
   constructor(config) {
+    super();
+
     // Initializes all the necessary properties in order to have the calendar working as intended.
     PROPERTY_NAMES.forEach(propName => {
       this[propName] = config && config[propName];
@@ -66,7 +68,8 @@ export default class ViewModel {
   }
 
   set locale(value) {
-    this._locale = value || "en-US"; // TODO: Change this defalt to use the locale of the browser or system. navigator.location or something.
+    this._locale =
+      value || window.navigator.language || window.navigator.userLanguage;
   }
 
   /**
@@ -77,11 +80,11 @@ export default class ViewModel {
    * @memberof ViewModel
    */
   get alignInContainer() {
-    return this._alignInContainer;
+    return this.__alignInContainer;
   }
 
   set alignInContainer(value) {
-    this._alignInContainer = value || "center";
+    this.__alignInContainer = value || "center";
   }
 
   /**
@@ -200,7 +203,7 @@ export default class ViewModel {
   }
 
   /**
-   * TODO: DOC MISSING
+   * Stores all the custom dates that should be displayed on the calendar.
    *
    * @type {Array}
    * @memberof ViewModel
@@ -214,7 +217,7 @@ export default class ViewModel {
   }
 
   /**
-   * TODO: DOC MISSING
+   * Stores all the selected dates. It stores the actual dates and not a list of days.
    *
    * @type {Array}
    * @memberof ViewModel
@@ -228,9 +231,9 @@ export default class ViewModel {
   }
 
   /**
-   * TODO: DOC MISSING
+   * Stores all the days shown in the calendar for the currently visible year.
    *
-   * @type {Array}
+   * @type {Array.<Day>}
    * @memberof ViewModel
    */
   get days() {
@@ -241,26 +244,12 @@ export default class ViewModel {
     this._days = value || [];
   }
 
-  /**
-   * TODO: DOC MISSING
-   *
-   * @type {Array}
-   * @memberof ViewModel
-   */
-  get eventDispatcher() {
-    return this._eventDispatcher;
-  }
-
-  set eventDispatcher(value) {
-    this._eventDispatcher = value || new EventDispatcher();
-  }
-
   // #endregion  Getters and Setters
 
   // #region Private methods
 
   /**
-   * TODO: Add doc
+   * Updates the fixed / calculated properties of the viewModel.
    *
    * @memberof ViewModel
    */
@@ -274,14 +263,13 @@ export default class ViewModel {
       REPRESENTATION_VALUES.NARROW
     );
     this.days = this._createDaysArray();
-    // TODO: I don't like having to store this temporary information this way
-    this.multiSelectStartDay = null;
-    this.eventDispatcher = new EventDispatcher();
+
+    this.__multiSelectStartDay = null;
   };
 
   /**
    * Normalizes the customDate object.
-   * TODO: This functions needs some refactoring...
+   *
    * @param {Object} customDates
    * @returns {Object} - Normalized customDates object.
    *
@@ -295,32 +283,26 @@ export default class ViewModel {
 
     // Loops through all the the properties in the CustomDates object.
     Object.keys(customDates).forEach(property => {
-      // Just to confirm that the object actually has the property.
+      // Checks that the property actually exists in the object and has a values property inside.
       if (
-        Object.prototype.hasOwnProperty.call(customDates, property) &&
+        Utils.objectHasProperty(customDates, property) &&
         customDates[property].values
       ) {
-        // Since we have several possibities to add the array of Dates we need several checks.
+        // We need to check the 3 possible ways to create a CustomDate.
+
+        const { values } = customDates[property];
 
         // 1 - If the values property is an Object then we should check for the start and end properties (Range).
         if (
-          customDates[property].values.constructor === Object &&
-          Object.prototype.hasOwnProperty.call(
-            customDates[property].values,
-            "start"
-          ) &&
-          Object.prototype.hasOwnProperty.call(
-            customDates[property].values,
-            "end"
-          )
+          values.constructor === Object &&
+          Utils.objectHasProperty(values, "start") &&
+          Utils.objectHasProperty(values, "end")
         ) {
-          const startDate = new Date(customDates[property].values.start);
-          const endDate = new Date(customDates[property].values.end);
+          const startDate = new Date(values.start);
+          const endDate = new Date(values.end);
 
           const recurring =
-            customDates[property].values.recurring ||
-            customDates[property].recurring ||
-            false;
+            values.recurring || customDates[property].recurring || false;
 
           normalizedCustomDates[property] = {
             caption: customDates[property].caption,
@@ -330,14 +312,14 @@ export default class ViewModel {
         }
 
         // 2 - If it's an array of Dates we must add one position on the values array for each one.
-        if (customDates[property].values.constructor === Array) {
+        if (values.constructor === Array) {
           normalizedCustomDates[property] = {
             caption: customDates[property].caption,
             cssClass: customDates[property].cssClass,
             values: []
           };
           // Checks if the current date exists in the Array
-          customDates[property].values.forEach(auxDate => {
+          values.forEach(auxDate => {
             const newDate = new Date(auxDate);
             const recurring = customDates[property].recurring || false;
             normalizedCustomDates[property].values.push({
@@ -350,9 +332,9 @@ export default class ViewModel {
 
         // 3 - If it's an array of periods for the same property, for example several periods of vacations
         if (
-          customDates[property].values.constructor === Array &&
-          customDates[property].values.length > 0 &&
-          customDates[property].values[0].constructor === Object
+          values.constructor === Array &&
+          values.length > 0 &&
+          values[0].constructor === Object
         ) {
           normalizedCustomDates[property] = {
             caption: customDates[property].caption,
@@ -360,7 +342,7 @@ export default class ViewModel {
             values: []
           };
           // Checks if the current date exists in the Array
-          customDates[property].values.forEach(auxPeriod => {
+          values.forEach(auxPeriod => {
             const startDate = new Date(auxPeriod.start);
             const endDate = new Date(auxPeriod.end);
             const recurring =
@@ -380,7 +362,7 @@ export default class ViewModel {
   };
 
   /**
-   * TODO: Add doc
+   * Creates the array of days to be displayed on the calendar in the currently selected year.
    *
    * @memberof ViewModel
    */
@@ -445,29 +427,33 @@ export default class ViewModel {
     this.dayWidth * (this.getTotalNumberOfDays() - 4);
 
   /**
-   * TODO: Add doc
+   * Changes the selected state of the received day and dispatches the `daySelectionChanged` event.
    *
-   * @param {Day} day
+   * @param {Day} day - The day to change the selection.
+   * @param {boolean} selected - The new selected state.
    * @memberof ViewModel
    */
   setDaySelected = (day, selected) => {
     day.selected = selected;
-    this.eventDispatcher.dispatch("daySelectionChanged", day);
+    this.dispatch("daySelectionChanged", day);
   };
 
   /**
-   * TODO: Add doc
+   * Changes the multiSelecting state of the received day and dispatches the `dayMultiSelectingChanged` event.
    *
+   * @param {Day} day - The day to change the multiSelecting.
+   * @param {boolean} multiSelecting - The new multiSelecting state.
    * @memberof ViewModel
    */
   setDayMultiSelecting = (day, multiSelecting) => {
     day.multiSelecting = multiSelecting;
-    this.eventDispatcher.dispatch("dayMultiSelectingChanged", day);
+    this.dispatch("dayMultiSelectingChanged", day);
   };
 
   /**
-   * TODO: Add doc
+   * Changes the currently selected year to the the one and dispatched the `yearSelectionChanged` event.
    *
+   * @param {number} year - The year to which we must change the calendar.
    * @memberof ViewModel
    */
   changeYearSelected = year => {
@@ -475,7 +461,7 @@ export default class ViewModel {
 
     this.days = this._createDaysArray();
 
-    this.eventDispatcher.dispatch("yearSelectionChanged");
+    this.dispatch("yearSelectionChanged");
   };
 
   /**
@@ -524,14 +510,25 @@ export default class ViewModel {
     this.customDates = this._normalizeCustomDates(newCustomDates);
   };
 
-  // TESTING
+  /**
+   * Starts the multi selection mode by filling the `multiSelectedStartDay` property.
+   *
+   * @param {Day} day - Day object where the multi selection started.
+   * @memberof ViewModel
+   */
   multiSelectStart = day => {
-    this.multiSelectStartDay = day;
+    this.__multiSelectStartDay = day;
   };
 
+  /**
+   * Adds the day to the multi selection mode by adding the current day to the array.
+   *
+   * @param {Day} day - Day object where the multi selection is happening.
+   * @memberof ViewModel
+   */
   multiSelectAdd = day => {
-    if (this.multiSelectStartDay) {
-      const startDayIndex = this.days.indexOf(this.multiSelectStartDay);
+    if (this.__multiSelectStartDay) {
+      const startDayIndex = this.days.indexOf(this.__multiSelectStartDay);
       const currentDayIndex = this.days.indexOf(day);
 
       // Filters the days that are between the startDay index and the current day index or vice-versa
@@ -556,15 +553,18 @@ export default class ViewModel {
         this.setDayMultiSelecting(auxDay, true)
       );
     }
+    // Dispatched the event informing that the day is being hovered
+    this.dispatch("dayHovered", day);
   };
 
   /**
-   * TODO: Add doc
+   * Ends the multi selection mode.
    *
+   * @param {Day} day - Day object where the multi selection is ending.
    * @memberof ViewModel
    */
   multiSelectEnd = () => {
-    if (this.multiSelectStartDay) {
+    if (this.__multiSelectStartDay) {
       this.days
         .filter(auxDay => auxDay.multiSelecting)
         .forEach(dayToSelect => {
@@ -575,7 +575,24 @@ export default class ViewModel {
         });
 
       // Clear the MultiSelectingInfo object
-      this.multiSelectStartDay = null;
+      this.__multiSelectStartDay = null;
+    }
+  };
+
+  /**
+   * Clears any ongoing multi selection.
+   *
+   * @memberof ViewModel
+   */
+  clearMultiSelection = () => {
+    if (this.__multiSelectStartDay !== null) {
+      // Resets the mouse down information object
+      this.__multiSelectStartDay = null;
+
+      // Clears any possible temporary multi selection
+      this.days
+        .filter(auxDay => auxDay.multiSelecting)
+        .forEach(auxDay => this.setDayMultiSelecting(auxDay, false));
     }
   };
 

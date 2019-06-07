@@ -1,4 +1,4 @@
-import Utils from "./Utils.js";
+import * as Utils from "./Utils.js";
 
 /**
  * Representation of a Day in the calendar.

@@ -11,8 +11,8 @@
       @property {boolean} showNavigationToolBar - When set to `true` shows a toolbar with the current selected year and buttons to navigate between years.
       @property {string}  captionNavButtonPreviousYear - Text to be added to the `Previous` button.
       @property {string}  captionNavButtonNextYear - Text to be added to the `Next` button.
-      @property {Array}   customDates - TODO: DOC MISSING.
-      @property {Array}   selectedDates - TODO: DOC MISSING.
+      @property {Array}   customDates - Stores all the custom dates that should be displayed on the calendar.
+      @property {Array}   selectedDates - Stores all the selected dates. It stores the actual dates and not a list of days.
 }
 
 
