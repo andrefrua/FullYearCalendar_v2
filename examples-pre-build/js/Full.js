@@ -66,8 +66,8 @@ const configObj = {
       caption: "Multi Year",
       cssClass: "multiyear",
       values: {
-        start: "2019-12-21",
-        end: "2020-01-21",
+        start: "2018-12-31",
+        end: "2019-01-21",
         recurring: true
       }
     }

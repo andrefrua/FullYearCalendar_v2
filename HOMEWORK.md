@@ -21,3 +21,18 @@ QUESTION:
 1. About the events:
    a. I want to be able to trigger event that the users can listen to, I think this can easily be done with the
    eventDispatcher use, but there might be a better way. Check the DaysMouseActions example.
+
+
+# 11-06-2019:
+MultiSelectionChanged no view model -> estado do calendário
+
+Não haver métodos públicos na View -> SettingsChanged
+Eventos no ViewModel para cada tipo de acção.
+ dispatch(“”, evento: {year, isCanceled}) cancelamento
+
+SelectedDays ser lista de Days
+ViewModel#toJSON & new ViewModel(json) -> localStorage
+
+Point/Hover event
+ViewModel#point(Day, x, y)
+ dispatch(“point” evento: {day, x, y}
