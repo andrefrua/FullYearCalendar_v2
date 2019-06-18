@@ -20,7 +20,6 @@ export default class Day {
     this.dayIndex = dayIndex;
     this.date = date;
     this.selected = false;
-    this.multiSelecting = false;
   }
 
   // #region Getters and Setters
@@ -79,20 +78,6 @@ export default class Day {
 
   set selected(value) {
     this._selected = value;
-  }
-
-    /**
-   * Flag informing if the day is in the process of being selected via multi selection.
-   *
-   * @type {boolean}
-   * @memberof Day
-   */
-  get multiSelecting() {
-    return this._multiSelecting;
-  }
-
-  set multiSelecting(value) {
-    this._multiSelecting = value;
   }
 
   // #endregion Getters and Setters

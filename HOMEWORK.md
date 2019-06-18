@@ -24,7 +24,7 @@ QUESTION:
 
 
 # 11-06-2019:
-MultiSelectionChanged no view model -> estado do calendário
+MultiSelectionChanged no view model -> estado do calendário - DONE
 
 Não haver métodos públicos na View -> SettingsChanged
 Eventos no ViewModel para cada tipo de acção.

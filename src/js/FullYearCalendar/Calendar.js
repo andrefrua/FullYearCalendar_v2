@@ -39,7 +39,10 @@ export default class Calendar {
     this._eventHandlers = new EventHandlers();
 
     // Object that stores the information related to the mouse down event.
-    this._mouseDownInformation = null;
+    this.__multiSelectInfo = {
+      startDay: null,
+      days: []
+    };
 
     this._init();
     this._render();
@@ -82,10 +85,6 @@ export default class Calendar {
     this.viewModel.on(
       "yearSelectionChanged",
       this._yearSelectedChangedHandler.bind(this)
-    );
-    this.viewModel.on(
-      "dayMultiSelectingChanged",
-      this._dayMultiSelectingChangedHandler.bind(this)
     );
   };
 
@@ -290,30 +289,6 @@ export default class Calendar {
   };
 
   /**
-   * Handler triggered when the `viewModel.days.multiSelecting` property is changed.
-   *
-   * @param {Day} day - Day object where the multiSelecting change has happened.
-   *
-   * @private
-   * @memberof Calendar
-   */
-  _dayMultiSelectingChangedHandler = day => {
-    // Get the dom element for day
-    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
-
-    if (!dayDomElement) {
-      return;
-    }
-
-    // Selects the day if it wasn't already selected and unselects if it was selected
-    if (day.multiSelecting) {
-      dayDomElement.classList.add(CSS_CLASS_NAMES.MULTI_SELECTION);
-    } else {
-      dayDomElement.classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
-    }
-  };
-
-  /**
    * Handler triggered when the `viewModel.selectedYear` property is changed.
    *
    * @private
@@ -353,13 +328,13 @@ export default class Calendar {
           this.viewModel.setDaySelected(day, !day.selected);
           break;
         case "mousedown":
-          this.viewModel.multiSelectStart(day);
+          this._multiSelectStart(day);
           break;
         case "mouseover":
-          this.viewModel.multiSelectAdd(day);
+          this._multiSelectAdd(day);
           break;
         case "mouseup":
-          this.viewModel.multiSelectEnd(day);
+          this._multiSelectEnd(day);
           break;
         default:
       }
@@ -388,7 +363,7 @@ export default class Calendar {
   _onMouseUp = event => {
     event.preventDefault();
 
-    this.viewModel.clearMultiSelection();
+    this._clearMultiSelection();
   };
 
   // #endregion Private methods
@@ -483,6 +458,117 @@ export default class Calendar {
     this._dom.dispose();
     delete this._dom;
     delete this.viewModel;
+  };
+
+  /**
+   * Starts the multi selection mode by filling the `multiSelectedStartDay` property.
+   *
+   * @param {Day} day - Day object where the multi selection started.
+   * @memberof ViewModel
+   */
+  _multiSelectStart = day => {
+    this.__multiSelectInfo.startDay = day;
+  };
+
+  /**
+   * Adds the day to the multi selection mode by adding the current day to the array.
+   *
+   * @param {Day} day - Day object where the multi selection is happening.
+   * @memberof ViewModel
+   */
+  _multiSelectAdd = day => {
+    if (this.__multiSelectInfo.startDay) {
+      const startDayIndex = this.viewModel.days.indexOf(
+        this.__multiSelectInfo.startDay
+      );
+      const currentDayIndex = this.viewModel.days.indexOf(day);
+
+      // Filters the days that are between the startDay index and the current day index or vice-versa
+      this.__multiSelectInfo.days = this.viewModel.days.filter(
+        (dayToFilter, index) => {
+          return (
+            (index >= startDayIndex && index <= currentDayIndex) ||
+            (index >= currentDayIndex && index <= startDayIndex)
+          );
+        }
+      );
+
+      // Disables the MultiSelect flag for the days that should not be in the multi selection.
+      this.viewModel.days.forEach(auxDay =>
+        this._setMultiSelectClass(auxDay, false)
+      );
+
+      // Enables the MultiSelect on the days that matched the selection
+      this.__multiSelectInfo.days.forEach(auxDay =>
+        this._setMultiSelectClass(auxDay, true)
+      );
+    }
+  };
+
+  /**
+   * Ends the multi selection mode.
+   *
+   * @param {Day} day - Day object where the multi selection is ending.
+   * @memberof ViewModel
+   */
+  _multiSelectEnd = () => {
+    if (this.__multiSelectInfo.startDay) {
+      this.__multiSelectInfo.days.forEach(dayToSelect => {
+        // Removes the classes for multi selection
+        this._setMultiSelectClass(dayToSelect, false);
+        // Proceed with the actual selection of the day
+        this.viewModel.setDaySelected(dayToSelect, true);
+      });
+
+      // Clear the __multiSelectInfo object
+      this.__multiSelectInfo = {
+        startDay: null,
+        days: []
+      };
+    }
+  };
+
+  /**
+   * Clears any ongoing multi selection.
+   *
+   * @memberof ViewModel
+   */
+  _clearMultiSelection = () => {
+    if (this.__multiSelectInfo.startDay !== null) {
+      // Resets the mouse down information object
+      this.__multiSelectInfo.startDay = null;
+
+      // Clears any possible temporary multi selection
+      this.__multiSelectInfo.days.forEach(auxDay =>
+        this._setMultiSelectClass(auxDay, false)
+      );
+
+      this.__multiSelectInfo.days = [];
+    }
+  };
+
+  /**
+   * Adds or removed the class for multi selection on the received day.
+   *
+   * @param {Day} day - Day object where the multi selection is being done.
+   *
+   * @private
+   * @memberof Calendar
+   */
+  _setMultiSelectClass = (day, multiSelecting) => {
+    // Get the dom element for day
+    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
+
+    if (!dayDomElement) {
+      return;
+    }
+
+    // Selects the day if it wasn't already selected and unselects if it was selected
+    if (multiSelecting) {
+      dayDomElement.classList.add(CSS_CLASS_NAMES.MULTI_SELECTION);
+    } else {
+      dayDomElement.classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
+    }
   };
 
   // #endregion Public methods

@@ -263,8 +263,6 @@ export default class ViewModel extends EventDispatcher {
       REPRESENTATION_VALUES.NARROW
     );
     this.days = this._createDaysArray();
-
-    this.__multiSelectStartDay = null;
   };
 
   /**
@@ -439,18 +437,6 @@ export default class ViewModel extends EventDispatcher {
   };
 
   /**
-   * Changes the multiSelecting state of the received day and dispatches the `dayMultiSelectingChanged` event.
-   *
-   * @param {Day} day - The day to change the multiSelecting.
-   * @param {boolean} multiSelecting - The new multiSelecting state.
-   * @memberof ViewModel
-   */
-  setDayMultiSelecting = (day, multiSelecting) => {
-    day.multiSelecting = multiSelecting;
-    this.dispatch("dayMultiSelectingChanged", day);
-  };
-
-  /**
    * Changes the currently selected year to the the one and dispatched the `yearSelectionChanged` event.
    *
    * @param {number} year - The year to which we must change the calendar.
@@ -508,92 +494,6 @@ export default class ViewModel extends EventDispatcher {
    */
   replaceCustomDates = newCustomDates => {
     this.customDates = this._normalizeCustomDates(newCustomDates);
-  };
-
-  /**
-   * Starts the multi selection mode by filling the `multiSelectedStartDay` property.
-   *
-   * @param {Day} day - Day object where the multi selection started.
-   * @memberof ViewModel
-   */
-  multiSelectStart = day => {
-    this.__multiSelectStartDay = day;
-  };
-
-  /**
-   * Adds the day to the multi selection mode by adding the current day to the array.
-   *
-   * @param {Day} day - Day object where the multi selection is happening.
-   * @memberof ViewModel
-   */
-  multiSelectAdd = day => {
-    if (this.__multiSelectStartDay) {
-      const startDayIndex = this.days.indexOf(this.__multiSelectStartDay);
-      const currentDayIndex = this.days.indexOf(day);
-
-      // Filters the days that are between the startDay index and the current day index or vice-versa
-      const daysToMultiSelect = this.days.filter((dayToFilter, index) => {
-        return (
-          (index >= startDayIndex && index <= currentDayIndex) ||
-          (index >= currentDayIndex && index <= startDayIndex)
-        );
-      });
-
-      // Disables the MultiSelect flag for the days that should not be in the multi selection.
-      this.days
-        .filter(
-          dayToRemove =>
-            !daysToMultiSelect.includes(dayToRemove) &&
-            dayToRemove.multiSelecting
-        )
-        .forEach(auxDay => this.setDayMultiSelecting(auxDay, false));
-
-      // Enables the MultiSelect on the days that matched the selection
-      daysToMultiSelect.forEach(auxDay =>
-        this.setDayMultiSelecting(auxDay, true)
-      );
-    }
-    // Dispatched the event informing that the day is being hovered
-    this.dispatch("dayHovered", day);
-  };
-
-  /**
-   * Ends the multi selection mode.
-   *
-   * @param {Day} day - Day object where the multi selection is ending.
-   * @memberof ViewModel
-   */
-  multiSelectEnd = () => {
-    if (this.__multiSelectStartDay) {
-      this.days
-        .filter(auxDay => auxDay.multiSelecting)
-        .forEach(dayToSelect => {
-          // Disable the multiSelecting flag for the day
-          this.setDayMultiSelecting(dayToSelect, false);
-          // Proceed with the actual selection of the day
-          this.setDaySelected(dayToSelect, true);
-        });
-
-      // Clear the MultiSelectingInfo object
-      this.__multiSelectStartDay = null;
-    }
-  };
-
-  /**
-   * Clears any ongoing multi selection.
-   *
-   * @memberof ViewModel
-   */
-  clearMultiSelection = () => {
-    if (this.__multiSelectStartDay !== null) {
-      // Resets the mouse down information object
-      this.__multiSelectStartDay = null;
-
-      // Clears any possible temporary multi selection
-      this.days
-        .filter(auxDay => auxDay.multiSelecting)
-        .forEach(auxDay => this.setDayMultiSelecting(auxDay, false));
-    }
   };
 
   // #endregion Public methods
