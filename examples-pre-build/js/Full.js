@@ -96,7 +96,7 @@ fullYearCalendar.viewModel.on("yearSelectionChanged", () => {
 
 btnGoToYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.goToYear(
+  fullYearCalendar.viewModel.changeToYear(
     parseInt(document.getElementById("inputYearNumber").value, 10)
   );
 };

@@ -29,7 +29,7 @@ MultiSelectionChanged no view model -> estado do calendário - DONE
 Não haver métodos públicos na View -> SettingsChanged - DONE - Just left the `getSelectedDays()` and `dispose()`
 
 Eventos no ViewModel para cada tipo de acção.
- dispatch(“”, evento: {year, isCanceled}) cancelamento
+ dispatch(“”, evento: {year, isCanceled}) cancelamento - DONE - Not 100% sure this is the right approach
 
 SelectedDays ser lista de Days - DONE
 ViewModel#toJSON & new ViewModel(json) -> localStorage

@@ -310,8 +310,12 @@ export default class Calendar {
    * @private
    * @memberof Calendar
    */
-  _yearSelectedChangedHandler = () => {
-    this._render();
+  _yearSelectedChangedHandler = (event) => {
+    if(!event.isCanceled) {
+      this._render();
+    } else {
+      console.warn(`The year is invalid: ${event.year}`);
+    }
   };
 
   /**

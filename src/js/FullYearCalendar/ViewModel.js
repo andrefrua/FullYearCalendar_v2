@@ -473,11 +473,22 @@ export default class ViewModel extends EventDispatcher {
    * @memberof ViewModel
    */
   changeYearSelected = year => {
-    this.selectedYear = year;
+    const newSelectedYear =
+      typeof year === "number" && year > 1970 ? year : null;
 
-    this.days = this._createDaysArray();
+    let isCanceled = true;
 
-    this.dispatch("yearSelectionChanged");
+    if (newSelectedYear) {
+      this.selectedYear = year;
+
+      this.days = this._createDaysArray();
+
+      isCanceled = false;
+    }
+    this.dispatch("yearSelectionChanged", {
+      year,
+      isCanceled
+    });
   };
 
   /**
@@ -487,7 +498,7 @@ export default class ViewModel extends EventDispatcher {
    */
   changeToNextYear = () => {
     this.changeYearSelected(this.selectedYear + 1);
-  }
+  };
 
   /**
    * Changes the current selected year to the previous one.
@@ -496,22 +507,17 @@ export default class ViewModel extends EventDispatcher {
    */
   changeToPreviousYear = () => {
     this.changeYearSelected(this.selectedYear - 1);
-  }
+  };
 
   /**
    * Changes the current selected year to the received one, as long as it is greater than 1970.
    *
-   * @param {Number} yearToShow - Year to navigate to.
+   * @param {Number} newSelectedYear - Year to navigate to.
    *
    * @memberof Calendar
    */
-  changeToYear = yearToShow => {
-    const newSelectedYear =
-      typeof yearToShow === "number" && yearToShow > 1970 ? yearToShow : null;
-
-    if (newSelectedYear) {
-      this.changeYearSelected(newSelectedYear);
-    }
+  changeToYear = newSelectedYear => {
+    this.changeYearSelected(newSelectedYear);
   };
 
   /**
@@ -535,7 +541,7 @@ export default class ViewModel extends EventDispatcher {
     this.dispatch("settingsUpdated");
   };
 
-/**
+  /**
    * Refreshes the CustomDates object.
    *
    * @param {Object} customDates
