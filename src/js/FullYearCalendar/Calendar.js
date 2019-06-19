@@ -69,13 +69,14 @@ export default class Calendar {
   // #region Private methods
 
   /**
-   * Creates all the initial structure, adds the event listeners and event handlers.
+   * Creates all the initial structure, event listeners and event handlers.
    *
    * @private
    * @memberof Calendar
    */
   _init = () => {
     this._dom.createStructure();
+
     this._addEventListeners();
 
     this.viewModel.on(
@@ -86,6 +87,21 @@ export default class Calendar {
       "yearSelectionChanged",
       this._yearSelectedChangedHandler.bind(this)
     );
+    this.viewModel.on("settingsUpdated", this._refresh.bind(this));
+    this.viewModel.on("customDatesUpdated", this._render.bind(this));
+  };
+
+  /**
+   * Refreshes the Calendar when the ViewModel object is changed.
+   *
+   * @param {Object} config
+   * @memberof Calendar
+   */
+  _refresh = () => {
+    this._dom.clear();
+    this._dom.createStructure();
+
+    this._render();
   };
 
   /**
@@ -98,6 +114,8 @@ export default class Calendar {
     this._renderDays();
 
     this._dom.updateYear();
+
+    this._refreshLegend();
   };
 
   /**
@@ -243,12 +261,12 @@ export default class Calendar {
       this._eventHandlers.createAndAddListener(
         this._dom.buttonNavPreviousYear,
         "click",
-        e => this.goToPreviousYear(e)
+        e => this.viewModel.changeToPreviousYear(e)
       );
       this._eventHandlers.createAndAddListener(
         this._dom.buttonNavNextYear,
         "click",
-        e => this.goToNextYear(e)
+        e => this.viewModel.changeToNextYear(e)
       );
     }
   }
@@ -364,100 +382,6 @@ export default class Calendar {
     this._clearMultiSelection();
   };
 
-  // #endregion Private methods
-
-  // #region Public methods
-
-  /**
-   * Changes the current selected year to the next one.
-   *
-   * @memberof Calendar
-   */
-  goToNextYear = () => {
-    this.viewModel.changeYearSelected(this.viewModel.selectedYear + 1);
-  };
-
-  /**
-   * Changes the current selected year to the previous one.
-   *
-   * @memberof Calendar
-   */
-  goToPreviousYear = () => {
-    this.viewModel.changeYearSelected(this.viewModel.selectedYear - 1);
-  };
-
-  /**
-   * Changes the current selected year to the received one, as long as it is greater than 1970.
-   *
-   * @param {Number} yearToShow - Year to navigate to.
-   *
-   * @memberof Calendar
-   */
-  goToYear = yearToShow => {
-    const newSelectedYear =
-      typeof yearToShow === "number" && yearToShow > 1970 ? yearToShow : null;
-
-    if (newSelectedYear) {
-      this.viewModel.changeYearSelected(newSelectedYear);
-    }
-  };
-
-  /**
-   * Gets an array of all selected days
-   *
-   * @memberof Calendar
-   */
-  getSelectedDays = () => {
-    const selectedDays = this.viewModel.days.filter(day => day.selected);
-    return selectedDays.map(day => day.getISOFormattedDate());
-  };
-
-  /**
-   * Refreshes the Calendar by updating the ViewModel object with modified propety changes.
-   *
-   * @param {Object} config
-   * @memberof Calendar
-   */
-  refresh = config => {
-    this.viewModel.update(config);
-    this._dom.clear();
-    this._eventHandlers.removeAll();
-
-    this._init();
-    this._render();
-  };
-
-  /**
-   * Refreshes the CustomDates object.
-   *
-   * @param {Object} customDates
-   * @param {boolean} [keepPrevious=true]
-   * @memberof Calendar
-   */
-  refreshCustomDates = (customDates, keepPrevious = true) => {
-    if (keepPrevious) {
-      this.viewModel.updateCustomDates(customDates);
-    } else {
-      this.viewModel.replaceCustomDates(customDates);
-    }
-
-    this._render();
-    this._refreshLegend();
-  };
-
-  /**
-   * Destroys all the calendar Dom elements, objects and events.
-   *
-   * @memberof Calendar
-   */
-  dispose = () => {
-    this._eventHandlers.removeAll();
-
-    this._dom.dispose();
-    delete this._dom;
-    delete this.viewModel;
-  };
-
   /**
    * Starts the multi selection mode by filling the `multiSelectedStartDay` property.
    *
@@ -567,6 +491,32 @@ export default class Calendar {
     } else {
       dayDomElement.classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
     }
+  };
+
+  // #endregion Private methods
+
+  // #region Public methods
+
+  /**
+   * Gets an array of all selected days
+   *
+   * @memberof Calendar
+   */
+  getSelectedDays = () => {
+    return this.viewModel.selectedDays.map(day => day.getISOFormattedDate());
+  };
+
+  /**
+   * Destroys all the calendar Dom elements, objects and events.
+   *
+   * @memberof Calendar
+   */
+  dispose = () => {
+    this._eventHandlers.removeAll();
+
+    this._dom.dispose();
+    delete this._dom;
+    delete this.viewModel;
   };
 
   // #endregion Public methods

@@ -362,6 +362,7 @@ export default class ViewModel extends EventDispatcher {
   /**
    * Creates the array of days to be displayed on the calendar in the currently selected year.
    *
+   * @private
    * @memberof ViewModel
    */
   _createDaysArray = () => {
@@ -393,6 +394,35 @@ export default class ViewModel extends EventDispatcher {
     }
 
     return updatedDays;
+  };
+
+  /**
+   * Updates the customDates property with the new values.
+   *
+   * @param {Object} newCustomDates - New customDates object.
+   * @private
+   * @memberof ViewModel
+   */
+  _updateCustomDates = newCustomDates => {
+    const normalizedCustomDates = this._normalizeCustomDates(newCustomDates);
+    Object.keys(normalizedCustomDates).forEach(property => {
+      if (
+        Object.prototype.hasOwnProperty.call(normalizedCustomDates, property)
+      ) {
+        this.customDates[property] = normalizedCustomDates[property];
+      }
+    });
+  };
+
+  /**
+   * Replaces the existing customDates object with the new one.
+   *
+   * @param {Object} newCustomDates - The customDate objects.
+   * @private
+   * @memberof ViewModel
+   */
+  _replaceCustomDates = newCustomDates => {
+    this.customDates = this._normalizeCustomDates(newCustomDates);
   };
 
   // #endregion Private methods
@@ -451,12 +481,46 @@ export default class ViewModel extends EventDispatcher {
   };
 
   /**
+   * Changes the current selected year to the next one.
+   *
+   * @memberof ViewModel
+   */
+  changeToNextYear = () => {
+    this.changeYearSelected(this.selectedYear + 1);
+  }
+
+  /**
+   * Changes the current selected year to the previous one.
+   *
+   * @memberof ViewModel
+   */
+  changeToPreviousYear = () => {
+    this.changeYearSelected(this.selectedYear - 1);
+  }
+
+  /**
+   * Changes the current selected year to the received one, as long as it is greater than 1970.
+   *
+   * @param {Number} yearToShow - Year to navigate to.
+   *
+   * @memberof Calendar
+   */
+  changeToYear = yearToShow => {
+    const newSelectedYear =
+      typeof yearToShow === "number" && yearToShow > 1970 ? yearToShow : null;
+
+    if (newSelectedYear) {
+      this.changeYearSelected(newSelectedYear);
+    }
+  };
+
+  /**
    * Updates the properties of the calendar with the new ones received as a parameter.
    *
    * @param {Object} config - Object with the properties that should be updated on the calendar.
    * @memberof ViewModel
    */
-  update = config => {
+  updateSettings = config => {
     Object.keys(config).forEach(property => {
       if (
         Object.prototype.hasOwnProperty.call(config, property) &&
@@ -467,33 +531,25 @@ export default class ViewModel extends EventDispatcher {
       }
     });
     this._updateFixedProperties();
+
+    this.dispatch("settingsUpdated");
   };
 
-  /**
-   * Updates the customDates property with the new values.
+/**
+   * Refreshes the CustomDates object.
    *
-   * @param {Object} newCustomDates - New customDates object.
-   * @memberof ViewModel
+   * @param {Object} customDates
+   * @param {boolean} [keepPrevious=true]
+   * @private
+   * @memberof Calendar
    */
-  updateCustomDates = newCustomDates => {
-    const normalizedCustomDates = this._normalizeCustomDates(newCustomDates);
-    Object.keys(normalizedCustomDates).forEach(property => {
-      if (
-        Object.prototype.hasOwnProperty.call(normalizedCustomDates, property)
-      ) {
-        this.customDates[property] = normalizedCustomDates[property];
-      }
-    });
-  };
-
-  /**
-   * Replaces the existing customDates object with the new one.
-   *
-   * @param {Object} newCustomDates - The customDate objects.
-   * @memberof ViewModel
-   */
-  replaceCustomDates = newCustomDates => {
-    this.customDates = this._normalizeCustomDates(newCustomDates);
+  updateCustomDates = (customDates, keepPrevious = true) => {
+    if (keepPrevious) {
+      this._updateCustomDates(customDates);
+    } else {
+      this._replaceCustomDates(customDates);
+    }
+    this.dispatch("customDatesUpdated");
   };
 
   // #endregion Public methods

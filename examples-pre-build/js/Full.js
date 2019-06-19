@@ -103,37 +103,37 @@ btnGoToYear.onclick = event => {
 
 btnGoToPreviousYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.goToPreviousYear();
+  fullYearCalendar.viewModel.changeToPreviousYear();
 };
 
 btnGoToNextYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.goToNextYear();
+  fullYearCalendar.viewModel.changeToNextYear();
 };
 
 btnGoToCurrentYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.goToYear(new Date().getFullYear());
+  fullYearCalendar.viewModel.changeToYear(new Date().getFullYear());
 };
 
 inputDayWidth.onchange = event => {
-  fullYearCalendar.refresh({ dayWidth: event.srcElement.value });
+  fullYearCalendar.viewModel.updateSettings({ dayWidth: event.srcElement.value });
 };
 
 chkShowWeekDaysNameEachMonth.onchange = event => {
-  fullYearCalendar.refresh({
+  fullYearCalendar.viewModel.updateSettings({
     showWeekDaysNameEachMonth: event.srcElement.checked
   });
 };
 
 selectChangeWeekStartDay.onchange = event => {
-  fullYearCalendar.refresh({
+  fullYearCalendar.viewModel.updateSettings({
     weekStartDay: parseInt(event.srcElement.value, 10)
   });
 };
 
 selectLocale.onchange = event => {
-  fullYearCalendar.refresh({
+  fullYearCalendar.viewModel.updateSettings({
     locale: event.srcElement.value
   });
 };
@@ -153,5 +153,5 @@ btnAddNewCustomDates.onclick = event => {
     }
   };
 
-  fullYearCalendar.refreshCustomDates(customDates, true);
+  fullYearCalendar.viewModel.updateCustomDates(customDates, true);
 };

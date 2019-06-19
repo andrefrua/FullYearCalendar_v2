@@ -805,5 +805,20 @@ export default class Dom {
     }
   };
 
+  // refresh = () => {
+  //   const vm = this.viewModel;
+  //   const weekDayNamesContainers = this.mainContainer.querySelectorAll(
+  //     ".weekContainer.weekDay"
+  //   );
+
+  //   weekDayNamesContainers.forEach(container => {
+  //     const weekDayNameElements = container.childNodes;
+  //     weekDayNameElements.forEach((dayNameElement, dayIndex) => {
+  //       dayNameElement.innerText =
+  //         vm.weekDayNames[(dayIndex + vm.weekStartDay) % 7];
+  //     });
+  //   });
+  // };
+
   // #endregion Public methods
 }

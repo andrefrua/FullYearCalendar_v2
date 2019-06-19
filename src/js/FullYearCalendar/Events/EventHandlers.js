@@ -16,5 +16,6 @@ export default class EventHandlers {
     this.__handlers.forEach(handler => {
       handler.removeEventListener();
     });
+    this.__handlers = [];
   };
 }
