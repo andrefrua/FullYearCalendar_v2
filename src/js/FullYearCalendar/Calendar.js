@@ -7,7 +7,6 @@
  * - Check the props in all the classes and change them to private where it makes sense.
  * - Maybe it would make sense to create an object for the CustomDates array, if not create a better documentation
  * so it's easier to create new custom dates.
- * - The `viewModel.selectedDays` should be changed to store a list of days instead of a list of dates.
  */
 
 import ViewModel from "./ViewModel.js";
@@ -89,6 +88,7 @@ export default class Calendar {
     );
     this.viewModel.on("settingsUpdated", this._refresh.bind(this));
     this.viewModel.on("customDatesUpdated", this._render.bind(this));
+    this.viewModel.on("dayPointed", this._dayPointedHandler.bind(this));
   };
 
   /**
@@ -310,11 +310,35 @@ export default class Calendar {
    * @private
    * @memberof Calendar
    */
-  _yearSelectedChangedHandler = (event) => {
-    if(!event.isCanceled) {
+  _yearSelectedChangedHandler = event => {
+    if (!event.isCanceled) {
       this._render();
     } else {
       console.warn(`The year is invalid: ${event.year}`);
+    }
+  };
+
+  /**
+   * Handler triggered when the `viewModel.selectedYear` property is changed.
+   *
+   * @private
+   * @memberof Calendar
+   */
+  _dayPointedHandler = event => {
+    if (!event.isCanceled) {
+      // Get the dom element for day
+      const dayDomElement = this._dom.getDayElement(
+        event.day.monthIndex,
+        event.day.dayIndex
+      );
+
+      if (!dayDomElement) {
+        return;
+      }
+
+      dayDomElement.setAttribute("title", event.day.getISOFormattedDate());
+    } else {
+      console.warn(`There is a problem with the pointed day: ${event.day}`);
     }
   };
 
@@ -351,6 +375,7 @@ export default class Calendar {
           this._multiSelectStart(day);
           break;
         case "mouseover":
+          this.viewModel.pointDay(day, event.x, event.y);
           this._multiSelectAdd(day);
           break;
         case "mouseup":
@@ -500,15 +525,6 @@ export default class Calendar {
   // #endregion Private methods
 
   // #region Public methods
-
-  /**
-   * Gets an array of all selected days
-   *
-   * @memberof Calendar
-   */
-  getSelectedDays = () => {
-    return this.viewModel.selectedDays.map(day => day.getISOFormattedDate());
-  };
 
   /**
    * Destroys all the calendar Dom elements, objects and events.

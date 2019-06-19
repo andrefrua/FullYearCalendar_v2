@@ -8,6 +8,8 @@ const fullYearCalendar = new Calendar(divFullYearCalendar, {});
 
 btnGetSelectedDays.onclick = () => {
   divListSelectedDays.innerText = JSON.stringify(
-    fullYearCalendar.getSelectedDays()
+    fullYearCalendar.viewModel.selectedDays.map(day =>
+      day.getISOFormattedDate()
+    )
   );
 };

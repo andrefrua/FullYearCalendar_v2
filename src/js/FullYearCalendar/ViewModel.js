@@ -546,7 +546,6 @@ export default class ViewModel extends EventDispatcher {
    *
    * @param {Object} customDates
    * @param {boolean} [keepPrevious=true]
-   * @private
    * @memberof Calendar
    */
   updateCustomDates = (customDates, keepPrevious = true) => {
@@ -556,6 +555,20 @@ export default class ViewModel extends EventDispatcher {
       this._replaceCustomDates(customDates);
     }
     this.dispatch("customDatesUpdated");
+  };
+
+  /**
+   * Triggers an event informing the received day is being pointed at. This can be used to add a custom tooltip at the
+   * day location.
+   *
+   * @memberof ViewModel
+   */
+  pointDay = (day, x, y) => {
+    let isCanceled = true;
+    if (day && !Number.isNaN(x) && !Number.isNaN(y)) {
+      isCanceled = false;
+    }
+    this.dispatch("dayPointed", { day, x, y, isCanceled });
   };
 
   // #endregion Public methods

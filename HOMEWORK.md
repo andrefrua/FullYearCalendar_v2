@@ -32,8 +32,75 @@ Eventos no ViewModel para cada tipo de acção.
  dispatch(“”, evento: {year, isCanceled}) cancelamento - DONE - Not 100% sure this is the right approach
 
 SelectedDays ser lista de Days - DONE
-ViewModel#toJSON & new ViewModel(json) -> localStorage
 
 Point/Hover event
 ViewModel#point(Day, x, y)
- dispatch(“point” evento: {day, x, y}
+ dispatch(“point” evento: {day, x, y} - DONE
+
+
+
+Delayed:
+ViewModel#toJSON & new ViewModel(json) -> localStorage
+
+
+# 25-06-19:
+
+	• metodo() {
+	•    super.metodo()
+	• }
+	• Class instance method vs class instance property with na arrow function.
+	• yearSelected -> currentYear
+	• changeYearSelected -> protected
+		○ changeToYear só redirect vale a pena?
+		○ currentYear
+		○ currentYearChanged
+		○ currentYearChangeWill
+		○ currentYearWillChange
+		○ changeCurrentYear(year)
+		○ changeCurrentYearToNext
+		○ changeCurrentYearToPrevious
+		○ incrementCurrentYear()
+		○ decrementCurrentYear()
+		○ currentYear
+			§ dispatch("change:will:year", {year: {from, to}, isCanceled})
+			§ dispatch("change:did:year", {year: {from, to}})
+		○ selectedDays
+			§ dispatch("change:will:selectedDays", {selectedDays, selectedDaysPrevious, isCanceled})
+			§ dispatch("change:did:selectedDays", {selectedDays: {from, to}})
+		○ settings
+			§ dispatch("change:will:settings", {name, value, previous, isCanceled})
+			§ dispatch("change:did:settings", {name, value, previous})
+		○ dispatch("change:will", {name, value, previous, isCanceled})
+			§ Name: "year", "selectedDays", ..."settings"...
+		○ dispatch("change:did", {name, value, previous})
+
+	• Dispose não permite ser chamado novamente / idempotentes
+	• View#getSelectedDays
+		○ Local e nome
+		○ ViewModel#getFormattedSelectedDays()
+		○ Genérico o suficiente para justificar existência?
+		○ Útil para mais do q um utilizador/cenários?
+		○ calendar/util
+			§ formatDays(days) : formattedDays
+
+
+	• WillEvent. // Before
+		○ get type
+		○ get source
+		○ get isCancelable
+		○ get isCanceled
+		○ cancel(reason: Error)
+		○ cancelReason
+	• DidEvent. // After
+		•
+
+
+foo = () => { return this; };
+Bar = 3;
+
+Constructor() {
+  this.foo = () => { return this; };
+  this.Bar = 3;
+
+  var foo = this.foo;}
+C
