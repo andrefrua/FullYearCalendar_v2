@@ -180,8 +180,8 @@ export default class Calendar {
     });
 
     // Re-apply the selected days style in case the year is changed.
-    this.viewModel.selectedDates.values.forEach(selectedDate => {
-      const newDate = new Date(selectedDate);
+    this.viewModel.selectedDays.forEach(selectedDay => {
+      const newDate = selectedDay.date;
 
       // Validates if the value is an actual date
       if (!Number.isNaN(newDate.valueOf())) {
@@ -269,22 +269,20 @@ export default class Calendar {
       return;
     }
 
-    const selectedDatesValues = this.viewModel.selectedDates.values;
+    const { selectedDays } = this.viewModel;
 
     // Selects the day if it wasn't already selected and unselects if it was selected
     if (day.selected) {
       dayDomElement.classList.add(CSS_CLASS_NAMES.SELECTED_DAY);
 
-      // Adds the day to the selectedDates list
-      selectedDatesValues.push(day.getISOFormattedDate());
+      // Adds the day to the selected days list
+      selectedDays.push(day);
     } else {
       dayDomElement.classList.remove(CSS_CLASS_NAMES.SELECTED_DAY);
 
-      // Removes the day from the selected dates list
-      const selectedDayIndex = selectedDatesValues.indexOf(
-        day.getISOFormattedDate()
-      );
-      selectedDatesValues.splice(selectedDayIndex, 1);
+      // Removes the day from the selected days list
+      const selectedDayIndex = selectedDays.indexOf(day);
+      selectedDays.splice(selectedDayIndex, 1);
     }
   };
 

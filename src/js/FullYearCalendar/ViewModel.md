@@ -12,7 +12,7 @@
       @property {string}  captionNavButtonPreviousYear - Text to be added to the `Previous` button.
       @property {string}  captionNavButtonNextYear - Text to be added to the `Next` button.
       @property {Array}   customDates - Stores all the custom dates that should be displayed on the calendar.
-      @property {Array}   selectedDates - Stores all the selected dates. It stores the actual dates and not a list of days.
+      @property {Array}   selectedDays - Stores all the selected days.
 }
 
 

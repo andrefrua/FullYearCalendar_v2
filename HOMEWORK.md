@@ -30,7 +30,7 @@ Não haver métodos públicos na View -> SettingsChanged
 Eventos no ViewModel para cada tipo de acção.
  dispatch(“”, evento: {year, isCanceled}) cancelamento
 
-SelectedDays ser lista de Days
+SelectedDays ser lista de Days - DONE
 ViewModel#toJSON & new ViewModel(json) -> localStorage
 
 Point/Hover event

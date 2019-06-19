@@ -20,7 +20,7 @@ export const PROPERTY_NAMES = [
   "captionNavButtonNextYear",
   // Custom dates
   "customDates",
-  "selectedDates"
+  "selectedDays"
 ];
 
 /**

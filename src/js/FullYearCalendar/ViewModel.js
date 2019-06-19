@@ -217,17 +217,17 @@ export default class ViewModel extends EventDispatcher {
   }
 
   /**
-   * Stores all the selected dates. It stores the actual dates and not a list of days.
+   * Stores all the selected days.
    *
    * @type {Array}
    * @memberof ViewModel
    */
-  get selectedDates() {
-    return this._selectedDates;
+  get selectedDays() {
+    return this._selectedDays;
   }
 
-  set selectedDates(value) {
-    this._selectedDates = value || { values: [] };
+  set selectedDays(value) {
+    this._selectedDays = value || [];
   }
 
   /**
