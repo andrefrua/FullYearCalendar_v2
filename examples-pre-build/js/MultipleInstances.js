@@ -12,7 +12,7 @@ const btnDestroyCalendar1 = document.getElementById("btnDestroyCalendar1");
 const divFullYearCalendar1 = document.getElementById("divFullYearCalendar1");
 
 const configObj1 = {
-  selectedYear: new Date().getFullYear(),
+  currentYear: new Date().getFullYear(),
   dayWidth: 20,
   showWeekDaysNameEachMonth: false,
   locale: "en-US",
@@ -69,7 +69,7 @@ const fullYearCalendar1 = new Calendar(divFullYearCalendar1, configObj1);
 const divFullYearCalendar2 = document.getElementById("divFullYearCalendar2");
 
 const configObj2 = {
-  selectedYear: 2019,
+  currentYear: 2019,
   showLegend: true,
   weekendDays: [0, 6],
   showWeekDaysNameEachMonth: true,

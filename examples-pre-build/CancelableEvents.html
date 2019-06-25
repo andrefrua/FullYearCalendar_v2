@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>FullYearCalendar - Full example</title>
+
+    <link href="css/calendar1.css" rel="stylesheet" media="screen" />
+    <link href="css/index.css" rel="stylesheet" media="screen" />
+  </head>
+
+  <body>
+    <div class="calendar1 calendarContainer">
+      <div class="divControls">
+        <input type="number" id="inputYearNumber" value="2019" />
+        <input type="button" id="btnGoToYear" value="Go" />
+        <input type="button" id="btnGoToPreviousYear" value="< Previous Year" />
+        <input type="button" id="btnGoToNextYear" value="Next Year >" />
+        <input
+          type="button"
+          id="btnGoToCurrentYear"
+          value="Go to current year"
+        />
+      </div>
+      <div class="divControls">
+        <span id="inputYearChangedInfo"> 0 </span> times.
+      </div>
+      <div class="divFullYearCalendar" id="divFullYearCalendar"></div>
+    </div>
+
+    <script type="module" src="js/CancelableEvents.js"></script>
+  </body>
+</html>

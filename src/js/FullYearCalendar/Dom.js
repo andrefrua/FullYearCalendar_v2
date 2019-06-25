@@ -22,7 +22,7 @@ export default class Dom {
 
     this.buttonNavPreviousYear = null;
     this.buttonNavNextYear = null;
-    this.spanSelectedYear = null;
+    this.spanCurrentYear = null;
     this.legendContainer = null;
   }
 
@@ -417,11 +417,11 @@ export default class Dom {
     // Current year span
     const divBlockNavCurrentYear = document.createElement("div");
     divBlockNavCurrentYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
-    const spanSelectedYear = document.createElement("span");
-    spanSelectedYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_SELECTED_YEAR;
+    const spanCurrentYear = document.createElement("span");
+    spanCurrentYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_SELECTED_YEAR;
     // Stores the year span
-    this.spanSelectedYear = spanSelectedYear;
-    divBlockNavCurrentYear.appendChild(spanSelectedYear);
+    this.spanCurrentYear = spanCurrentYear;
+    divBlockNavCurrentYear.appendChild(spanCurrentYear);
 
     // Next year button navigation
     const divBlockNavRightButton = document.createElement("div");
@@ -801,7 +801,7 @@ export default class Dom {
    */
   updateYear = () => {
     if (this.viewModel.showNavigationToolBar === true) {
-      this.spanSelectedYear.innerText = this.viewModel.selectedYear;
+      this.spanCurrentYear.innerText = this.viewModel.currentYear;
     }
   };
 

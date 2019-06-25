@@ -30,21 +30,21 @@ export const isDate = date => {
  * @param {Date} endDate - End date of the period to be checked.
  * @param {Date} dateToCheck - Date to be checked.
  * @param {boolean} isRecurring - Checks recurring if set to `true`.
- * @param {number} selectedYear - If reccuring is set to `true` we also need the year.
+ * @param {number} currentYear - If reccuring is set to `true` we also need the year.
  */
 export const isDateInPeriod = (
   startDate,
   endDate,
   dateToCheck,
   isRecurring,
-  selectedYear
+  currentYear
 ) => {
   let localStartDate = startDate;
   let localEndDate = endDate;
 
   if (isRecurring) {
-    localStartDate = changeYearOnDate(localStartDate, selectedYear);
-    localEndDate = changeYearOnDate(localEndDate, selectedYear);
+    localStartDate = changeYearOnDate(localStartDate, currentYear);
+    localEndDate = changeYearOnDate(localEndDate, currentYear);
   }
   if (
     localStartDate instanceof Date &&

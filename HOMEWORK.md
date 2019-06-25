@@ -11,7 +11,7 @@ TPC:
 3. Afinar alguns dos nomes dos métodos, se calhar em caminho IN PROGRESS
 4. Stretch goal: endireitar os add/remove event listeners - DONE
 
-5. Update the Render of the calendar in response to the selectedYear change instead of the way it is at the moment - DONE
+5. Update the Render of the calendar in response to the currentYear change instead of the way it is at the moment - DONE
 6. Add the eventListeners for the navigation buttons using the element itself. - DONE
 7. ViewModel.days falta e refactor de Day + acção para fazer o update do calendário - DONE
 8. Render the calendar in response to the selection of the year - DONE
@@ -49,6 +49,10 @@ ViewModel#toJSON & new ViewModel(json) -> localStorage
 	•    super.metodo()
 	• }
 	• Class instance method vs class instance property with na arrow function.
+      Arrow functions in class properties performance
+      Arrow class properties are slower, but only on a micro level. Babel moves them to the constructor, so they are not reused between the class instances. Unless you are going to instantiate millions of components, the difference will be a few milliseconds for hundreds or even thousands of components. I am not going to create a benchmark to prove that since I would be basically measuring the cost of a function creation upon instantiation.
+
+
 	• yearSelected -> currentYear
 	• changeYearSelected -> protected
 		○ changeToYear só redirect vale a pena?
@@ -61,6 +65,12 @@ ViewModel#toJSON & new ViewModel(json) -> localStorage
 		○ changeCurrentYearToPrevious
 		○ incrementCurrentYear()
 		○ decrementCurrentYear()
+      Renamed the methods to
+       changeCurrentYear
+       incrementCurrentYear
+       decrementCurrentYear
+
+
 		○ currentYear
 			§ dispatch("change:will:year", {year: {from, to}, isCanceled})
 			§ dispatch("change:did:year", {year: {from, to}})
@@ -74,7 +84,8 @@ ViewModel#toJSON & new ViewModel(json) -> localStorage
 			§ Name: "year", "selectedDays", ..."settings"...
 		○ dispatch("change:did", {name, value, previous})
 
-	• Dispose não permite ser chamado novamente / idempotentes
+	• Dispose não permite ser chamado novamente / idempotentes - DONE
+
 	• View#getSelectedDays
 		○ Local e nome
 		○ ViewModel#getFormattedSelectedDays()
@@ -83,6 +94,7 @@ ViewModel#toJSON & new ViewModel(json) -> localStorage
 		○ calendar/util
 			§ formatDays(days) : formattedDays
 
+      Decided to remove the method since the same can be accomplished directly using the information on the ViewModel
 
 	• WillEvent. // Before
 		○ get type

@@ -306,5 +306,5 @@ var changes = {
   }
 }
 
-"selectedYear"
+"currentYear"
 "days"

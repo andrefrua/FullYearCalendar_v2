@@ -3,7 +3,7 @@ import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
 // Create the instance for the calendar
 const divFullYearCalendar1 = document.getElementById("divFullYearCalendar1");
 const configObj1 = {
-  selectedYear: new Date().getFullYear(),
+  currentYear: new Date().getFullYear(),
   dayWidth: 20,
   showWeekDaysNameEachMonth: false,
   locale: "en-US",
@@ -64,7 +64,7 @@ fullYearCalendar1.onDayMouseOver = function(dayContainer, clickedDate) {
     "inputHoveredDay1"
   ).value = clickedDate.toISOString().slice(0, 10);
 };
-fullYearCalendar1.onYearChanged = function(selectedYear) {
+fullYearCalendar1.onYearChanged = function(currentYear) {
   let inputYearChanged1 = document.getElementById("inputYearChanged1");
   inputYearChanged1.innerText = !isNaN(inputYearChanged1.innerText)
     ? parseInt(inputYearChanged1.innerText) + 1
@@ -76,7 +76,7 @@ fullYearCalendar1.onYearChanged = function(selectedYear) {
 //Create the instance for the calendar
 const divFullYearCalendar2 = document.getElementById("divFullYearCalendar2");
 const configObj2 = {
-  selectedYear: 2019,
+  currentYear: 2019,
   showLegend: true,
   weekendDays: [0, 6],
   showWeekDaysNameEachMonth: true,

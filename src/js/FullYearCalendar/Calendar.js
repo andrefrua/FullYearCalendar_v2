@@ -194,7 +194,7 @@ export default class Calendar {
             endDate,
             day.date,
             auxPeriod.recurring,
-            this.viewModel.selectedYear
+            this.viewModel.currentYear
           );
           if (isInPeriod) {
             cssClassToApply += ` ${customDates[property].cssClass}`;
@@ -267,12 +267,12 @@ export default class Calendar {
       this._eventHandlers.createAndAddListener(
         this._dom.buttonNavPreviousYear,
         "click",
-        e => this.viewModel.changeToPreviousYear(e)
+        e => this.viewModel.decrementCurrentYear(e)
       );
       this._eventHandlers.createAndAddListener(
         this._dom.buttonNavNextYear,
         "click",
-        e => this.viewModel.changeToNextYear(e)
+        e => this.viewModel.incrementCurrentYear(e)
       );
     }
   }
@@ -311,7 +311,7 @@ export default class Calendar {
   };
 
   /**
-   * Handler triggered when the `viewModel.selectedYear` property is changed.
+   * Handler triggered when the `viewModel.currentYear` property is changed.
    *
    * @private
    * @memberof Calendar
@@ -325,7 +325,7 @@ export default class Calendar {
   };
 
   /**
-   * Handler triggered when the `viewModel.selectedYear` property is changed.
+   * Handler triggered when the `viewModel.currentYear` property is changed.
    *
    * @private
    * @memberof Calendar
@@ -540,8 +540,10 @@ export default class Calendar {
   dispose = () => {
     this._eventHandlers.removeAll();
 
-    this._dom.dispose();
-    delete this._dom;
+    if (this._dom) {
+      this._dom.dispose();
+      delete this._dom;
+    }
     delete this.viewModel;
   };
 

@@ -88,17 +88,17 @@ export default class ViewModel extends EventDispatcher {
   }
 
   /**
-   * Sets the initial selected year.
+   * Sets the initial visible year.
    *
    * @type {number}
    * @memberof ViewModel
    */
-  get selectedYear() {
-    return this._selectedYear;
+  get currentYear() {
+    return this._currentYear;
   }
 
-  set selectedYear(value) {
-    this._selectedYear = value || new Date().getFullYear();
+  set currentYear(value) {
+    this._currentYear = value || new Date().getFullYear();
   }
 
   /**
@@ -371,14 +371,14 @@ export default class ViewModel extends EventDispatcher {
     for (let currentMonth = 0; currentMonth < 12; currentMonth += 1) {
       // Gets the first day of the month so we know in which cell the month should start
       const firstDayOfMonth = Utils.getMonthFirstDay(
-        this.selectedYear,
+        this.currentYear,
         currentMonth,
         this.weekStartDay
       );
 
       // Calculate the last day of the month
       const lastDayOfMonth = Utils.getMonthLastDay(
-        this.selectedYear,
+        this.currentYear,
         currentMonth
       );
 
@@ -386,7 +386,7 @@ export default class ViewModel extends EventDispatcher {
         const day = new Day(
           currentMonth,
           iDay + firstDayOfMonth,
-          new Date(this.selectedYear, currentMonth, iDay + 1)
+          new Date(this.currentYear, currentMonth, iDay + 1)
         );
 
         updatedDays.push(day);
@@ -467,19 +467,19 @@ export default class ViewModel extends EventDispatcher {
   };
 
   /**
-   * Changes the currently selected year to the the one and dispatched the `yearSelectionChanged` event.
+   * Changes the current year to the one received and dispatches the `yearSelectionChanged` event.
    *
    * @param {number} year - The year to which we must change the calendar.
    * @memberof ViewModel
    */
-  changeYearSelected = year => {
-    const newSelectedYear =
+  changeCurrentYear = year => {
+    const newCurrentYear =
       typeof year === "number" && year > 1970 ? year : null;
 
     let isCanceled = true;
 
-    if (newSelectedYear) {
-      this.selectedYear = year;
+    if (newCurrentYear) {
+      this.currentYear = year;
 
       this.days = this._createDaysArray();
 
@@ -492,32 +492,21 @@ export default class ViewModel extends EventDispatcher {
   };
 
   /**
-   * Changes the current selected year to the next one.
+   * Increments one to the current year.
    *
    * @memberof ViewModel
    */
-  changeToNextYear = () => {
-    this.changeYearSelected(this.selectedYear + 1);
+  incrementCurrentYear = () => {
+    this.changeCurrentYear(this.currentYear + 1);
   };
 
   /**
-   * Changes the current selected year to the previous one.
+   * Decrements one to the current year.
    *
    * @memberof ViewModel
    */
-  changeToPreviousYear = () => {
-    this.changeYearSelected(this.selectedYear - 1);
-  };
-
-  /**
-   * Changes the current selected year to the received one, as long as it is greater than 1970.
-   *
-   * @param {Number} newSelectedYear - Year to navigate to.
-   *
-   * @memberof Calendar
-   */
-  changeToYear = newSelectedYear => {
-    this.changeYearSelected(newSelectedYear);
+  decrementCurrentYear = () => {
+    this.changeCurrentYear(this.currentYear - 1);
   };
 
   /**

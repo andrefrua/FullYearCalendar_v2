@@ -9,7 +9,7 @@ export const PROPERTY_NAMES = [
   "showWeekDaysNameEachMonth",
   "locale",
   "alignInContainer",
-  "selectedYear",
+  "currentYear",
   "weekStartDay",
   "weekendDays",
   "showLegend",
