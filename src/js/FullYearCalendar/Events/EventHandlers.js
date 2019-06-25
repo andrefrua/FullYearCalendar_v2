@@ -6,6 +6,8 @@ export default class EventHandlers {
   createAndAddListener = (element, type, handler) => {
     element.addEventListener(type, handler);
     this.__handlers.push({
+      element,
+      type,
       removeEventListener() {
         element.removeEventListener(type, handler);
       }

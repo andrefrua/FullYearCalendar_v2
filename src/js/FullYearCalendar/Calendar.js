@@ -98,9 +98,15 @@ export default class Calendar {
    * @memberof Calendar
    */
   _refresh = () => {
+    // Removes all event handlers
+    this._eventHandlers.removeAll();
+    // Clears the Dom and re-creates it with the correct settings
     this._dom.clear();
     this._dom.createStructure();
 
+    // Adds the EventListeners again
+    this._addEventListeners();
+    // Renders the calendar
     this._render();
   };
 
