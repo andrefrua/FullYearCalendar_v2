@@ -7,6 +7,7 @@ const btnGoToNextYear = document.getElementById("btnGoToNextYear");
 const btnGoToCurrentYear = document.getElementById("btnGoToCurrentYear");
 
 const divFullYearCalendar = document.getElementById("divFullYearCalendar");
+inputYearChangedInfo.innerText = "";
 
 const configObj = {
   currentYear: new Date().getFullYear(),
@@ -65,8 +66,28 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.on("yearSelectionChanged", () => {
-  //inputYearChangedInfo
+fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
+  inputYearChangedInfo.innerText = "";
+  if (eventData.newValue < new Date().getFullYear()) {
+    inputYearChangedInfo.innerText =
+      "Year can't be inferior to the current year";
+    eventData.cancel();
+  }
+});
+
+fullYearCalendar.viewModel.on("daySelected::WillChange", eventData => {
+  inputYearChangedInfo.innerText = "";
+  const weekDay = eventData.newValue.date.getDay();
+  if (weekDay === 0 || weekDay === 6) {
+    inputYearChangedInfo.innerText = "Weekends can't be selected";
+    eventData.cancel();
+  }
+});
+
+fullYearCalendar.viewModel.on("dayPointed::WillChange", eventData => {
+  console.warn("No tooltip for you :)");
+
+  eventData.cancel();
 });
 
 /** Outside controls */

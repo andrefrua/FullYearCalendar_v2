@@ -2,6 +2,10 @@ export default class Event {
   constructor(eventName) {
     this.eventName = eventName;
     this.callbacks = [];
+
+    // Event objects
+    this.isCanceled = false;
+    this.data = null;
   }
 
   registerCallback = (callback) => {
@@ -23,5 +27,9 @@ export default class Event {
 
     // Call each one of existing callbacks on the Event
     callbacks.forEach(callback => callback(data));
+  }
+
+  cancel = () => {
+    this.isCanceled = true;
   }
 }

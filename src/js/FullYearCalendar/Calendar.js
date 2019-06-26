@@ -79,16 +79,19 @@ export default class Calendar {
     this._addEventListeners();
 
     this.viewModel.on(
-      "daySelectionChanged",
-      this._daySelectedChangedHandler.bind(this)
+      "daySelected::DidChange",
+      this._daySelectedDidChanageHandler.bind(this)
     );
     this.viewModel.on(
-      "yearSelectionChanged",
-      this._yearSelectedChangedHandler.bind(this)
+      "currentYear::DidChange",
+      this._currentYearDidChangeHandler.bind(this)
     );
-    this.viewModel.on("settingsUpdated", this._refresh.bind(this));
-    this.viewModel.on("customDatesUpdated", this._render.bind(this));
-    this.viewModel.on("dayPointed", this._dayPointedHandler.bind(this));
+    this.viewModel.on("settings::DidChange", this._refresh.bind(this));
+    this.viewModel.on("customDates::DidChange", this._render.bind(this));
+    this.viewModel.on(
+      "dayPointed::DidChange",
+      this._dayPointedDidChangeHandler.bind(this)
+    );
   };
 
   /**
@@ -280,12 +283,14 @@ export default class Calendar {
   /**
    * Handler triggered when the `viewModel.days.selected` property is changed.
    *
-   * @param {Day} day - Day object where the selection change has happened.
+   * @param {EventData} eventData - The event object with the information about the ViewModel change.
    *
    * @private
    * @memberof Calendar
    */
-  _daySelectedChangedHandler = day => {
+  _daySelectedDidChanageHandler = eventData => {
+    const day = eventData.newValue;
+
     // Get the dom element for day
     const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
 
@@ -313,39 +318,31 @@ export default class Calendar {
   /**
    * Handler triggered when the `viewModel.currentYear` property is changed.
    *
+   * @param {EventData} eventData - The event object with the information about the ViewModel change.
    * @private
    * @memberof Calendar
    */
-  _yearSelectedChangedHandler = event => {
-    if (!event.isCanceled) {
-      this._render();
-    } else {
-      console.warn(`The year is invalid: ${event.year}`);
-    }
+  // eslint-disable-next-line no-unused-vars
+  _currentYearDidChangeHandler = eventData => {
+    this._render();
   };
 
   /**
-   * Handler triggered when the `viewModel.currentYear` property is changed.
+   * Handler triggered when the day that is being pointed at (hovered) changes.
    *
    * @private
    * @memberof Calendar
    */
-  _dayPointedHandler = event => {
-    if (!event.isCanceled) {
-      // Get the dom element for day
-      const dayDomElement = this._dom.getDayElement(
-        event.day.monthIndex,
-        event.day.dayIndex
-      );
+  _dayPointedDidChangeHandler = event => {
+    const { day } = event.newValue;
+    // Get the dom element for day
+    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
 
-      if (!dayDomElement) {
-        return;
-      }
-
-      dayDomElement.setAttribute("title", event.day.getISOFormattedDate());
-    } else {
-      console.warn(`There is a problem with the pointed day: ${event.day}`);
+    if (!dayDomElement) {
+      return;
     }
+
+    dayDomElement.setAttribute("title", day.getISOFormattedDate());
   };
 
   /**
@@ -375,13 +372,13 @@ export default class Calendar {
 
       switch (event.type) {
         case "click":
-          this.viewModel.setDaySelected(day, !day.selected);
+          this.viewModel.changeDaySelected(day, !day.selected);
           break;
         case "mousedown":
           this._multiSelectStart(day);
           break;
         case "mouseover":
-          this.viewModel.pointDay(day, event.x, event.y);
+          this.viewModel.changeDayPointed(day, event.x, event.y);
           this._multiSelectAdd(day);
           break;
         case "mouseup":
@@ -474,7 +471,7 @@ export default class Calendar {
         // Removes the classes for multi selection
         this._setMultiSelectClass(dayToSelect, false);
         // Proceed with the actual selection of the day
-        this.viewModel.setDaySelected(dayToSelect, true);
+        this.viewModel.changeDaySelected(dayToSelect, true);
       });
 
       // Clear the __multiSelectInfo object

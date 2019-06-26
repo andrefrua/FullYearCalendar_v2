@@ -106,7 +106,7 @@ btnAddSelectedDaysToBelowCalendar.onclick = event => {
     }
   };
 
-  fullYearCalendar2.viewModel.updateCustomDates(customDates, true);
+  fullYearCalendar2.viewModel.changeCustomDates(customDates, true);
 };
 
 btnReplaceSelectedDaysOnBelowCalendar.onclick = event => {
@@ -122,7 +122,7 @@ btnReplaceSelectedDaysOnBelowCalendar.onclick = event => {
     }
   };
 
-  fullYearCalendar2.viewModel.updateCustomDates(customDates, false);
+  fullYearCalendar2.viewModel.changeCustomDates(customDates, false);
 };
 
 btnDestroyCalendar1.onclick = event => {

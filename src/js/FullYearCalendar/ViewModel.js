@@ -2,6 +2,7 @@ import { PROPERTY_NAMES, REPRESENTATION_VALUES } from "./Enums.js";
 import * as Utils from "./Utils.js";
 import Day from "./Day.js";
 import EventDispatcher from "./Events/EventDispatcher.js";
+import EventData from "./Events/EventData.js";
 
 /**
  * ViewModel class for the FullYearCalendar.
@@ -99,6 +100,8 @@ export default class ViewModel extends EventDispatcher {
 
   set currentYear(value) {
     this._currentYear = value || new Date().getFullYear();
+    // Whenever the year is changed we also need to update the Days array.
+    this.days = this._createDaysArray();
   }
 
   /**
@@ -425,6 +428,25 @@ export default class ViewModel extends EventDispatcher {
     this.customDates = this._normalizeCustomDates(newCustomDates);
   };
 
+  /**
+   * Triggers `::WillChange` event for the received ViewModel property and if the event is not canceled, then the
+   * property will be updated and a `::DidChange` event will be triggered.
+   *
+   * @param {string} propName - The name of the property to be updated.
+   * @param {Object} eventData - The object container the event information, including the `newValue` to be applied to
+   * the property.
+   * @private
+   * @memberof ViewModel
+   */
+  _updatePropsAndDispatchEvents = (propName, eventData) => {
+    this.dispatch(`${propName}::WillChange`, eventData);
+
+    if (!eventData.isCanceled) {
+      this[propName] = eventData.newValue;
+      this.dispatch(`${propName}::DidChange`, eventData);
+    }
+  };
+
   // #endregion Private methods
 
   // #region Public methods
@@ -461,34 +483,38 @@ export default class ViewModel extends EventDispatcher {
    * @param {boolean} selected - The new selected state.
    * @memberof ViewModel
    */
-  setDaySelected = (day, selected) => {
-    day.selected = selected;
-    this.dispatch("daySelectionChanged", day);
+  changeDaySelected = (day, selected) => {
+    // NOTE: Had to clone the object this way, because the simples ES6 clone mechanic wasn't cloning the methods.
+    // const newDay = { ...day, selected };
+    const newDay = Object.assign(
+      Object.create(Object.getPrototypeOf(day)),
+      day
+    );
+    newDay.selected = selected;
+
+    const eventData = new EventData(newDay, day);
+
+    this._updatePropsAndDispatchEvents("daySelected", eventData);
   };
 
   /**
-   * Changes the current year to the one received and dispatches the `yearSelectionChanged` event.
+   * Validates de value of the received year and then proceeds with the actual change of the value and event
+   * dispatching.
    *
    * @param {number} year - The year to which we must change the calendar.
    * @memberof ViewModel
    */
   changeCurrentYear = year => {
     const newCurrentYear =
-      typeof year === "number" && year > 1970 ? year : null;
-
-    let isCanceled = true;
+      typeof year === "number" && year > 1900 ? year : null;
 
     if (newCurrentYear) {
-      this.currentYear = year;
+      const eventData = new EventData(newCurrentYear, this.currentYear);
 
-      this.days = this._createDaysArray();
-
-      isCanceled = false;
+      this._updatePropsAndDispatchEvents("currentYear", eventData);
+    } else {
+      console.warn(`The year is invalid: ${year}`);
     }
-    this.dispatch("yearSelectionChanged", {
-      year,
-      isCanceled
-    });
   };
 
   /**
@@ -515,7 +541,7 @@ export default class ViewModel extends EventDispatcher {
    * @param {Object} config - Object with the properties that should be updated on the calendar.
    * @memberof ViewModel
    */
-  updateSettings = config => {
+  changeSettings = config => {
     Object.keys(config).forEach(property => {
       if (
         Object.prototype.hasOwnProperty.call(config, property) &&
@@ -527,7 +553,7 @@ export default class ViewModel extends EventDispatcher {
     });
     this._updateFixedProperties();
 
-    this.dispatch("settingsUpdated");
+    this.dispatch("settings::DidChange", null);
   };
 
   /**
@@ -537,13 +563,13 @@ export default class ViewModel extends EventDispatcher {
    * @param {boolean} [keepPrevious=true]
    * @memberof Calendar
    */
-  updateCustomDates = (customDates, keepPrevious = true) => {
+  changeCustomDates = (customDates, keepPrevious = true) => {
     if (keepPrevious) {
       this._updateCustomDates(customDates);
     } else {
       this._replaceCustomDates(customDates);
     }
-    this.dispatch("customDatesUpdated");
+    this.dispatch("customDates::DidChange", null);
   };
 
   /**
@@ -552,12 +578,13 @@ export default class ViewModel extends EventDispatcher {
    *
    * @memberof ViewModel
    */
-  pointDay = (day, x, y) => {
-    let isCanceled = true;
+  changeDayPointed = (day, x, y) => {
     if (day && !Number.isNaN(x) && !Number.isNaN(y)) {
-      isCanceled = false;
+      const eventData = new EventData({ day, x, y }, null);
+      this._updatePropsAndDispatchEvents("dayPointed", eventData);
+    } else {
+      console.warn(`Something went wrong while pointed at the day`);
     }
-    this.dispatch("dayPointed", { day, x, y, isCanceled });
   };
 
   // #endregion Public methods

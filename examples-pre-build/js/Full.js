@@ -76,17 +76,19 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.on("daySelectionChanged", day => {
+fullYearCalendar.viewModel.on("daySelected::WillChange", eventData => {
+  const day = eventData.newValue;
   if (day.selected) {
     inputLastSelectedDay.value = day.date.toISOString().slice(0, 10);
   }
 });
 
-fullYearCalendar.viewModel.on("dayHovered", day => {
+fullYearCalendar.viewModel.on("dayPointed::DidChange", eventData => {
+  const { day } = eventData.newValue;
   inputLastHoveredDay.value = day.date.toISOString().slice(0, 10);
 });
 
-fullYearCalendar.viewModel.on("yearSelectionChanged", () => {
+fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
   inputYearChanged.innerText = !Number.isNaN(inputYearChanged.innerText)
     ? parseInt(inputYearChanged.innerText, 10) + 1
     : 0;
@@ -117,23 +119,25 @@ btnGoToCurrentYear.onclick = event => {
 };
 
 inputDayWidth.onchange = event => {
-  fullYearCalendar.viewModel.updateSettings({ dayWidth: event.srcElement.value });
+  fullYearCalendar.viewModel.changeSettings({
+    dayWidth: event.srcElement.value
+  });
 };
 
 chkShowWeekDaysNameEachMonth.onchange = event => {
-  fullYearCalendar.viewModel.updateSettings({
+  fullYearCalendar.viewModel.changeSettings({
     showWeekDaysNameEachMonth: event.srcElement.checked
   });
 };
 
 selectChangeWeekStartDay.onchange = event => {
-  fullYearCalendar.viewModel.updateSettings({
+  fullYearCalendar.viewModel.changeSettings({
     weekStartDay: parseInt(event.srcElement.value, 10)
   });
 };
 
 selectLocale.onchange = event => {
-  fullYearCalendar.viewModel.updateSettings({
+  fullYearCalendar.viewModel.changeSettings({
     locale: event.srcElement.value
   });
 };
@@ -153,5 +157,5 @@ btnAddNewCustomDates.onclick = event => {
     }
   };
 
-  fullYearCalendar.viewModel.updateCustomDates(customDates, true);
+  fullYearCalendar.viewModel.changeCustomDates(customDates, true);
 };
