@@ -79,8 +79,8 @@ export default class Calendar {
     this._addEventListeners();
 
     this.viewModel.on(
-      "daySelected::DidChange",
-      this._daySelectedDidChanageHandler.bind(this)
+      "selectedDays::DidChange",
+      this._selectedDaysDidChangeHandler.bind(this)
     );
     this.viewModel.on(
       "currentYear::DidChange",
@@ -281,38 +281,27 @@ export default class Calendar {
   }
 
   /**
-   * Handler triggered when the `viewModel.days.selected` property is changed.
+   * Handler triggered when the `selectedDays` property is changed.
    *
    * @param {EventData} eventData - The event object with the information about the ViewModel change.
    *
    * @private
    * @memberof Calendar
    */
-  _daySelectedDidChanageHandler = eventData => {
-    const day = eventData.newValue;
+  _selectedDaysDidChangeHandler = eventData => {
+    const { newValue: newSelectedDays, oldValue: oldSelectedDays } = eventData;
 
-    // Get the dom element for day
-    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
+    // Removes the selection for the days that are not selected anymore
+    oldSelectedDays.forEach(day => {
+      if (newSelectedDays.indexOf(day) === -1) {
+        this._dom.setDaySelection(day, false);
+      }
+    });
 
-    if (!dayDomElement) {
-      return;
-    }
-
-    const { selectedDays } = this.viewModel;
-
-    // Selects the day if it wasn't already selected and unselects if it was selected
-    if (day.selected) {
-      dayDomElement.classList.add(CSS_CLASS_NAMES.SELECTED_DAY);
-
-      // Adds the day to the selected days list
-      selectedDays.push(day);
-    } else {
-      dayDomElement.classList.remove(CSS_CLASS_NAMES.SELECTED_DAY);
-
-      // Removes the day from the selected days list
-      const selectedDayIndex = selectedDays.indexOf(day);
-      selectedDays.splice(selectedDayIndex, 1);
-    }
+    // Adds the selection for the new selected days
+    this.viewModel.selectedDays.forEach(day => {
+      this._dom.setDaySelection(day, true);
+    });
   };
 
   /**
@@ -372,7 +361,7 @@ export default class Calendar {
 
       switch (event.type) {
         case "click":
-          this.viewModel.changeDaySelected(day, !day.selected);
+          this.viewModel.changeSelectedDays([day]);
           break;
         case "mousedown":
           this._multiSelectStart(day);
@@ -449,12 +438,12 @@ export default class Calendar {
 
       // Disables the MultiSelect flag for the days that should not be in the multi selection.
       this.viewModel.days.forEach(auxDay =>
-        this._setMultiSelectClass(auxDay, false)
+        this._dom.setDayMultiSelection(auxDay, false)
       );
 
       // Enables the MultiSelect on the days that matched the selection
       this.__multiSelectInfo.days.forEach(auxDay =>
-        this._setMultiSelectClass(auxDay, true)
+        this._dom.setDayMultiSelection(auxDay, true)
       );
     }
   };
@@ -466,13 +455,16 @@ export default class Calendar {
    * @memberof ViewModel
    */
   _multiSelectEnd = () => {
-    if (this.__multiSelectInfo.startDay) {
+    if (
+      this.__multiSelectInfo.startDay &&
+      this.__multiSelectInfo.days.length > 0
+    ) {
       this.__multiSelectInfo.days.forEach(dayToSelect => {
         // Removes the classes for multi selection
-        this._setMultiSelectClass(dayToSelect, false);
-        // Proceed with the actual selection of the day
-        this.viewModel.changeDaySelected(dayToSelect, true);
+        this._dom.setDayMultiSelection(dayToSelect, false);
       });
+      // Start to actually select the days.
+      this.viewModel.changeSelectedDays(this.__multiSelectInfo.days);
 
       // Clear the __multiSelectInfo object
       this.__multiSelectInfo = {
@@ -494,34 +486,10 @@ export default class Calendar {
 
       // Clears any possible temporary multi selection
       this.__multiSelectInfo.days.forEach(auxDay =>
-        this._setMultiSelectClass(auxDay, false)
+        this._dom.setDayMultiSelection(auxDay, false)
       );
 
       this.__multiSelectInfo.days = [];
-    }
-  };
-
-  /**
-   * Adds or removed the class for multi selection on the received day.
-   *
-   * @param {Day} day - Day object where the multi selection is being done.
-   *
-   * @private
-   * @memberof Calendar
-   */
-  _setMultiSelectClass = (day, multiSelecting) => {
-    // Get the dom element for day
-    const dayDomElement = this._dom.getDayElement(day.monthIndex, day.dayIndex);
-
-    if (!dayDomElement) {
-      return;
-    }
-
-    // Selects the day if it wasn't already selected and unselects if it was selected
-    if (multiSelecting) {
-      dayDomElement.classList.add(CSS_CLASS_NAMES.MULTI_SELECTION);
-    } else {
-      dayDomElement.classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
     }
   };
 

@@ -76,9 +76,9 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.on("daySelected::WillChange", eventData => {
-  const day = eventData.newValue;
-  if (day.selected) {
+fullYearCalendar.viewModel.on("selectedDays::WillChange", eventData => {
+  const day = eventData.newValue.slice(-1);
+  if (day) {
     inputLastSelectedDay.value = day.date.toISOString().slice(0, 10);
   }
 });

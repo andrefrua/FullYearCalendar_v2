@@ -116,3 +116,54 @@ Constructor() {
 
   var foo = this.foo;}
 C
+
+
+
+# 09-07-19:
+Try to remove the Day class
+
+ViewModel
+ get/set weekStartDay: number;
+ get/set currentYear : number;
+ get     daysOfCurrentYear: Date[];
+
+ get/set selectedDays(days: Date[]): Date[];
+
+ isDaySelected(day: Date) : boolean
+   _selectedDaysMap[ms] -> boolean
+
+Utilitário complexidade constante (com cache)
+ dayIndexOf(date, weekStartDay)
+   * dayZeroIndex + firstDayOfMonth
+   * firstDayOfMonth = f(year, month, weekStartDay)
+
+
+
+# 30-07-2019
+## Quanto à propriedade `selectedDays`
+​
+* `Event#customData` deveria passar para a View ou serem dois getters auxiliares do evento (`addedDays`, `removedDays`)
+	- DONE
+* `changeSelectedDays` passa a setter; o mesmo se aplica a outras funções "changeProp".
+​
+## Até que ponto a classe Day ainda é necessária?
+​
+## Oportunidades de melhoria ao sistema de eventos
+​
+### Alterações em barda
+​
+* Um único evento de property change
+* get Event#changes -> Mapa de [propName] para {newValue, oldValue}.  (a la Angular)
+* ViewModel#beginChanges()
+  * inc changeDepth
+* get ViewModel#isChanging
+* ViewModel#__changes : [propName] -> oldValue
+* ViewModel#endChanges()
+  * dec changeDepth
+  * Quando chega a zero, dispara o evento com as alterações que foram recolhidas
+​
+### Event#cancel([cancelReason: string | Error])
+​
+* get Event#cancelReason : Error
+* Adição da fase RejectedChange (para além de WillChange e DidChange).
+* Código na página HTML registar-se-ia no evento de rejeição para apresentar as mensagens no div de status

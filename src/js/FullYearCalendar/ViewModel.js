@@ -444,6 +444,8 @@ export default class ViewModel extends EventDispatcher {
     if (!eventData.isCanceled) {
       this[propName] = eventData.newValue;
       this.dispatch(`${propName}::DidChange`, eventData);
+    } else {
+      this.dispatch(`${propName}::RejectedChange`, eventData);
     }
   };
 
@@ -477,24 +479,24 @@ export default class ViewModel extends EventDispatcher {
     this.dayWidth * (this.getTotalNumberOfDays() - 4);
 
   /**
-   * Changes the selected state of the received day and dispatches the `daySelectionChanged` event.
+   * Changes the `selectedDays` property with the new information.
    *
-   * @param {Day} day - The day to change the selection.
-   * @param {boolean} selected - The new selected state.
+   * @param {Array.<Day>} daysToSelect - The day to change the selection.
    * @memberof ViewModel
    */
-  changeDaySelected = (day, selected) => {
-    // NOTE: Had to clone the object this way, because the simples ES6 clone mechanic wasn't cloning the methods.
-    // const newDay = { ...day, selected };
-    const newDay = Object.assign(
-      Object.create(Object.getPrototypeOf(day)),
-      day
-    );
-    newDay.selected = selected;
+  changeSelectedDays = daysToSelect => {
+    const newSelectedDays = Array.from(this.selectedDays);
 
-    const eventData = new EventData(newDay, day);
+    daysToSelect.forEach(day => {
+      if (newSelectedDays.indexOf(day) === -1) {
+        newSelectedDays.push(day);
+      } else {
+        newSelectedDays.splice(newSelectedDays.indexOf(day), 1);
+      }
+    });
 
-    this._updatePropsAndDispatchEvents("daySelected", eventData);
+    const eventData = new EventData(newSelectedDays, this.selectedDays);
+    this._updatePropsAndDispatchEvents("selectedDays", eventData);
   };
 
   /**

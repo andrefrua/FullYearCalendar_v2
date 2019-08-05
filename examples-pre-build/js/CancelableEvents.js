@@ -75,13 +75,37 @@ fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
   }
 });
 
-fullYearCalendar.viewModel.on("daySelected::WillChange", eventData => {
+fullYearCalendar.viewModel.on("selectedDays::WillChange", eventData => {
   inputYearChangedInfo.innerText = "";
-  const weekDay = eventData.newValue.date.getDay();
-  if (weekDay === 0 || weekDay === 6) {
-    inputYearChangedInfo.innerText = "Weekends can't be selected";
-    eventData.cancel();
+
+  if (eventData.newValue.length > 20) {
+    eventData.cancel("Can't select more than 20 days at a time.");
   }
+
+  if (!eventData.isCanceled) {
+    eventData.newValue.forEach(day => {
+      const weekDay = day.date.getDay();
+      switch (weekDay) {
+        case 0:
+        case 6:
+          inputYearChangedInfo.innerText = "Weekends can't be selected";
+          eventData.newValue.splice(eventData.newValue.indexOf(day), 1);
+          break;
+        case 3:
+          if (eventData.newValue.length - eventData.oldValue.length > 1) {
+            inputYearChangedInfo.innerText =
+              "Can't select Wednesdays with multiselect";
+            eventData.newValue.splice(eventData.newValue.indexOf(day), 1);
+          }
+          break;
+        default:
+      }
+    });
+  }
+});
+
+fullYearCalendar.viewModel.on("selectedDays::RejectedChange", eventData => {
+  inputYearChangedInfo.innerText = eventData.cancelReason.message;
 });
 
 fullYearCalendar.viewModel.on("dayPointed::WillChange", eventData => {

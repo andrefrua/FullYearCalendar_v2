@@ -19,7 +19,6 @@ export default class Day {
     this.monthIndex = monthIndex;
     this.dayIndex = dayIndex;
     this.date = date;
-    this.selected = false;
   }
 
   // #region Getters and Setters
@@ -64,20 +63,6 @@ export default class Day {
 
   set date(value) {
     this._date = value;
-  }
-
-  /**
-   * Flag informing if the day is selected.
-   *
-   * @type {boolean}
-   * @memberof Day
-   */
-  get selected() {
-    return this._selected;
-  }
-
-  set selected(value) {
-    this._selected = value;
   }
 
   // #endregion Getters and Setters

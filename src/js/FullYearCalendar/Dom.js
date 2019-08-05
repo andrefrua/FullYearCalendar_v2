@@ -745,6 +745,44 @@ export default class Dom {
     this.domElement.querySelector(`[m="${monthIndex}"][d="${dayIndex}"]`);
 
   /**
+   * Adds or removed the `SELECTED_DAY` css class to the Day dom element.
+   *
+   * @param {Day} day - Object representing the Day.
+   * @param {boolean} selected - Flag stating if the day should be selected or not.
+   * @memberof Dom
+   */
+  setDaySelection = (day, selected) => {
+    const dayElement = this.getDayElement(day.monthIndex, day.dayIndex);
+    if (!dayElement) {
+      return;
+    }
+    if (selected) {
+      dayElement.classList.add(CSS_CLASS_NAMES.SELECTED_DAY);
+    } else {
+      dayElement.classList.remove(CSS_CLASS_NAMES.SELECTED_DAY);
+    }
+  };
+
+  /**
+   * Adds or removed the `MULTI_SELECTION` css class to the Day dom element.
+   *
+   * @param {Day} day - Object representing the Day.
+   * @param {boolean} multiSelected - Flag stating if the day should be in multi select mode or not.
+   * @memberof Dom
+   */
+  setDayMultiSelection = (day, multiSelected) => {
+    const dayElement = this.getDayElement(day.monthIndex, day.dayIndex);
+    if (!dayElement) {
+      return;
+    }
+    if (multiSelected) {
+      dayElement.classList.add(CSS_CLASS_NAMES.MULTI_SELECTION);
+    } else {
+      dayElement.classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
+    }
+  };
+
+  /**
    * Clears all the day elements. Removes the text and sets the Css class to `EMPTY_DAY`.
    *
    * @memberof Dom
@@ -804,21 +842,6 @@ export default class Dom {
       this.spanCurrentYear.innerText = this.viewModel.currentYear;
     }
   };
-
-  // refresh = () => {
-  //   const vm = this.viewModel;
-  //   const weekDayNamesContainers = this.mainContainer.querySelectorAll(
-  //     ".weekContainer.weekDay"
-  //   );
-
-  //   weekDayNamesContainers.forEach(container => {
-  //     const weekDayNameElements = container.childNodes;
-  //     weekDayNameElements.forEach((dayNameElement, dayIndex) => {
-  //       dayNameElement.innerText =
-  //         vm.weekDayNames[(dayIndex + vm.weekStartDay) % 7];
-  //     });
-  //   });
-  // };
 
   // #endregion Public methods
 }
