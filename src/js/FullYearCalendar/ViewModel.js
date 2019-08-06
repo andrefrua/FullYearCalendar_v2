@@ -14,15 +14,15 @@ export default class ViewModel extends EventDispatcher {
   /**
    * Creates an instance of ViewModel.
    *
-   * @param {Object} config
+   * @param {Object} settings
    * @memberof ViewModel
    */
-  constructor(config) {
+  constructor(settings) {
     super();
 
     // Initializes all the necessary properties in order to have the calendar working as intended.
     PROPERTY_NAMES.forEach(propName => {
-      this[propName] = config && config[propName];
+      this[propName] = settings && settings[propName];
     });
 
     this._updateFixedProperties();
@@ -545,17 +545,17 @@ export default class ViewModel extends EventDispatcher {
   /**
    * Updates the properties of the calendar with the new ones received as a parameter.
    *
-   * @param {Object} config - Object with the properties that should be updated on the calendar.
+   * @param {Object} settings - Object with the properties that should be updated on the calendar.
    * @memberof ViewModel
    */
-  changeSettings = config => {
-    Object.keys(config).forEach(property => {
+  changeSettings = settings => {
+    Object.keys(settings).forEach(property => {
       if (
-        Object.prototype.hasOwnProperty.call(config, property) &&
+        Object.prototype.hasOwnProperty.call(settings, property) &&
         this[property] !== undefined &&
-        config[property] !== this[property]
+        settings[property] !== this[property]
       ) {
-        this[property] = config[property];
+        this[property] = settings[property];
       }
     });
     this._updateFixedProperties();

@@ -26,12 +26,12 @@ export default class Calendar {
    * Creates an instance of Calendar.
    *
    * @param {Object} domElement
-   * @param {Object} [config={}]
+   * @param {Object} [settings={}]
    *
    * @memberof Calendar
    */
-  constructor(domElement, config = {}) {
-    this.viewModel = new ViewModel(config);
+  constructor(domElement, settings = {}) {
+    this.viewModel = new ViewModel(settings);
     // Object that stores the DOM elements needed by the Calendar.
     this._dom = new Dom(domElement, this.viewModel);
     // Array that will store all the eventListeners needed for the Calendar to work.
@@ -97,7 +97,6 @@ export default class Calendar {
   /**
    * Refreshes the Calendar when the ViewModel object is changed.
    *
-   * @param {Object} config
    * @memberof Calendar
    */
   _refresh = () => {
