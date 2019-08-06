@@ -99,9 +99,21 @@ export default class ViewModel extends EventDispatcher {
   }
 
   set currentYear(value) {
-    this._currentYear = value || new Date().getFullYear();
-    // Whenever the year is changed we also need to update the Days array.
-    this.days = this._createDaysArray();
+    const newCurrentYear =
+      typeof value === "number" && value > 1900
+        ? value
+        : new Date().getFullYear();
+
+    if (newCurrentYear) {
+      const eventData = new EventData(newCurrentYear, this.currentYear);
+      this._updatePropsAndDispatchEvents(
+        "currentYear",
+        eventData,
+        this._updateDaysArray
+      );
+    } else {
+      console.warn(`The year is invalid: ${value}`);
+    }
   }
 
   /**
@@ -230,7 +242,21 @@ export default class ViewModel extends EventDispatcher {
   }
 
   set selectedDays(value) {
-    this._selectedDays = value || [];
+    const daysToSelect = value || [];
+    const newSelectedDays = Array.isArray(this._selectedDays)
+      ? Array.from(this._selectedDays)
+      : [];
+
+    daysToSelect.forEach(day => {
+      if (newSelectedDays.indexOf(day) === -1) {
+        newSelectedDays.push(day);
+      } else {
+        newSelectedDays.splice(newSelectedDays.indexOf(day), 1);
+      }
+    });
+
+    const eventData = new EventData(newSelectedDays, this._selectedDays);
+    this._updatePropsAndDispatchEvents("selectedDays", eventData);
   }
 
   /**
@@ -400,6 +426,16 @@ export default class ViewModel extends EventDispatcher {
   };
 
   /**
+   * Updates the array of days to be displayed on the calendar in the currently selected year.
+   *
+   * @private
+   * @memberof ViewModel
+   */
+  _updateDaysArray = () => {
+    this.days = this._createDaysArray();
+  };
+
+  /**
    * Updates the customDates property with the new values.
    *
    * @param {Object} newCustomDates - New customDates object.
@@ -438,11 +474,21 @@ export default class ViewModel extends EventDispatcher {
    * @private
    * @memberof ViewModel
    */
-  _updatePropsAndDispatchEvents = (propName, eventData) => {
+  _updatePropsAndDispatchEvents = (
+    propName,
+    eventData,
+    afterPropChangeCallback
+  ) => {
     this.dispatch(`${propName}::WillChange`, eventData);
 
     if (!eventData.isCanceled) {
-      this[propName] = eventData.newValue;
+      this[`_${propName}`] = eventData.newValue;
+      if (
+        afterPropChangeCallback &&
+        typeof afterPropChangeCallback === "function"
+      ) {
+        afterPropChangeCallback();
+      }
       this.dispatch(`${propName}::DidChange`, eventData);
     } else {
       this.dispatch(`${propName}::RejectedChange`, eventData);
@@ -479,53 +525,12 @@ export default class ViewModel extends EventDispatcher {
     this.dayWidth * (this.getTotalNumberOfDays() - 4);
 
   /**
-   * Changes the `selectedDays` property with the new information.
-   *
-   * @param {Array.<Day>} daysToSelect - The day to change the selection.
-   * @memberof ViewModel
-   */
-  changeSelectedDays = daysToSelect => {
-    const newSelectedDays = Array.from(this.selectedDays);
-
-    daysToSelect.forEach(day => {
-      if (newSelectedDays.indexOf(day) === -1) {
-        newSelectedDays.push(day);
-      } else {
-        newSelectedDays.splice(newSelectedDays.indexOf(day), 1);
-      }
-    });
-
-    const eventData = new EventData(newSelectedDays, this.selectedDays);
-    this._updatePropsAndDispatchEvents("selectedDays", eventData);
-  };
-
-  /**
-   * Validates de value of the received year and then proceeds with the actual change of the value and event
-   * dispatching.
-   *
-   * @param {number} year - The year to which we must change the calendar.
-   * @memberof ViewModel
-   */
-  changeCurrentYear = year => {
-    const newCurrentYear =
-      typeof year === "number" && year > 1900 ? year : null;
-
-    if (newCurrentYear) {
-      const eventData = new EventData(newCurrentYear, this.currentYear);
-
-      this._updatePropsAndDispatchEvents("currentYear", eventData);
-    } else {
-      console.warn(`The year is invalid: ${year}`);
-    }
-  };
-
-  /**
    * Increments one to the current year.
    *
    * @memberof ViewModel
    */
   incrementCurrentYear = () => {
-    this.changeCurrentYear(this.currentYear + 1);
+    this.currentYear += 1;
   };
 
   /**
@@ -534,7 +539,7 @@ export default class ViewModel extends EventDispatcher {
    * @memberof ViewModel
    */
   decrementCurrentYear = () => {
-    this.changeCurrentYear(this.currentYear - 1);
+    this.currentYear -= 1;
   };
 
   /**

@@ -88,19 +88,24 @@ fullYearCalendar.viewModel.on("selectedDays::WillChange", eventData => {
       switch (weekDay) {
         case 0:
         case 6:
-          inputYearChangedInfo.innerText = "Weekends can't be selected";
+          eventData.info = "Weekends can't be selected";
           eventData.newValue.splice(eventData.newValue.indexOf(day), 1);
           break;
         case 3:
           if (eventData.newValue.length - eventData.oldValue.length > 1) {
-            inputYearChangedInfo.innerText =
-              "Can't select Wednesdays with multiselect";
+            eventData.info = "Can't select Wednesdays with multiselect";
             eventData.newValue.splice(eventData.newValue.indexOf(day), 1);
           }
           break;
         default:
       }
     });
+  }
+});
+
+fullYearCalendar.viewModel.on("selectedDays::DidChange", eventData => {
+  if (eventData.info !== "") {
+    inputYearChangedInfo.innerText += eventData.info;
   }
 });
 
@@ -118,8 +123,9 @@ fullYearCalendar.viewModel.on("dayPointed::WillChange", eventData => {
 
 btnGoToYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.viewModel.changeCurrentYear(
-    parseInt(document.getElementById("inputYearNumber").value, 10)
+  fullYearCalendar.viewModel.currentYear = parseInt(
+    document.getElementById("inputYearNumber").value,
+    10
   );
 };
 
@@ -135,5 +141,5 @@ btnGoToNextYear.onclick = event => {
 
 btnGoToCurrentYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.viewModel.changeCurrentYear(new Date().getFullYear());
+  fullYearCalendar.viewModel.currentYear = new Date().getFullYear();
 };

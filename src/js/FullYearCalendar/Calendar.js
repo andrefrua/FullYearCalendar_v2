@@ -361,7 +361,7 @@ export default class Calendar {
 
       switch (event.type) {
         case "click":
-          this.viewModel.changeSelectedDays([day]);
+          this.viewModel.selectedDays = [day];
           break;
         case "mousedown":
           this._multiSelectStart(day);
@@ -464,7 +464,7 @@ export default class Calendar {
         this._dom.setDayMultiSelection(dayToSelect, false);
       });
       // Start to actually select the days.
-      this.viewModel.changeSelectedDays(this.__multiSelectInfo.days);
+      this.viewModel.selectedDays = this.__multiSelectInfo.days;
 
       // Clear the __multiSelectInfo object
       this.__multiSelectInfo = {

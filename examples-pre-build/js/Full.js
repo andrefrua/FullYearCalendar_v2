@@ -98,8 +98,9 @@ fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
 
 btnGoToYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.viewModel.changeCurrentYear(
-    parseInt(document.getElementById("inputYearNumber").value, 10)
+  fullYearCalendar.viewModel.currentYear = parseInt(
+    document.getElementById("inputYearNumber").value,
+    10
   );
 };
 
@@ -115,7 +116,7 @@ btnGoToNextYear.onclick = event => {
 
 btnGoToCurrentYear.onclick = event => {
   event.preventDefault();
-  fullYearCalendar.viewModel.changeCurrentYear(new Date().getFullYear());
+  fullYearCalendar.viewModel.currentYear = new Date().getFullYear();
 };
 
 inputDayWidth.onchange = event => {
