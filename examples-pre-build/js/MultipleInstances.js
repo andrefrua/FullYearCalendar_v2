@@ -96,7 +96,9 @@ const fullYearCalendar2 = new Calendar(divFullYearCalendar2, configObj2);
 btnAddSelectedDaysToBelowCalendar.onclick = event => {
   event.preventDefault();
 
-  const importedDaysFromCalendar1 = fullYearCalendar1.getSelectedDays();
+  const importedDaysFromCalendar1 = fullYearCalendar1.viewModel.selectedDays.map(day =>
+    day.getISOFormattedDate()
+  )
 
   const customDates = {
     importedDay: {
@@ -112,7 +114,9 @@ btnAddSelectedDaysToBelowCalendar.onclick = event => {
 btnReplaceSelectedDaysOnBelowCalendar.onclick = event => {
   event.preventDefault();
 
-  const selectedDays1 = fullYearCalendar1.getSelectedDays();
+  const selectedDays1 = fullYearCalendar1.viewModel.selectedDays.map(day =>
+    day.getISOFormattedDate()
+  );
 
   const customDates = {
     selectedDays: {

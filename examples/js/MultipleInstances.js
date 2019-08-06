@@ -118,7 +118,9 @@ btnGoToCurrentYear1.onclick = function(e) {
 
 btnGetSelectedDays1.onclick = function(e) {
   divListSelectedDays1.innerText = JSON.stringify(
-    fullYearCalendar1.getSelectedDays()
+    fullYearCalendar1.viewModel.selectedDays.map(day =>
+      day.getISOFormattedDate()
+    )
   );
 };
 
@@ -131,7 +133,9 @@ chkShowWeekDaysNameEachMonth1.onchange = function(e) {
 };
 
 btnUpdateSelectedDays1.onclick = function(e) {
-  const importedDaysFromCalendar1 = fullYearCalendar1.getSelectedDays();
+  const importedDaysFromCalendar1 = fullYearCalendar1.viewModel.selectedDays.map(day =>
+    day.getISOFormattedDate()
+  )
 
   const customDates = {
     importedDay: {
@@ -154,7 +158,9 @@ btnUpdateSelectedDays1.onclick = function(e) {
 };
 
 btnReplaceSelectedDays1.onclick = function(e) {
-  const selectedDays1 = fullYearCalendar1.getSelectedDays();
+  const selectedDays1 = fullYearCalendar1.viewModel.selectedDays.map(day =>
+    day.getISOFormattedDate()
+  )
 
   const customDates = {
     selectedDays: {

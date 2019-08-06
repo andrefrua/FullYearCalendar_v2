@@ -292,6 +292,7 @@ export default class ViewModel extends EventDispatcher {
       REPRESENTATION_VALUES.NARROW
     );
     this.days = this._createDaysArray();
+    this._selectedDays = [];
   };
 
   /**

@@ -1,4 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
+import Day from "../../src/js/FullYearCalendar/Day.js";
 
 const inputLastSelectedDay = document.getElementById("inputLastSelectedDay");
 const inputLastHoveredDay = document.getElementById("inputLastHoveredDay");

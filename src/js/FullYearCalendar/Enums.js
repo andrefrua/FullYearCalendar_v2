@@ -19,8 +19,7 @@ export const PROPERTY_NAMES = [
   "captionNavButtonPreviousYear",
   "captionNavButtonNextYear",
   // Custom dates
-  "customDates",
-  "selectedDays"
+  "customDates"
 ];
 
 /**
