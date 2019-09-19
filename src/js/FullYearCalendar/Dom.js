@@ -1,4 +1,5 @@
 import * as DomUtils from "./DomUtils.js";
+import { getMonthFirstDay } from "./Utils.js";
 import { CSS_CLASS_NAMES } from "./Enums.js";
 
 /**
@@ -309,10 +310,8 @@ export default class Dom {
     const vm = this.viewModel;
     const dayElement = document.createElement("div");
 
-    dayElement.setAttribute("fyc-default-day", "true");
-    // Used to identify the day when an event is triggered for it
-    dayElement.setAttribute("m", monthIndex);
-    dayElement.setAttribute("d", dayIndex);
+    dayElement.setAttribute("fyc-default-day", "true"); // TODO: CHECK IF THIS CAN BE REMOVED
+    dayElement.classList.add(CSS_CLASS_NAMES.EMPTY_DAY);
     dayElement.style.height = `${vm.dayWidth}px`;
     dayElement.style.minWidth = `${vm.dayWidth}px`;
     dayElement.style.fontSize = `${parseInt(vm.dayWidth / 2.1, 10)}px`;
@@ -372,7 +371,7 @@ export default class Dom {
 
     // Container that will actually have the Week days names
     const monthContainer = document.createElement("div");
-    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW;
+    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW_DAY_NAMES;
     monthContainer.style.float = "left";
     // Adds the week days name container to the month container
     const weekDayNamesContainer = this._createWeekDayNamesElement(false);
@@ -736,23 +735,41 @@ export default class Dom {
   /**
    * Gets the dom element that represent the day with the received month and day indexes.
    *
-   * @param {Number} monthIndex - Index of the month, starting from 0.
-   * @param {Number} dayIndex - Index of the day, starting from 0.
+   * @param {Date} date - Date object used to retrieve the corresponding HtmlElement.
    * @returns {HTMLElement} - The dom element representing the day.
    * @memberof Dom
    */
-  getDayElement = (monthIndex, dayIndex) =>
-    this.domElement.querySelector(`[m="${monthIndex}"][d="${dayIndex}"]`);
+  getDayElement = date => {
+    const monthElement = this.domElement.getElementsByClassName(
+      "fyc-month-row"
+    )[date.getMonth()];
+
+    // Gets the first day of the month so we know in which cell the month should start
+    const firstDayOfMonth = getMonthFirstDay(
+      this.viewModel.currentYear,
+      date.getMonth(),
+      this.viewModel.weekStartDay
+    );
+
+    const dayIndex = date.getDate() + firstDayOfMonth - 1;
+
+    const dayElement = monthElement.getElementsByClassName("fyc-empty-day")[
+      dayIndex
+    ];
+
+    return dayElement;
+    //    const monthElement = this.domElement.querySelectorAll(`[m="${monthIndex}"][d="${dayIndex}"]`);
+  };
 
   /**
    * Adds or removed the `SELECTED_DAY` css class to the Day dom element.
    *
-   * @param {Day} day - Object representing the Day.
+   * @param {Date} date - Date object to be selected.
    * @param {boolean} selected - Flag stating if the day should be selected or not.
    * @memberof Dom
    */
-  setDaySelection = (day, selected) => {
-    const dayElement = this.getDayElement(day.monthIndex, day.dayIndex);
+  setDaySelection = (date, selected) => {
+    const dayElement = this.getDayElement(date);
     if (!dayElement) {
       return;
     }
@@ -766,12 +783,12 @@ export default class Dom {
   /**
    * Adds or removed the `MULTI_SELECTION` css class to the Day dom element.
    *
-   * @param {Day} day - Object representing the Day.
+   * @param {Date} date - date to be added / removed to the multi selection.
    * @param {boolean} multiSelected - Flag stating if the day should be in multi select mode or not.
    * @memberof Dom
    */
-  setDayMultiSelection = (day, multiSelected) => {
-    const dayElement = this.getDayElement(day.monthIndex, day.dayIndex);
+  setDayMultiSelection = (date, multiSelected) => {
+    const dayElement = this.getDayElement(date);
     if (!dayElement) {
       return;
     }
@@ -783,7 +800,7 @@ export default class Dom {
   };
 
   /**
-   * Clears all the day elements. Removes the text and sets the Css class to `EMPTY_DAY`.
+   * Clears all the day elements.
    *
    * @memberof Dom
    */
@@ -793,7 +810,12 @@ export default class Dom {
     );
     daysElements.forEach(dayElement => {
       dayElement.innerText = "";
-      dayElement.className = CSS_CLASS_NAMES.EMPTY_DAY;
+
+      const { classList } = dayElement;
+      while (classList && classList.length > 0) {
+        classList.remove(classList.item(0));
+      }
+      dayElement.classList.add(CSS_CLASS_NAMES.EMPTY_DAY);
     });
   };
 

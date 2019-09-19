@@ -148,6 +148,8 @@ Utilitário complexidade constante (com cache)
 	- DONE
 ​
 ## Até que ponto a classe Day ainda é necessária?
+	- Estava a ser usado como um facilitador. Mas tal como falámos foi removido de forma a reduzir a complexidade de
+	utilização do calendário por terceiros.
 ​
 ## Oportunidades de melhoria ao sistema de eventos
 ​

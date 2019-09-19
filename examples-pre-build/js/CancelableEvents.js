@@ -1,4 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
+import { findIndexArray } from "../../src/js/FullYearCalendar/Utils.js";
 
 const inputYearChangedInfo = document.getElementById("inputYearChangedInfo");
 const btnGoToYear = document.getElementById("btnGoToYear");
@@ -75,7 +76,7 @@ fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
   }
 });
 
-fullYearCalendar.viewModel.on("selectedDays::WillChange", eventData => {
+fullYearCalendar.viewModel.on("selectedDates::WillChange", eventData => {
   inputYearChangedInfo.innerText = "";
 
   if (eventData.newValue.length > 20) {
@@ -83,18 +84,20 @@ fullYearCalendar.viewModel.on("selectedDays::WillChange", eventData => {
   }
 
   if (!eventData.isCanceled) {
-    eventData.newValue.forEach(day => {
-      const weekDay = day.date.getDay();
+    eventData.newValue.forEach(date => {
+      const weekDay = date.getDay();
+      const dateIndex = findIndexArray(eventData.newValue, date);
+
       switch (weekDay) {
         case 0:
         case 6:
           eventData.info = "Weekends can't be selected";
-          eventData.newValue.splice(eventData.newValue.indexOf(day), 1);
+          eventData.newValue.splice(dateIndex, 1);
           break;
         case 3:
           if (eventData.newValue.length - eventData.oldValue.length > 1) {
             eventData.info = "Can't select Wednesdays with multiselect";
-            eventData.newValue.splice(eventData.newValue.indexOf(day), 1);
+            eventData.newValue.splice(dateIndex, 1);
           }
           break;
         default:
@@ -103,13 +106,13 @@ fullYearCalendar.viewModel.on("selectedDays::WillChange", eventData => {
   }
 });
 
-fullYearCalendar.viewModel.on("selectedDays::DidChange", eventData => {
+fullYearCalendar.viewModel.on("selectedDates::DidChange", eventData => {
   if (eventData.info !== "") {
     inputYearChangedInfo.innerText += eventData.info;
   }
 });
 
-fullYearCalendar.viewModel.on("selectedDays::RejectedChange", eventData => {
+fullYearCalendar.viewModel.on("selectedDates::RejectedChange", eventData => {
   inputYearChangedInfo.innerText = eventData.cancelReason.message;
 });
 

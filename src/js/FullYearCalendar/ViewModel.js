@@ -1,6 +1,5 @@
 import { PROPERTY_NAMES, REPRESENTATION_VALUES } from "./Enums.js";
 import * as Utils from "./Utils.js";
-import Day from "./Day.js";
 import EventDispatcher from "./Events/EventDispatcher.js";
 import EventData from "./Events/EventData.js";
 
@@ -109,7 +108,7 @@ export default class ViewModel extends EventDispatcher {
       this._updatePropsAndDispatchEvents(
         "currentYear",
         eventData,
-        this._updateDaysArray
+        this._updateDatesArray
       );
     } else {
       console.warn(`The year is invalid: ${value}`);
@@ -232,45 +231,46 @@ export default class ViewModel extends EventDispatcher {
   }
 
   /**
-   * Stores all the selected days.
+   * Stores all the selected dates.
    *
    * @type {Array}
    * @memberof ViewModel
    */
-  get selectedDays() {
-    return this._selectedDays;
+  get selectedDates() {
+    return this._selectedDates;
   }
 
-  set selectedDays(value) {
-    const daysToSelect = value || [];
-    const newSelectedDays = Array.isArray(this._selectedDays)
-      ? Array.from(this._selectedDays)
+  set selectedDates(value) {
+    const datesToSelect = value || [];
+    const newSelectedDates = Array.isArray(this._selectedDates)
+      ? Array.from(this._selectedDates)
       : [];
 
-    daysToSelect.forEach(day => {
-      if (newSelectedDays.indexOf(day) === -1) {
-        newSelectedDays.push(day);
+    datesToSelect.forEach(date => {
+      const dateIndex = Utils.findIndexArray(newSelectedDates, date);
+      if (dateIndex === -1) {
+        newSelectedDates.push(date);
       } else {
-        newSelectedDays.splice(newSelectedDays.indexOf(day), 1);
+        newSelectedDates.splice(dateIndex, 1);
       }
     });
 
-    const eventData = new EventData(newSelectedDays, this._selectedDays);
-    this._updatePropsAndDispatchEvents("selectedDays", eventData);
+    const eventData = new EventData(newSelectedDates, this._selectedDates);
+    this._updatePropsAndDispatchEvents("selectedDates", eventData);
   }
 
   /**
-   * Stores all the days shown in the calendar for the currently visible year.
+   * Stores all the dates shown in the calendar for the currently visible year.
    *
-   * @type {Array.<Day>}
+   * @type {Array}
    * @memberof ViewModel
    */
-  get days() {
-    return this._days;
+  get dates() {
+    return this._dates;
   }
 
-  set days(value) {
-    this._days = value || [];
+  set dates(value) {
+    this._dates = value || [];
   }
 
   // #endregion  Getters and Setters
@@ -291,8 +291,8 @@ export default class ViewModel extends EventDispatcher {
       this.locale,
       REPRESENTATION_VALUES.NARROW
     );
-    this.days = this._createDaysArray();
-    this._selectedDays = [];
+    this.dates = this._createDatesArray();
+    this._selectedDates = [];
   };
 
   /**
@@ -390,13 +390,13 @@ export default class ViewModel extends EventDispatcher {
   };
 
   /**
-   * Creates the array of days to be displayed on the calendar in the currently selected year.
+   * Creates the array of dates to be displayed on the calendar in the currently selected year.
    *
    * @private
    * @memberof ViewModel
    */
-  _createDaysArray = () => {
-    const updatedDays = [];
+  _createDatesArray = () => {
+    const updatedDates = [];
 
     for (let currentMonth = 0; currentMonth < 12; currentMonth += 1) {
       // Gets the first day of the month so we know in which cell the month should start
@@ -413,27 +413,21 @@ export default class ViewModel extends EventDispatcher {
       );
 
       for (let iDay = 0; iDay < lastDayOfMonth; iDay += 1) {
-        const day = new Day(
-          currentMonth,
-          iDay + firstDayOfMonth,
-          new Date(this.currentYear, currentMonth, iDay + 1)
-        );
-
-        updatedDays.push(day);
+        updatedDates.push(new Date(this.currentYear, currentMonth, iDay + 1));
       }
     }
 
-    return updatedDays;
+    return updatedDates;
   };
 
   /**
-   * Updates the array of days to be displayed on the calendar in the currently selected year.
+   * Updates the array of dates to be displayed on the calendar in the currently selected year.
    *
    * @private
    * @memberof ViewModel
    */
-  _updateDaysArray = () => {
-    this.days = this._createDaysArray();
+  _updateDatesArray = () => {
+    this.dates = this._createDatesArray();
   };
 
   /**
@@ -586,9 +580,9 @@ export default class ViewModel extends EventDispatcher {
    *
    * @memberof ViewModel
    */
-  changeDayPointed = (day, x, y) => {
-    if (day && !Number.isNaN(x) && !Number.isNaN(y)) {
-      const eventData = new EventData({ day, x, y }, null);
+  changeDayPointed = (date, x, y) => {
+    if (date && !Number.isNaN(x) && !Number.isNaN(y)) {
+      const eventData = new EventData({ date, x, y }, null);
       this._updatePropsAndDispatchEvents("dayPointed", eventData);
     } else {
       console.warn(`Something went wrong while pointed at the day`);

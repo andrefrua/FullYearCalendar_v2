@@ -1,4 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
+import { convertDateToISOWihoutTimezone } from "../../src/js/FullYearCalendar/Utils.js";
 
 const divFullYearCalendar = document.getElementById("divFullYearCalendar");
 const btnGetSelectedDays = document.getElementById("btnGetSelectedDays");
@@ -8,8 +9,8 @@ const fullYearCalendar = new Calendar(divFullYearCalendar, {});
 
 btnGetSelectedDays.onclick = () => {
   divListSelectedDays.innerText = JSON.stringify(
-    fullYearCalendar.viewModel.selectedDays.map(day =>
-      day.getISOFormattedDate()
+    fullYearCalendar.viewModel.selectedDates.map(date =>
+      convertDateToISOWihoutTimezone(date)
     )
   );
 };

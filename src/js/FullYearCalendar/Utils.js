@@ -159,3 +159,23 @@ export const getWeekdayNamesList = (
  */
 export const objectHasProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property);
+
+/**
+ * Checks if the object has a property.
+ *
+ * @param {Array} array - The array where the search should be made.
+ * @param {object} toFind - The value to be searched on the array.
+ * @returns {number} The index where the value was found on the array, -1 will be returned if the value wasn't found.
+ *
+ * @static
+ * @memberof Utils
+ */
+export const findIndexArray = (array, toFind) => {
+  const toFindType = Object.prototype.toString.call(toFind);
+  if (toFindType === "[object Date]") {
+    return array.findIndex(value => value.getTime() === toFind.getTime());
+  }
+  // eslint-disable-next-line no-console
+  console.warn("Unsupported type");
+  return -1;
+};

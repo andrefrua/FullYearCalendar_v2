@@ -1,4 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
+import { convertDateToISOWihoutTimezone } from "../../src/js/FullYearCalendar/Utils.js";
 
 const btnAddSelectedDaysToBelowCalendar = document.getElementById(
   "btnAddSelectedDaysToBelowCalendar"
@@ -96,9 +97,9 @@ const fullYearCalendar2 = new Calendar(divFullYearCalendar2, configObj2);
 btnAddSelectedDaysToBelowCalendar.onclick = event => {
   event.preventDefault();
 
-  const importedDaysFromCalendar1 = fullYearCalendar1.viewModel.selectedDays.map(day =>
-    day.getISOFormattedDate()
-  )
+  const importedDaysFromCalendar1 = fullYearCalendar1.viewModel.selectedDates.map(
+    date => convertDateToISOWihoutTimezone(date)
+  );
 
   const customDates = {
     importedDay: {
@@ -114,15 +115,15 @@ btnAddSelectedDaysToBelowCalendar.onclick = event => {
 btnReplaceSelectedDaysOnBelowCalendar.onclick = event => {
   event.preventDefault();
 
-  const selectedDays1 = fullYearCalendar1.viewModel.selectedDays.map(day =>
-    day.getISOFormattedDate()
+  const selectedDates1 = fullYearCalendar1.viewModel.selectedDates.map(date =>
+    convertDateToISOWihoutTimezone(date)
   );
 
   const customDates = {
     selectedDays: {
       caption: "Selected days from Calendar 1",
       cssClass: "importedDay",
-      values: selectedDays1
+      values: selectedDates1
     }
   };
 
@@ -131,6 +132,7 @@ btnReplaceSelectedDaysOnBelowCalendar.onclick = event => {
 
 btnDestroyCalendar1.onclick = event => {
   event.preventDefault();
+
   if (confirm("Are you sure you want to destroy the first calendar?")) {
     fullYearCalendar1.dispose();
   }

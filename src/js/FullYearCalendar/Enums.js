@@ -32,6 +32,7 @@ export const CSS_CLASS_NAMES = {
   MONTH_NAME: "fyc-month-name",
   WEEK_DAY_NAME: "fyc-week-day-name",
   MONTH_ROW: "fyc-month-row",
+  MONTH_ROW_DAY_NAMES: "fyc-month-row-day-names",
   EMPTY_DAY: "fyc-empty-day",
   DEFAULT_DAY: "fyc-default-day",
   SELECTED_DAY: "fyc-selected-day",
