@@ -24,7 +24,7 @@ export const PropertyNames = Object.freeze([
 ]);
 
 /**
- * Css class names for the calendar elements. These classes can be used to change the calendar appearance.
+ * CSS class names for the calendar elements. These classes can be used to change the calendar appearance.
  *
  * @type {Object.<string, string>}
  * @const

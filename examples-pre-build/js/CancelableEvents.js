@@ -1,5 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
-import { findIndexArray } from "../../src/js/FullYearCalendar/Utils.js";
+import { findIndexArray } from "../../src/js/FullYearCalendar/utils.js";
 
 const inputYearChangedInfo = document.getElementById("inputYearChangedInfo");
 const btnGoToYear = document.getElementById("btnGoToYear");

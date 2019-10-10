@@ -10,10 +10,10 @@
  */
 
 import ViewModel from "./ViewModel.js";
-import * as Utils from "./Utils.js";
+import * as utils from "./utils.js";
 import Dom from "./Dom.js";
 import EventHandlers from "./Events/EventHandlers.js";
-import { CssClassNames } from "./Enums.js";
+import { CssClassNames } from "./enums.js";
 
 /**
  * Used to highlight important events for specific dates throughout a specified year.
@@ -189,7 +189,7 @@ export default class Calendar {
           const startDate = new Date(auxPeriod.start);
           const endDate = new Date(auxPeriod.end);
 
-          const isInPeriod = Utils.isDateInPeriod(
+          const isInPeriod = utils.isDateInPeriod(
             startDate,
             endDate,
             date,
@@ -290,7 +290,7 @@ export default class Calendar {
 
     // Removes the selection for the days that are not selected anymore
     oldSelectedDates.forEach(date => {
-      if (Utils.findIndexArray(newSelectedDates, date) === -1) {
+      if (utils.findIndexArray(newSelectedDates, date) === -1) {
         this._dom.setDaySelection(date, false);
       }
     });
@@ -330,7 +330,7 @@ export default class Calendar {
 
     dayDomElement.setAttribute(
       "title",
-      Utils.convertDateToISOWihoutTimezone(date)
+      utils.convertDateToISOWihoutTimezone(date)
     );
   };
 
@@ -417,12 +417,12 @@ export default class Calendar {
     if (this.__multiSelectInfo.startDate) {
       const { dates } = this.viewModel;
 
-      const startDateIndex = Utils.findIndexArray(
+      const startDateIndex = utils.findIndexArray(
         dates,
         this.__multiSelectInfo.startDate
       );
 
-      const currentDateIndex = Utils.findIndexArray(dates, date);
+      const currentDateIndex = utils.findIndexArray(dates, date);
 
       // Filters the dates that are between the startDate index and the current date index or vice-versa
       this.__multiSelectInfo.dates = dates.filter((dateToFilter, index) => {

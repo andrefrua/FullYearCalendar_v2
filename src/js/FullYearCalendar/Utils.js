@@ -1,4 +1,4 @@
-import { RepresentationValues } from "./Enums.js";
+import { RepresentationValues } from "./enums.js";
 
 /**
  * Changes the year of the received date to the specified year.

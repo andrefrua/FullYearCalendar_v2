@@ -1,6 +1,6 @@
-import * as DomUtils from "./DomUtils.js";
-import { getMonthFirstDay } from "./Utils.js";
-import { CssClassNames } from "./Enums.js";
+import * as domUtils from "./domUtils.js";
+import { getMonthFirstDay } from "./utils.js";
+import { CssClassNames } from "./enums.js";
 
 /**
  * Stores all the information related to the actual DOM needed to represent the Calendar.
@@ -122,19 +122,19 @@ export default class Dom {
       // Adds the week days name container if `showWeekDaysNameEachMonth` is set to true
       const weekDayNamesContainer = this._createWeekDayNamesElement(true);
       this._addDayName(weekDayNamesContainer);
-      DomUtils.addElement(monthContainer, weekDayNamesContainer);
+      domUtils.addElement(monthContainer, weekDayNamesContainer);
 
       // Adds the days elements to the month container
       this._addDay(iMonth, monthContainer);
 
-      DomUtils.addElement(
+      domUtils.addElement(
         monthNameContainer,
         this._createMonthNameElement(iMonth)
       );
-      DomUtils.addElement(this.mainContainer, monthNameContainer);
+      domUtils.addElement(this.mainContainer, monthNameContainer);
 
-      DomUtils.addElement(this.mainContainer, monthContainer);
-      DomUtils.addElement(this.mainContainer, clearFixElement);
+      domUtils.addElement(this.mainContainer, monthContainer);
+      domUtils.addElement(this.mainContainer, clearFixElement);
     }
     if (!this.viewModel.showWeekDaysNameEachMonth) {
       this._addWeekDayNameOnTop();
@@ -213,8 +213,8 @@ export default class Dom {
         weekElement = this._createWeekElement(true);
       }
 
-      DomUtils.addElement(weekElement, this._createDayNameElement(iDay));
-      DomUtils.addElement(monthContainer, weekElement);
+      domUtils.addElement(weekElement, this._createDayNameElement(iDay));
+      domUtils.addElement(monthContainer, weekElement);
     }
   };
 
@@ -289,11 +289,11 @@ export default class Dom {
         weekElement = this._createWeekElement();
       }
 
-      DomUtils.addElement(
+      domUtils.addElement(
         weekElement,
         this._createDayElement(monthIndex, iDay)
       );
-      DomUtils.addElement(monthContainer, weekElement);
+      domUtils.addElement(monthContainer, weekElement);
     }
   };
 
@@ -378,16 +378,16 @@ export default class Dom {
     this._addDayName(weekDayNamesContainer);
 
     // Adding the actual elements to the dom
-    DomUtils.addElement(monthContainer, weekDayNamesContainer);
-    DomUtils.addElement(weekDayNamesOnTopContainer, monthNameContainer);
-    DomUtils.addElement(weekDayNamesOnTopContainer, monthContainer);
-    DomUtils.addElement(
+    domUtils.addElement(monthContainer, weekDayNamesContainer);
+    domUtils.addElement(weekDayNamesOnTopContainer, monthNameContainer);
+    domUtils.addElement(weekDayNamesOnTopContainer, monthContainer);
+    domUtils.addElement(
       weekDayNamesOnTopContainer,
       this._createClearFixElement()
     );
 
     // Adds the names to the top of the main Calendar container
-    DomUtils.addElementOnTop(this.mainContainer, weekDayNamesOnTopContainer);
+    domUtils.addElementOnTop(this.mainContainer, weekDayNamesOnTopContainer);
   };
 
   /**
@@ -439,7 +439,7 @@ export default class Dom {
     navToolbarWrapper.appendChild(divBlockNavRightButton);
 
     // Add the toolbar to the top of the main container
-    DomUtils.addElementOnTop(this.mainContainer, navToolbarWrapper);
+    domUtils.addElementOnTop(this.mainContainer, navToolbarWrapper);
   };
 
   /**
@@ -456,7 +456,7 @@ export default class Dom {
     legendContainer.className = CssClassNames.legendContainer;
     this.legendContainer = legendContainer;
 
-    DomUtils.addElement(this.mainContainer, legendContainer);
+    domUtils.addElement(this.mainContainer, legendContainer);
 
     this.updateLegendElements();
   };
@@ -488,11 +488,11 @@ export default class Dom {
       divPropertyDefaultDayContainer.className = CssClassNames.legendPropertyDay;
       divPropertyDefaultDayContainer.style.display = "table-cell";
 
-      DomUtils.addElement(
+      domUtils.addElement(
         divPropertyDefaultDayContainer,
         divPropertyDefaultDay
       );
-      DomUtils.addElement(this.legendContainer, divPropertyDefaultDayContainer);
+      domUtils.addElement(this.legendContainer, divPropertyDefaultDayContainer);
 
       // Property caption
       const divPropertyCaption = document.createElement("div");
@@ -511,14 +511,14 @@ export default class Dom {
       divPropertyCaption.style.display = "table-cell";
       divPropertyCaption.style.verticalAlign = "middle";
 
-      DomUtils.addElement(this.legendContainer, divPropertyCaption);
+      domUtils.addElement(this.legendContainer, divPropertyCaption);
 
       if (vm.legendStyle === "Block") {
         const divClearBoth = document.createElement("div");
         divClearBoth.className = CssClassNames.legendVerticalClear;
         divClearBoth.style.clear = "both";
 
-        DomUtils.addElement(this.legendContainer, divClearBoth);
+        domUtils.addElement(this.legendContainer, divClearBoth);
       }
     });
   };
@@ -544,19 +544,19 @@ export default class Dom {
   _changeToNormalView = () => {
     const vm = this.viewModel;
 
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       "[fyc-default-day], .has-fyc-default-day",
       "width",
       `${vm.dayWidth}px`
     );
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       "[fyc-week-day-name], .has-fyc-week-day-name",
       "width",
       `${vm.dayWidth}px`
     );
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".weekContainer.weekDay:nth-child(n+2)",
       "display",
@@ -565,13 +565,13 @@ export default class Dom {
 
     // Hides the dummy days because on big format they aren"t needed.
     // NOTE: The order between the hideInMobile and fyc_isdummyday can"t be changed or it won"t work
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".hideInMobile",
       "display",
       "table-cell"
     );
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       "[fyc_isdummyday], .has-fyc_isdummyday",
       "display",
@@ -580,20 +580,20 @@ export default class Dom {
 
     // WeekDays names handling
     if (!this.viewModel.showWeekDaysNameEachMonth) {
-      DomUtils.updateElementsStylePropertyBySelector(
+      domUtils.updateElementsStylePropertyBySelector(
         this.mainContainer,
         ".divWeekDayNamesMonthly",
         "display",
         "none"
       );
     }
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".divWeekDayNamesYearly",
       "display",
       "block"
     );
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".monthName",
       "text-align",
@@ -618,20 +618,20 @@ export default class Dom {
     const currentContainerWidth = this.mainContainer.offsetWidth;
 
     // Total width divided by six because the month container can have up to 6 weeks
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       "[fyc-default-day], .has-fyc-default-day",
       "width",
       `${currentContainerWidth / 6}px`
     );
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       "[fyc-week-day-name], .has-fyc-week-day-name",
       "width",
       `${currentContainerWidth / 6}px`
     );
 
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".weekContainer.weekDay:nth-child(n+2)",
       "display",
@@ -640,14 +640,14 @@ export default class Dom {
 
     // Shows the dummy days because on small format they are needed -
     // NOTE: The order between the hideInMobile and fyc_isdummyday can"t be changed or it won"t work
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       "[fyc_isdummyday], .has-fyc_isdummyday",
       "display",
       "table-cell"
     );
 
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".hideInMobile",
       "display",
@@ -655,19 +655,19 @@ export default class Dom {
     );
 
     // WeekDays names handling
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".divWeekDayNamesMonthly",
       "display",
       "block"
     );
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".divWeekDayNamesYearly",
       "display",
       "none"
     );
-    DomUtils.updateElementsStylePropertyBySelector(
+    domUtils.updateElementsStylePropertyBySelector(
       this.mainContainer,
       ".monthName",
       "text-align",
