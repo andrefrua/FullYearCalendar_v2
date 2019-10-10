@@ -103,16 +103,13 @@ export default class ViewModel extends EventDispatcher {
         ? value
         : new Date().getFullYear();
 
-    if (newCurrentYear) {
-      const eventData = new EventData(newCurrentYear, this.currentYear);
-      this._updatePropsAndDispatchEvents(
-        "currentYear",
-        eventData,
-        this._updateDatesArray
-      );
-    } else {
-      console.warn(`The year is invalid: ${value}`);
-    }
+    
+    const eventData = new EventData(newCurrentYear, this.currentYear);
+    this._updatePropsAndDispatchEvents(
+      "currentYear",
+      eventData,
+      this._updateDatesArray
+    );
   }
 
   /**
