@@ -78,20 +78,11 @@ export default class Calendar {
 
     this._addEventListeners();
 
-    this.viewModel.on(
-      "selectedDates::DidChange",
-      this._selectedDatesDidChangeHandler.bind(this)
-    );
-    this.viewModel.on(
-      "currentYear::DidChange",
-      this._currentYearDidChangeHandler.bind(this)
-    );
+    this.viewModel.on("selectedDates::DidChange", this._selectedDatesDidChangeHandler.bind(this));
+    this.viewModel.on("currentYear::DidChange", this._currentYearDidChangeHandler.bind(this));
     this.viewModel.on("settings::DidChange", this._refresh.bind(this));
     this.viewModel.on("customDates::DidChange", this._render.bind(this));
-    this.viewModel.on(
-      "dayPointed::DidChange",
-      this._dayPointedDidChangeHandler.bind(this)
-    );
+    this.viewModel.on("day::DidPoint", this._dayDidPointHandler.bind(this));
   };
 
   /**
@@ -319,19 +310,16 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _dayPointedDidChangeHandler = event => {
-    const { date } = event.newValue;
-    // Get the dom element for day
-    const dayDomElement = this._dom.getDayElement(date);
+  _dayDidPointHandler = event => {
+    const {day} = event;
 
+    // Get the dom element for day
+    const dayDomElement = this._dom.getDayElement(day);
     if (!dayDomElement) {
       return;
     }
 
-    dayDomElement.setAttribute(
-      "title",
-      utils.convertDateToISOWihoutTimezone(date)
-    );
+    dayDomElement.setAttribute("title", utils.convertDateToISOWihoutTimezone(day));
   };
 
   /**

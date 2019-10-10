@@ -2,12 +2,14 @@ import { PropertyNames, RepresentationValues } from "./enums.js";
 import * as utils from "./utils.js";
 import EventSource from "./events/EventSource.js";
 import ChangeEvent from "./events/ChangeEvent.js";
+import PointEvent from "./events/PointEvent.js";
 
 /**
  * ViewModel class for the FullYearCalendar.
  *
  * @export
  * @class ViewModel
+ * @extends EventSource
  */
 export default class ViewModel extends EventSource {
   /**
@@ -104,12 +106,7 @@ export default class ViewModel extends EventSource {
         : new Date().getFullYear();
 
     
-    const event = new ChangeEvent(newCurrentYear, this.currentYear);
-    this._updatePropsAndDispatchEvents(
-      "currentYear",
-      event,
-      this._updateDatesArray
-    );
+    this._setProp("currentYear", newCurrentYear, this._updateDatesArray);
   }
 
   /**
@@ -252,8 +249,7 @@ export default class ViewModel extends EventSource {
       }
     });
 
-    const event = new ChangeEvent(newSelectedDates, this._selectedDates);
-    this._updatePropsAndDispatchEvents("selectedDates", event);
+    this._setProp("selectedDates", newSelectedDates);
   }
 
   /**
@@ -454,36 +450,74 @@ export default class ViewModel extends EventSource {
    */
   _replaceCustomDates = newCustomDates => {
     this.customDates = this._normalizeCustomDates(newCustomDates);
-  };
+  }
 
   /**
-   * Triggers `::WillChange` event for the received ViewModel property and if the event is not canceled, then the
-   * property will be updated and a `::DidChange` event will be triggered.
+   * Sets a property of the view model and dispatches corresponding events.
    *
    * @param {string} propName - The name of the property to be updated.
-   * @param {Object} event - The object container the event information, including the `newValue` to be applied to
-   * the property.
+   * @param {*} newValue - The new value of the property.
+   * @param {?function} [onChangeDidCallback] - A handler to call after the property has been changed, 
+   *  yet before dispatching the `<propName>::DidChange` event.
+   * @memberof ViewModel#
    * @private
-   * @memberof ViewModel
    */
-  _updatePropsAndDispatchEvents = (
-    propName,
-    event,
-    afterPropChangeCallback
-  ) => {
-    this.dispatch(`${propName}::WillChange`, event);
+  _setProp = (propName, newValue, onChangeDidCallback) => {
+    
+    const oldValue = this[propName];
 
-    if (!event.isCanceled) {
-      this[`_${propName}`] = event.newValue;
-      if (
-        afterPropChangeCallback &&
-        typeof afterPropChangeCallback === "function"
-      ) {
-        afterPropChangeCallback();
+    if(newValue !== oldValue) {
+      const event = new ChangeEvent(newValue, oldValue);
+    
+      this._dispatchAction(propName, "Change", event, () => {
+
+        if(event.newValue === oldValue) {
+          event.cancel("No Change.");
+        } else {
+          this[`_${propName}`] = event.newValue;
+          
+          if(onChangeDidCallback != null) {
+            try {
+              onChangeDidCallback();
+            } catch(ex) {
+              // Rolback.
+              this[`_${propName}`] = oldValue;
+              throw ex;
+            }
+          }
+        }
+      });
+    }
+  }
+
+  /**
+   * Dispatches a `<subject>::Will<Action>` event and, if the event is not canceled, 
+   * then the action is commited and a `<subject>::Did<Action>` event is dispatched.
+   * Otherwise, a `<subject>::Rejected<Action>` event is dispatched.
+   *
+   * @param {string} subject - The name of the subject, in camel Case, to be acted upon.
+   * @param {string} action - The name of the action, in Pascal Case.
+   * @param {Object} event - The event information.
+   * @param {?function(Event)} [doAction] - A function that performs the action.
+   * @memberof ViewModel#
+   * @private
+   */
+  _dispatchAction = (subject, action, event, doAction) => {
+
+    this.dispatch(`${subject}::Will${action}`, event);
+
+    if (doAction && !event.isCanceled) {
+      try {
+        doAction();
+      } catch(ex) {
+        event.cancel(ex);
       }
-      this.dispatch(`${propName}::DidChange`, event);
+    }
+
+    if (event.isCanceled) {
+      this.dispatch(`${subject}::Rejected${action}`, event);
     } else {
-      this.dispatch(`${propName}::RejectedChange`, event);
+      this.dispatch(`${subject}::Did${action}`, event);
     }
   };
 
@@ -579,8 +613,10 @@ export default class ViewModel extends EventSource {
    */
   changeDayPointed = (date, x, y) => {
     if (date && !Number.isNaN(x) && !Number.isNaN(y)) {
-      const event = new ChangeEvent({ date, x, y }, null);
-      this._updatePropsAndDispatchEvents("dayPointed", event);
+
+      const event = new PointEvent(date, x, y);
+
+      this._dispatchAction("day", "Point", event);
     } else {
       console.warn(`Something went wrong while pointed at the day`);
     }
