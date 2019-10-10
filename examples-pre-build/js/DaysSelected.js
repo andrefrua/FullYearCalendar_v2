@@ -1,5 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
-import { convertDateToISOWihoutTimezone } from "../../src/js/FullYearCalendar/Utils.js";
+import { convertDateToISOWihoutTimezone } from "../../src/js/FullYearCalendar/utils.js";
 
 const divFullYearCalendar = document.getElementById("divFullYearCalendar");
 const btnGetSelectedDays = document.getElementById("btnGetSelectedDays");

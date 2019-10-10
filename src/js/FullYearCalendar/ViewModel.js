@@ -1,5 +1,5 @@
-import { PropertyNames, RepresentationValues } from "./Enums.js";
-import * as Utils from "./Utils.js";
+import { PropertyNames, RepresentationValues } from "./enums.js";
+import * as utils from "./utils.js";
 import EventDispatcher from "./Events/EventDispatcher.js";
 import EventData from "./Events/EventData.js";
 
@@ -247,7 +247,7 @@ export default class ViewModel extends EventDispatcher {
       : [];
 
     datesToSelect.forEach(date => {
-      const dateIndex = Utils.findIndexArray(newSelectedDates, date);
+      const dateIndex = utils.findIndexArray(newSelectedDates, date);
       if (dateIndex === -1) {
         newSelectedDates.push(date);
       } else {
@@ -283,11 +283,11 @@ export default class ViewModel extends EventDispatcher {
    * @memberof ViewModel
    */
   _updateFixedProperties = () => {
-    this.monthNames = Utils.getMonthNamesList(
+    this.monthNames = utils.getMonthNamesList(
       this.locale,
       RepresentationValues.long
     );
-    this.weekDayNames = Utils.getWeekdayNamesList(
+    this.weekDayNames = utils.getWeekdayNamesList(
       this.locale,
       RepresentationValues.narrow
     );
@@ -313,7 +313,7 @@ export default class ViewModel extends EventDispatcher {
     Object.keys(customDates).forEach(property => {
       // Checks that the property actually exists in the object and has a values property inside.
       if (
-        Utils.objectHasProperty(customDates, property) &&
+        utils.objectHasProperty(customDates, property) &&
         customDates[property].values
       ) {
         // We need to check the 3 possible ways to create a CustomDate.
@@ -323,8 +323,8 @@ export default class ViewModel extends EventDispatcher {
         // 1 - If the values property is an Object then we should check for the start and end properties (Range).
         if (
           values.constructor === Object &&
-          Utils.objectHasProperty(values, "start") &&
-          Utils.objectHasProperty(values, "end")
+          utils.objectHasProperty(values, "start") &&
+          utils.objectHasProperty(values, "end")
         ) {
           const startDate = new Date(values.start);
           const endDate = new Date(values.end);
@@ -400,14 +400,14 @@ export default class ViewModel extends EventDispatcher {
 
     for (let currentMonth = 0; currentMonth < 12; currentMonth += 1) {
       // Gets the first day of the month so we know in which cell the month should start
-      const firstDayOfMonth = Utils.getMonthFirstDay(
+      const firstDayOfMonth = utils.getMonthFirstDay(
         this.currentYear,
         currentMonth,
         this.weekStartDay
       );
 
       // Calculate the last day of the month
-      const lastDayOfMonth = Utils.getMonthLastDay(
+      const lastDayOfMonth = utils.getMonthLastDay(
         this.currentYear,
         currentMonth
       );
