@@ -117,7 +117,7 @@ export default class ViewModel extends EventSource {
         : new Date().getFullYear();
 
     
-    this._setProp("currentYear", newCurrentYear, this._updateDatesArray);
+    this._setProp("currentYear", newCurrentYear, this._updateDatesArray.bind(this));
   }
 
   /**
@@ -264,8 +264,9 @@ export default class ViewModel extends EventSource {
 
     const datesToSelect = value || [];
 
+    // Create a copy of the currently selected dates.
     const newSelectedDates = Array.isArray(this._selectedDates)
-      ? this._selectedDates
+      ? Array.from(this._selectedDates)
       : [];
 
     datesToSelect.forEach(date => {
