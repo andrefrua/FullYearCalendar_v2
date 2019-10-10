@@ -1,6 +1,6 @@
 import { PropertyNames, RepresentationValues } from "./enums.js";
 import * as utils from "./utils.js";
-import EventDispatcher from "./events/EventDispatcher.js";
+import EventSource from "./events/EventSource.js";
 import ChangeEvent from "./events/ChangeEvent.js";
 
 /**
@@ -9,7 +9,7 @@ import ChangeEvent from "./events/ChangeEvent.js";
  * @export
  * @class ViewModel
  */
-export default class ViewModel extends EventDispatcher {
+export default class ViewModel extends EventSource {
   /**
    * Creates an instance of ViewModel.
    *
