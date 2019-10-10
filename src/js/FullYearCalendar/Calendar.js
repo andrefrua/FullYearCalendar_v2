@@ -12,7 +12,7 @@
 import ViewModel from "./ViewModel.js";
 import * as utils from "./utils.js";
 import Dom from "./Dom.js";
-import EventHandlers from "./events/EventHandlers.js";
+import DomEventHandlers from "./events/DomEventHandlers.js";
 import { CssClassNames } from "./enums.js";
 
 /**
@@ -35,7 +35,7 @@ export default class Calendar {
     // Object that stores the DOM elements needed by the Calendar.
     this._dom = new Dom(domElement, this.viewModel);
     // Array that will store all the eventListeners needed for the Calendar to work.
-    this._eventHandlers = new EventHandlers();
+    this._eventHandlers = new DomEventHandlers();
 
     // Object that stores the information related to the mouse down event.
     this.__multiSelectInfo = {
