@@ -361,7 +361,7 @@ export default class Calendar {
           this._multiSelectStart(date);
           break;
         case "mouseover":
-          this.viewModel.changeDayPointed(date, event.x, event.y);
+          this.viewModel.pointDay(date, event.x, event.y);
           this._multiSelectAdd(date);
           break;
         case "mouseup":
