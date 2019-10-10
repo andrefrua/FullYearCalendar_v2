@@ -648,7 +648,7 @@ export default class CalendarDom {
     // Hides the weekContainer that aren't necessary for each month
     for (let monthIndex = 0; monthIndex <= 11; monthIndex += 1) {
       // Fetch the last day in the month
-      const lastDayInMonth = this._viewModel.days
+      const lastDayInMonth = this._viewModel.dates
         .filter(auxDay => auxDay.monthIndex === monthIndex)
         .slice(-1)[0];
 
