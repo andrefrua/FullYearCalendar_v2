@@ -39,7 +39,7 @@ class EventHolder {
   }
 }
 
-export default class EventDispatcher {
+export default class EventSource {
   
   constructor() {
     this.__holders = new Map();
