@@ -25,7 +25,7 @@ class EventHolder {
     return false;
   }
 
-  fire = (data) => {
+  dispatch = (data) => {
     // Better use a clone of the handlers array, 
     // in case it changes while the loop is running.
     const callbacks = this.__handlers.slice(0);
@@ -74,7 +74,7 @@ export default class EventSource {
   dispatch = (name, event) => {
     const holder = this.__holders.get(name);
     if (holder !== undefined) {
-      holder.fire(event);
+      holder.dispatch(event);
     }
   }
 }
