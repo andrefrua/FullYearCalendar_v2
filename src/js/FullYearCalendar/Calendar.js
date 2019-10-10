@@ -235,28 +235,28 @@ export default class Calendar {
    * @memberof Calendar
    */
   _addEventListeners() {
-    this._eventHandlers.createAndAddListener(window, "resize", e =>
+    this._eventHandlers.addListener(window, "resize", e =>
       this._onResize(e)
     );
-    this._eventHandlers.createAndAddListener(window, "mouseup", e =>
+    this._eventHandlers.addListener(window, "mouseup", e =>
       this._onMouseUp(e)
     );
 
     // Calendar container listeners, essencially for days elements
-    this._eventHandlers.createAndAddListener(this._dom.domElement, "click", e =>
+    this._eventHandlers.addListener(this._dom.domElement, "click", e =>
       this._onCalendarEventTriggered(e)
     );
-    this._eventHandlers.createAndAddListener(
+    this._eventHandlers.addListener(
       this._dom.domElement,
       "mouseover",
       e => this._onCalendarEventTriggered(e)
     );
-    this._eventHandlers.createAndAddListener(
+    this._eventHandlers.addListener(
       this._dom.domElement,
       "mousedown",
       e => this._onCalendarEventTriggered(e)
     );
-    this._eventHandlers.createAndAddListener(
+    this._eventHandlers.addListener(
       this._dom.domElement,
       "mouseup",
       e => this._onCalendarEventTriggered(e)
@@ -264,12 +264,12 @@ export default class Calendar {
 
     // Other elements
     if (this.viewModel.showNavigationToolBar) {
-      this._eventHandlers.createAndAddListener(
+      this._eventHandlers.addListener(
         this._dom.buttonNavPreviousYear,
         "click",
         e => this.viewModel.decrementCurrentYear(e)
       );
-      this._eventHandlers.createAndAddListener(
+      this._eventHandlers.addListener(
         this._dom.buttonNavNextYear,
         "click",
         e => this.viewModel.incrementCurrentYear(e)
