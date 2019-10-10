@@ -280,13 +280,13 @@ export default class Calendar {
   /**
    * Handler triggered when the `selectedDates` property is changed.
    *
-   * @param {EventData} eventData - The event object with the information about the ViewModel change.
+   * @param {ChangeEvent} event - The event object with the information about the ViewModel change.
    *
    * @private
    * @memberof Calendar#
    */
-  _selectedDatesDidChangeHandler = eventData => {
-    const { newValue: newSelectedDates, oldValue: oldSelectedDates } = eventData;
+  _selectedDatesDidChangeHandler = event => {
+    const { newValue: newSelectedDates, oldValue: oldSelectedDates } = event;
 
     // Removes the selection for the days that are not selected anymore
     oldSelectedDates.forEach(date => {
@@ -304,12 +304,12 @@ export default class Calendar {
   /**
    * Handler triggered when the `viewModel.currentYear` property is changed.
    *
-   * @param {EventData} eventData - The event object with the information about the ViewModel change.
+   * @param {ChangeEvent} event - The event object with the information about the ViewModel change.
    * @private
    * @memberof Calendar
    */
   // eslint-disable-next-line no-unused-vars
-  _currentYearDidChangeHandler = eventData => {
+  _currentYearDidChangeHandler = event => {
     this._render();
   };
 

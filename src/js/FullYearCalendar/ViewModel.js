@@ -1,7 +1,7 @@
 import { PropertyNames, RepresentationValues } from "./enums.js";
 import * as utils from "./utils.js";
 import EventDispatcher from "./events/EventDispatcher.js";
-import EventData from "./events/EventData.js";
+import ChangeEvent from "./events/ChangeEvent.js";
 
 /**
  * ViewModel class for the FullYearCalendar.
@@ -104,10 +104,10 @@ export default class ViewModel extends EventDispatcher {
         : new Date().getFullYear();
 
     
-    const eventData = new EventData(newCurrentYear, this.currentYear);
+    const event = new ChangeEvent(newCurrentYear, this.currentYear);
     this._updatePropsAndDispatchEvents(
       "currentYear",
-      eventData,
+      event,
       this._updateDatesArray
     );
   }
@@ -252,8 +252,8 @@ export default class ViewModel extends EventDispatcher {
       }
     });
 
-    const eventData = new EventData(newSelectedDates, this._selectedDates);
-    this._updatePropsAndDispatchEvents("selectedDates", eventData);
+    const event = new ChangeEvent(newSelectedDates, this._selectedDates);
+    this._updatePropsAndDispatchEvents("selectedDates", event);
   }
 
   /**
@@ -461,29 +461,29 @@ export default class ViewModel extends EventDispatcher {
    * property will be updated and a `::DidChange` event will be triggered.
    *
    * @param {string} propName - The name of the property to be updated.
-   * @param {Object} eventData - The object container the event information, including the `newValue` to be applied to
+   * @param {Object} event - The object container the event information, including the `newValue` to be applied to
    * the property.
    * @private
    * @memberof ViewModel
    */
   _updatePropsAndDispatchEvents = (
     propName,
-    eventData,
+    event,
     afterPropChangeCallback
   ) => {
-    this.dispatch(`${propName}::WillChange`, eventData);
+    this.dispatch(`${propName}::WillChange`, event);
 
-    if (!eventData.isCanceled) {
-      this[`_${propName}`] = eventData.newValue;
+    if (!event.isCanceled) {
+      this[`_${propName}`] = event.newValue;
       if (
         afterPropChangeCallback &&
         typeof afterPropChangeCallback === "function"
       ) {
         afterPropChangeCallback();
       }
-      this.dispatch(`${propName}::DidChange`, eventData);
+      this.dispatch(`${propName}::DidChange`, event);
     } else {
-      this.dispatch(`${propName}::RejectedChange`, eventData);
+      this.dispatch(`${propName}::RejectedChange`, event);
     }
   };
 
@@ -579,8 +579,8 @@ export default class ViewModel extends EventDispatcher {
    */
   changeDayPointed = (date, x, y) => {
     if (date && !Number.isNaN(x) && !Number.isNaN(y)) {
-      const eventData = new EventData({ date, x, y }, null);
-      this._updatePropsAndDispatchEvents("dayPointed", eventData);
+      const event = new ChangeEvent({ date, x, y }, null);
+      this._updatePropsAndDispatchEvents("dayPointed", event);
     } else {
       console.warn(`Something went wrong while pointed at the day`);
     }

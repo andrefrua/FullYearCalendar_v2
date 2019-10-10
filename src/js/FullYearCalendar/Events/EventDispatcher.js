@@ -1,45 +1,80 @@
-import Event from "./Event.js";
 
-export default class EventDispatcher {
+/**
+ * @classdesc Internal class that manages the handlers of a certain event type.
+ * @class
+ */
+class EventHolder {
+  
   constructor() {
-    this.__events = {};
+    this.__handlers = [];
   }
 
-  dispatch = (eventName, data) => {
-    // Get the event from the list
-    const event = this.__events[eventName];
+  add = (handler) => {
+    this.__handlers.push(handler);
+  }
 
-    // Fire the event if it exists
-    if (event) {
-      event.fire(data);
-    }
-  };
-
-  on = (eventName, callback) => {
-    // Get the event from the events list
-    let event = this.__events[eventName];
-
-    // Create the event if it doesn't exist yet. NOTE: Maybe I should simply throw an error instead.
-    if (!event) {
-      event = new Event(eventName);
-      this.__events[eventName] = event;
+  remove = (handler) => {
+    // Get the handler index
+    const index = this.__handlers.indexOf(handler);
+    // If it exists remove it from the list
+    if (index > -1) {
+      this.__handlers.splice(index, 1);
+      return true;
     }
 
-    // Now let's add the callback to the event
-    event.registerCallback(callback);
-  };
+    return false;
+  }
 
-  off = (eventName, callback) => {
-    // Get the correct event
-    const event = this.__events[eventName];
+  fire = (data) => {
+    // Better use a clone of the handlers array, 
+    // in case it changes while the loop is running.
+    const callbacks = this.__handlers.slice(0);
 
-    // Check that both the event and the callback exists
-    if (event && event.callbacks.indexOf(callback) > -1) {
-      event.unregisterCallback(callback);
-      // If the event has no more callbacks, removed it
-      if (event.callbacks.length === 0) {
-        delete this.__events[eventName];
-      }
+    // Call each one of existing callbacks on the Event
+    callbacks.forEach(callback => callback(data));
+  }
+
+  get isEmpty() {
+    return this.__handlers.length > 0;
+  }
+}
+
+export default class EventDispatcher {
+  
+  constructor() {
+    this.__holders = new Map();
+  }
+
+  on = (name, handler) => {
+    let holder = this.__holders.get(name);
+    
+    // Create the holder if it doesn't exist yet.
+    if (holder === undefined) {
+      holder = new EventHolder();
+      this.__holders.set(name, holder);
     }
-  };
+
+    holder.add(handler);
+
+    return this;
+  }
+
+  off = (name, handler) => {
+    // Get the event holder from the event holders map.
+    const holder = this.__holders.get(name);
+
+    // Remove the holder altogether, if it becomes empty.
+    if (holder !== undefined && holder.remove(handler) && !holder.isEmpty) {
+      delete this.__holders[name];
+    }
+
+    return this;
+  }
+
+  dispatch = (name, event) => {
+    const holder = this.__holders.get(name);
+    if (holder !== undefined) {
+      holder.fire(event);
+    }
+  }
 }

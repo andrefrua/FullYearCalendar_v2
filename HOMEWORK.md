@@ -172,4 +172,4 @@ Utilitário complexidade constante (com cache)
 * Adição da fase RejectedChange (para além de WillChange e DidChange).
 	- DONE
 * Código na página HTML registar-se-ia no evento de rejeição para apresentar as mensagens no div de status
-	- DONE - Also added a info property to the EventData in case extra information need to be passed
+	- DONE - Also added a info property to the ChangeEvent in case extra information need to be passed
