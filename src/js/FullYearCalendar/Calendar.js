@@ -50,10 +50,10 @@ export default class Calendar {
   // #region Getters and Setters
 
   /**
-   * Object representing the ViewMdel used by the Calendar.
+   * Object representing the ViewModel used by the Calendar.
    *
-   * @type {Object}
-   * @memberof Calendar
+   * @type {ViewModel}
+   * @memberof Calendar#
    */
   get viewModel() {
     return this._viewModel;
@@ -97,7 +97,7 @@ export default class Calendar {
   /**
    * Refreshes the Calendar when the ViewModel object is changed.
    *
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _refresh = () => {
     // Removes all event handlers
@@ -116,7 +116,7 @@ export default class Calendar {
    * Renders the days and other needed parts of the dom.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _render = () => {
     this._renderDays();
@@ -143,7 +143,7 @@ export default class Calendar {
    * Renders the days in the Calendar container using the `viewModel.dates` array.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _renderDays = () => {
     const vm = this.viewModel;
@@ -176,7 +176,7 @@ export default class Calendar {
    * the property defined on the CustomDates object
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _applyCustomDateStyle = (customDates, date) => {
     let cssClassToApply = "";
@@ -232,7 +232,7 @@ export default class Calendar {
    * Adds all the event listeners to the elements using the private `eventListeners` object.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _addEventListeners() {
     this._eventHandlers.addListener(window, "resize", e =>
@@ -283,7 +283,7 @@ export default class Calendar {
    * @param {EventData} eventData - The event object with the information about the ViewModel change.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _selectedDatesDidChangeHandler = eventData => {
     const { newValue: newSelectedDates, oldValue: oldSelectedDates } = eventData;
@@ -317,7 +317,7 @@ export default class Calendar {
    * Handler triggered when the day that is being pointed at (hovered) changes.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _dayPointedDidChangeHandler = event => {
     const { date } = event.newValue;
@@ -341,7 +341,7 @@ export default class Calendar {
    * @param {Object} event - Event Object that triggered the event.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _onCalendarEventTriggered = event => {
     event.preventDefault();
@@ -376,7 +376,7 @@ export default class Calendar {
    * Handler for the _onResize event.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _onResize = () => {
     this._dom.fitToContainer();
@@ -389,7 +389,7 @@ export default class Calendar {
    * @param {Object} event - Object that triggered the event.
    *
    * @private
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   _onMouseUp = event => {
     event.preventDefault();
@@ -401,7 +401,7 @@ export default class Calendar {
    * Starts the multi selection mode by filling the `multiSelectedStartDate` property.
    *
    * @param {Date} date - Date where the mutli selection started.
-   * @memberof ViewModel
+   * @memberof Calendar#
    */
   _multiSelectStart = date => {
     this.__multiSelectInfo.startDate = date;
@@ -411,7 +411,7 @@ export default class Calendar {
    * Adds the date to the multi selection mode by adding the current date to the array.
    *
    * @param {Date} date - Date where the multi selection is happening.
-   * @memberof ViewModel
+   * @memberof Calendar#
    */
   _multiSelectAdd = date => {
     if (this.__multiSelectInfo.startDate) {
@@ -448,7 +448,7 @@ export default class Calendar {
    * Ends the multi selection mode.
    *
    * @param {Date} date - Date where the multi selection is ending.
-   * @memberof ViewModel
+   * @memberof Calendar#
    */
   // eslint-disable-next-line no-unused-vars
   _multiSelectEnd = (date) => {
@@ -474,7 +474,7 @@ export default class Calendar {
   /**
    * Clears any ongoing multi selection.
    *
-   * @memberof ViewModel
+   * @memberof Calendar#
    */
   _clearMultiSelection = () => {
     if (this.__multiSelectInfo.startDate !== null) {
@@ -497,7 +497,7 @@ export default class Calendar {
   /**
    * Destroys all the calendar Dom elements, objects and events.
    *
-   * @memberof Calendar
+   * @memberof Calendar#
    */
   dispose = () => {
     this._eventHandlers.removeAll();
