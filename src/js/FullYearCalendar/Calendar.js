@@ -12,7 +12,7 @@
 import ViewModel from "./ViewModel.js";
 import * as utils from "./utils.js";
 import Dom from "./Dom.js";
-import EventHandlers from "./Events/EventHandlers.js";
+import EventHandlers from "./events/EventHandlers.js";
 import { CssClassNames } from "./enums.js";
 
 /**
