@@ -1,7 +1,7 @@
 import { PropertyNames, RepresentationValues } from "./enums.js";
 import * as utils from "./utils.js";
-import EventDispatcher from "./Events/EventDispatcher.js";
-import EventData from "./Events/EventData.js";
+import EventDispatcher from "./events/EventDispatcher.js";
+import EventData from "./events/EventData.js";
 
 /**
  * ViewModel class for the FullYearCalendar.
