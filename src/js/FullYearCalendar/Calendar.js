@@ -11,9 +11,9 @@
 
 import ViewModel from "./ViewModel.js";
 import * as utils from "./utils.js";
-import Dom from "./Dom.js";
-import DomEventHandlers from "./events/DomEventHandlers.js";
+import CalendarDom from "./Dom.js";
 import { CssClassNames } from "./enums.js";
+import ResourceManager from "./ResourceManager.js";
 
 /**
  * Used to highlight important events for specific dates throughout a specified year.
@@ -31,11 +31,14 @@ export default class Calendar {
    * @memberof Calendar
    */
   constructor(domElement, settings = {}) {
+
     this.viewModel = new ViewModel(settings);
+
     // Object that stores the DOM elements needed by the Calendar.
-    this._dom = new Dom(domElement, this.viewModel);
+    this._dom = new CalendarDom(domElement, this.viewModel);
+    
     // Array that will store all the eventListeners needed for the Calendar to work.
-    this._eventHandlers = new DomEventHandlers();
+    this.__resourceMgr = new ResourceManager();
 
     // Object that stores the information related to the mouse down event.
     this.__multiSelectInfo = {
@@ -73,7 +76,7 @@ export default class Calendar {
    * @private
    * @memberof Calendar
    */
-  _init = () => {
+  _init() {
     this._dom.createStructure();
 
     this._addEventListeners();
@@ -83,16 +86,39 @@ export default class Calendar {
     this.viewModel.on("settings::DidChange", this._refresh.bind(this));
     this.viewModel.on("customDates::DidChange", this._render.bind(this));
     this.viewModel.on("day::DidPoint", this._dayDidPointHandler.bind(this));
-  };
+  }
+
+  /**
+   * Adds a listener to an event of a DOM node.
+   * 
+   * Additionally, registers a resource for later removing the event listener
+   * when the calendar is disposed of.
+   * 
+   * @param {HtmlNode} node - The node to add a listener to.
+   * @param {string} type - The type of event.
+   * @param {function} listener - The event listener.
+   * @private
+   */
+  __addDomEventListener(node, type, listener) {
+    
+    node.addEventListener(type, listener);
+
+    this.__resourceMgr.add({
+      dispose() {
+        node.removeEventListener(type, listener);
+      }
+    });
+  }
 
   /**
    * Refreshes the Calendar when the ViewModel object is changed.
    *
    * @memberof Calendar#
    */
-  _refresh = () => {
+  _refresh() {
     // Removes all event handlers
-    this._eventHandlers.removeAll();
+    this.__resourceMgr.disposeAll();
+
     // Clears the Dom and re-creates it with the correct settings
     this._dom.clear();
     this._dom.createStructure();
@@ -101,7 +127,7 @@ export default class Calendar {
     this._addEventListeners();
     // Renders the calendar
     this._render();
-  };
+  }
 
   /**
    * Renders the days and other needed parts of the dom.
@@ -109,13 +135,13 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _render = () => {
+  _render() {
     this._renderDays();
 
     this._dom.updateYear();
 
     this._refreshLegend();
-  };
+  }
 
   /**
    * Refreshes the legend container, clearing it's current content and adding the new values inside the CustomDates
@@ -124,11 +150,11 @@ export default class Calendar {
    * @private
    * @memberof Calendar
    */
-  _refreshLegend = () => {
-    if (this.viewModel.showLegend !== true) return;
+  _refreshLegend() {
+    if (!this.viewModel.showLegend) return;
 
     this._dom.updateLegendElements();
-  };
+  }
 
   /**
    * Renders the days in the Calendar container using the `viewModel.dates` array.
@@ -136,7 +162,7 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _renderDays = () => {
+  _renderDays() {
     const vm = this.viewModel;
 
     // Clears all the days elements
@@ -156,7 +182,7 @@ export default class Calendar {
         date
       );
     });
-  };
+  }
 
   /**
    * Checks the possible Custom dates that can be added to the Calendar.
@@ -169,7 +195,7 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _applyCustomDateStyle = (customDates, date) => {
+  _applyCustomDateStyle(customDates, date) {
     let cssClassToApply = "";
 
     // Loops through all the the properties in the CustomDates object.
@@ -217,7 +243,7 @@ export default class Calendar {
     }
 
     return cssClassToApply;
-  };
+  }
 
   /**
    * Adds all the event listeners to the elements using the private `eventListeners` object.
@@ -226,41 +252,26 @@ export default class Calendar {
    * @memberof Calendar#
    */
   _addEventListeners() {
-    this._eventHandlers.addListener(window, "resize", e =>
-      this._onResize(e)
-    );
-    this._eventHandlers.addListener(window, "mouseup", e =>
-      this._onMouseUp(e)
-    );
+    this.__addDomEventListener(window, "resize", e => this._onResize(e));
+    this.__addDomEventListener(window, "mouseup", e => this._onMouseUp(e));
 
     // Calendar container listeners, essencially for days elements
-    this._eventHandlers.addListener(this._dom.domElement, "click", e =>
-      this._onCalendarEventTriggered(e)
-    );
-    this._eventHandlers.addListener(
-      this._dom.domElement,
-      "mouseover",
-      e => this._onCalendarEventTriggered(e)
-    );
-    this._eventHandlers.addListener(
-      this._dom.domElement,
-      "mousedown",
-      e => this._onCalendarEventTriggered(e)
-    );
-    this._eventHandlers.addListener(
-      this._dom.domElement,
-      "mouseup",
-      e => this._onCalendarEventTriggered(e)
-    );
+    const domElement = this._dom.element;
+
+    this.__addDomEventListener(domElement, "click", e => this._onCalendarEvent(e));
+    this.__addDomEventListener(domElement, "mouseover", e => this._onCalendarEvent(e));
+    this.__addDomEventListener(domElement, "mousedown", e => this._onCalendarEvent(e));
+    this.__addDomEventListener(domElement, "mouseup", e => this._onCalendarEvent(e));
 
     // Other elements
     if (this.viewModel.showNavigationToolBar) {
-      this._eventHandlers.addListener(
+      this.__addDomEventListener(
         this._dom.buttonNavPreviousYear,
         "click",
         e => this.viewModel.decrementCurrentYear(e)
       );
-      this._eventHandlers.addListener(
+
+      this.__addDomEventListener(
         this._dom.buttonNavNextYear,
         "click",
         e => this.viewModel.incrementCurrentYear(e)
@@ -276,7 +287,7 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _selectedDatesDidChangeHandler = event => {
+  _selectedDatesDidChangeHandler(event) {
     const { newValue: newSelectedDates, oldValue: oldSelectedDates } = event;
 
     // Removes the selection for the days that are not selected anymore
@@ -290,7 +301,7 @@ export default class Calendar {
     this.viewModel.selectedDates.forEach(date => {
       this._dom.setDaySelection(date, true);
     });
-  };
+  }
 
   /**
    * Handler triggered when the `viewModel.currentYear` property is changed.
@@ -300,9 +311,9 @@ export default class Calendar {
    * @memberof Calendar
    */
   // eslint-disable-next-line no-unused-vars
-  _currentYearDidChangeHandler = event => {
+  _currentYearDidChangeHandler(event) {
     this._render();
-  };
+  }
 
   /**
    * Handler triggered when the day that is being pointed at (hovered) changes.
@@ -310,7 +321,7 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _dayDidPointHandler = event => {
+  _dayDidPointHandler(event) {
     const {day} = event;
 
     // Get the dom element for day
@@ -320,7 +331,7 @@ export default class Calendar {
     }
 
     dayDomElement.setAttribute("title", utils.convertDateToISOWihoutTimezone(day));
-  };
+  }
 
   /**
    * Handles the events that were triggered on the the Calendar main container.
@@ -331,7 +342,8 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _onCalendarEventTriggered = event => {
+  _onCalendarEvent(event) {
+
     event.preventDefault();
 
     const { srcElement } = event;
@@ -358,7 +370,7 @@ export default class Calendar {
         default:
       }
     }
-  };
+  }
 
   /**
    * Handler for the _onResize event.
@@ -366,9 +378,9 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _onResize = () => {
+  _onResize() {
     this._dom.fitToContainer();
-  };
+  }
 
   /**
    * Handles the mouseup event when triggered on the window object.
@@ -379,11 +391,11 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _onMouseUp = event => {
+  _onMouseUp(event) {
     event.preventDefault();
 
     this._clearMultiSelection();
-  };
+  }
 
   /**
    * Starts the multi selection mode by filling the `multiSelectedStartDate` property.
@@ -391,9 +403,9 @@ export default class Calendar {
    * @param {Date} date - Date where the mutli selection started.
    * @memberof Calendar#
    */
-  _multiSelectStart = date => {
+  _multiSelectStart(date) {
     this.__multiSelectInfo.startDate = date;
-  };
+  }
 
   /**
    * Adds the date to the multi selection mode by adding the current date to the array.
@@ -401,7 +413,7 @@ export default class Calendar {
    * @param {Date} date - Date where the multi selection is happening.
    * @memberof Calendar#
    */
-  _multiSelectAdd = date => {
+  _multiSelectAdd(date) {
     if (this.__multiSelectInfo.startDate) {
       const { dates } = this.viewModel;
 
@@ -430,7 +442,7 @@ export default class Calendar {
         this._dom.setDayMultiSelection(auxDate, true)
       );
     }
-  };
+  }
 
   /**
    * Ends the multi selection mode.
@@ -439,7 +451,7 @@ export default class Calendar {
    * @memberof Calendar#
    */
   // eslint-disable-next-line no-unused-vars
-  _multiSelectEnd = (date) => {
+  _multiSelectEnd(date) {
     if (
       this.__multiSelectInfo.startDate &&
       this.__multiSelectInfo.dates.length > 0
@@ -457,14 +469,14 @@ export default class Calendar {
         dates: []
       };
     }
-  };
+  }
 
   /**
    * Clears any ongoing multi selection.
    *
    * @memberof Calendar#
    */
-  _clearMultiSelection = () => {
+  _clearMultiSelection() {
     if (this.__multiSelectInfo.startDate !== null) {
       // Resets the mouse down information object
       this.__multiSelectInfo.startDate = null;
@@ -476,7 +488,7 @@ export default class Calendar {
 
       this.__multiSelectInfo.dates = [];
     }
-  };
+  }
 
   // #endregion Private methods
 
@@ -487,15 +499,10 @@ export default class Calendar {
    *
    * @memberof Calendar#
    */
-  dispose = () => {
-    this._eventHandlers.removeAll();
-
-    if (this._dom) {
-      this._dom.dispose();
-      delete this._dom;
-    }
-    delete this.viewModel;
-  };
+  dispose() {
+    this.__resourceMgr.dispose();
+    this._dom.dispose();
+  }
 
   // #endregion Public methods
 }
