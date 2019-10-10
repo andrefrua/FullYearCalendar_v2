@@ -509,6 +509,7 @@ export default class ViewModel extends EventSource {
     if (doAction && !event.isCanceled) {
       try {
         doAction();
+        // May have been canceled.
       } catch(ex) {
         event.cancel(ex);
       }
