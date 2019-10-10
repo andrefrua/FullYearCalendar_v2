@@ -204,17 +204,17 @@
 * Navigation icon button.
 */
 
-.calendar2 .fyc-icon-previous-year, .fyc-icon-next-year {
+.calendar2 .fyc-nav-icon-previous-year, .fyc-nav-icon-next-year {
   padding: 2px;
   margin: 0 3px;
 }
 
-.calendar2 .fyc-icon-previous-year:before {
+.calendar2 .fyc-nav-icon-previous-year:before {
   content: "\003c";
   font-weight: 700;
 }
 
-.calendar2 .fyc-icon-next-year:before {
+.calendar2 .fyc-nav-icon-next-year:before {
   content: "\003e";
   font-weight: 700;
 }

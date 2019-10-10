@@ -13,7 +13,7 @@ import ViewModel from "./ViewModel.js";
 import * as Utils from "./Utils.js";
 import Dom from "./Dom.js";
 import EventHandlers from "./Events/EventHandlers.js";
-import { CSS_CLASS_NAMES } from "./Enums.js";
+import { CssClassNames } from "./Enums.js";
 
 /**
  * Used to highlight important events for specific dates throughout a specified year.
@@ -156,7 +156,7 @@ export default class Calendar {
 
       // Updates the day dom element.
       dayDomElement.innerText = date.getDate();
-      dayDomElement.classList.add(CSS_CLASS_NAMES.DEFAULT_DAY);
+      dayDomElement.classList.add(CssClassNames.defaultDay);
       dayDomElement.setAttribute("data-datetime", date.getTime());
 
       // Let's apply the custom dates styles to the day
@@ -210,7 +210,7 @@ export default class Calendar {
       // Validates if the value is an actual date
       if (!Number.isNaN(newDate.valueOf())) {
         if (selectedDate.setHours(0, 0, 0, 0) === newDate.setHours(0, 0, 0, 0)) {
-          cssClassToApply += ` ${CSS_CLASS_NAMES.SELECTED_DAY}`;
+          cssClassToApply += ` ${CssClassNames.selectedDay}`;
         }
       }
     }, this);
@@ -220,7 +220,7 @@ export default class Calendar {
       this.viewModel.weekendDays.forEach(weekendDay => {
         if (date.getDay() === weekendDay) {
           // Name of the property. A Css class with the same name should exist
-          cssClassToApply += ` ${CSS_CLASS_NAMES.WEEKEND_DAY}`;
+          cssClassToApply += ` ${CssClassNames.weekendDay}`;
         }
       }, this);
     }
@@ -349,7 +349,7 @@ export default class Calendar {
     const { srcElement } = event;
 
     // If the click was triggered on a day element
-    if (srcElement.classList.contains(CSS_CLASS_NAMES.DEFAULT_DAY)) {
+    if (srcElement.classList.contains(CssClassNames.defaultDay)) {
       const timeSpan = parseInt(srcElement.getAttribute("data-datetime"), 10);
       const date = new Date(timeSpan);
 

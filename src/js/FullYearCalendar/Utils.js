@@ -1,4 +1,4 @@
-import { REPRESENTATION_VALUES } from "./Enums.js";
+import { RepresentationValues } from "./Enums.js";
 
 /**
  * Changes the year of the received date to the specified year.
@@ -108,12 +108,12 @@ export const getMonthLastDay = (year, month) => {
  * Returns a list with the names of all the months localized in the received locale and representation value.
  *
  * @param {string} locale - The locale to be applied to the Intl format.
- * @param {string} [representationValue=REPRESENTATION_VALUES.LONG] - The locale to be applied to the Intl format.
+ * @param {string} [representationValue=RepresentationValues.long] - The locale to be applied to the Intl format.
  * @returns {Array} An array with all the months names.
  */
 export const getMonthNamesList = (
   locale,
-  representationValue = REPRESENTATION_VALUES.LONG
+  representationValue = RepresentationValues.long
 ) => {
   const options = {
     month: representationValue
@@ -129,12 +129,12 @@ export const getMonthNamesList = (
  * Returns a list with the names of all the weekdays localized in the received locale and representation value.
  *
  * @param {string} locale - The locale to be applied to the Intl format.
- * @param {string} [representationValue=REPRESENTATION_VALUES.LONG] - The locale to be applied to the Intl format.
+ * @param {string} [representationValue=RepresentationValues.long] - The locale to be applied to the Intl format.
  * @returns {Array} An array with all the weekday names.
  */
 export const getWeekdayNamesList = (
   locale,
-  representativeValue = REPRESENTATION_VALUES.LONG
+  representativeValue = RepresentationValues.long
 ) => {
   const weekdayNames = [];
   for (let day = 4; day <= 10; day += 1) {

@@ -1,9 +1,10 @@
 /**
- * Property names used on the viewModel. This properties can be overriden by the users.
+ * Property names of a view model specification.
  *
- * @const {Array}
+ * @type {Array.<string>}
+ * @const
  */
-export const PROPERTY_NAMES = [
+export const PropertyNames = Object.freeze([
   // Default properties
   "dayWidth",
   "showWeekDaysNameEachMonth",
@@ -20,46 +21,48 @@ export const PROPERTY_NAMES = [
   "captionNavButtonNextYear",
   // Custom dates
   "customDates"
-];
+]);
 
 /**
  * Css class names for the calendar elements. These classes can be used to change the calendar appearance.
  *
- * @const {Object}
+ * @type {Object.<string, string>}
+ * @const
  */
-export const CSS_CLASS_NAMES = {
-  MAIN_CONTAINER: "fyc-main-container",
-  MONTH_NAME: "fyc-month-name",
-  WEEK_DAY_NAME: "fyc-week-day-name",
-  MONTH_ROW: "fyc-month-row",
-  MONTH_ROW_DAY_NAMES: "fyc-month-row-day-names",
-  EMPTY_DAY: "fyc-empty-day",
-  DEFAULT_DAY: "fyc-default-day",
-  SELECTED_DAY: "fyc-selected-day",
-  WEEKEND_DAY: "fyc-weekend-day",
-  MULTI_SELECTION: "fyc-multi-selection",
-  LEGEND_CONTAINER: "fyc-legend-container",
-  LEGEND_PROPERTY_DAY: "fyc-legend-property-day",
-  LEGEND_PROPERTY_CAPTION: "fyc-legend-property-caption",
-  LEGEND_VERTICAL_CLEAR: "fyc-legend-vertical-clear",
-  NAV_TOOLBAR_WRAPPER: "fyc-nav-toolbar-wrapper",
-  NAV_TOOLBAR_CONTAINER: "fyc-nav-toolbar-container",
-  NAV_TOOLBAR_SELECTED_YEAR: "fyc-nav-toolbar-selected-year",
-  NAV_BUTTON_PREVIOUS_YEAR: "fyc-nav-button-previous-year",
-  NAV_BUTTON_NEXT_YEAR: "fyc-nav-button-next-year",
-  NAV_ICON_PREVIOUS_YEAR: "fyc-icon-previous-year",
-  NAV_ICON_NEXT_YEAR: "fyc-icon-next-year"
-};
+export const CssClassNames = Object.freeze({
+  mainContainer: "fyc-main-container",
+  monthName: "fyc-month-name",
+  weekDayName: "fyc-week-day-name",
+  monthRow: "fyc-month-row",
+  monthRowDayNames: "fyc-month-row-day-names",
+  emptyDay: "fyc-empty-day",
+  defaultDay: "fyc-default-day",
+  selectedDay: "fyc-selected-day",
+  weekendDay: "fyc-weekend-day",
+  multiSelection: "fyc-multi-selection",
+  legendContainer: "fyc-legend-container",
+  legendPropertyDay: "fyc-legend-property-day",
+  legendPropertyCaption: "fyc-legend-property-caption",
+  legendVerticalClear: "fyc-legend-vertical-clear",
+  navToolbarWrapper: "fyc-nav-toolbar-wrapper",
+  navToolbarContainer: "fyc-nav-toolbar-container",
+  navToolbarSelectedYear: "fyc-nav-toolbar-selected-year",
+  navButtonPreviousYear: "fyc-nav-button-previous-year",
+  navButtonNextYear: "fyc-nav-button-next-year",
+  navIconPreviousYear: "fyc-nav-icon-previous-year",
+  navIconNextYear: "fyc-nav-icon-next-year"
+});
 
 /**
- * Option values that can be used with Intl to represent a part or multiple parts of a date.
+ * Option values that can be used with `Intl` to represent one or more parts of a date.
  *
- * @const {Object}
+ * @type {Object.<string, string>}
+ * @const
  */
-export const REPRESENTATION_VALUES = {
-  LONG: "long",
-  SHORT: "short",
-  NARROW: "narrow",
-  NUMERIC: "numeric",
-  TWO_DIGIT: "2-digit"
-};
+export const RepresentationValues = Object.freeze({
+  long: "long",
+  short: "short",
+  narrow: "narrow",
+  numeric: "numeric",
+  twoDigit: "2-digit"
+});

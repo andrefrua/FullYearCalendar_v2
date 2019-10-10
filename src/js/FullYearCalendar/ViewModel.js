@@ -1,4 +1,4 @@
-import { PROPERTY_NAMES, REPRESENTATION_VALUES } from "./Enums.js";
+import { PropertyNames, RepresentationValues } from "./Enums.js";
 import * as Utils from "./Utils.js";
 import EventDispatcher from "./Events/EventDispatcher.js";
 import EventData from "./Events/EventData.js";
@@ -13,14 +13,14 @@ export default class ViewModel extends EventDispatcher {
   /**
    * Creates an instance of ViewModel.
    *
-   * @param {Object} settings
+   * @param {Object} settings - TODO: describe this argument in JsDocs. Perhaps create an interface.
    * @memberof ViewModel
    */
   constructor(settings) {
     super();
 
     // Initializes all the necessary properties in order to have the calendar working as intended.
-    PROPERTY_NAMES.forEach(propName => {
+    PropertyNames.forEach(propName => {
       this[propName] = settings && settings[propName];
     });
 
@@ -285,11 +285,11 @@ export default class ViewModel extends EventDispatcher {
   _updateFixedProperties = () => {
     this.monthNames = Utils.getMonthNamesList(
       this.locale,
-      REPRESENTATION_VALUES.LONG
+      RepresentationValues.long
     );
     this.weekDayNames = Utils.getWeekdayNamesList(
       this.locale,
-      REPRESENTATION_VALUES.NARROW
+      RepresentationValues.narrow
     );
     this.dates = this._createDatesArray();
     this._selectedDates = [];
