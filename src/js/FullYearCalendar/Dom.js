@@ -1,6 +1,6 @@
 import * as DomUtils from "./DomUtils.js";
 import { getMonthFirstDay } from "./Utils.js";
-import { CSS_CLASS_NAMES } from "./Enums.js";
+import { CssClassNames } from "./Enums.js";
 
 /**
  * Stores all the information related to the actual DOM needed to represent the Calendar.
@@ -101,7 +101,7 @@ export default class Dom {
 
     this.domElement.appendChild(this.mainContainer);
     this.domElement.style.textAlign = this.viewModel.alignInContainer;
-    this.domElement.className = CSS_CLASS_NAMES.MAIN_CONTAINER;
+    this.domElement.className = CssClassNames.mainContainer;
   };
 
   /**
@@ -152,7 +152,7 @@ export default class Dom {
   _createMonthRowElement = () => {
     const monthContainer = document.createElement("div");
     monthContainer.style.position = "relative";
-    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW;
+    monthContainer.className = CssClassNames.monthRow;
     monthContainer.style.float = "left";
 
     return monthContainer;
@@ -248,7 +248,7 @@ export default class Dom {
 
     dayNameElement.innerText =
       vm.weekDayNames[(dayIndex + vm.weekStartDay) % 7];
-    dayNameElement.className = CSS_CLASS_NAMES.WEEK_DAY_NAME;
+    dayNameElement.className = CssClassNames.weekDayName;
     dayNameElement.setAttribute("fyc-week-day-name", "true");
     dayNameElement.style.height = `${vm.dayWidth}px`;
     dayNameElement.style.minWidth = `${vm.dayWidth}px`;
@@ -311,7 +311,7 @@ export default class Dom {
     const dayElement = document.createElement("div");
 
     dayElement.setAttribute("fyc-default-day", "true"); // TODO: CHECK IF THIS CAN BE REMOVED
-    dayElement.classList.add(CSS_CLASS_NAMES.EMPTY_DAY);
+    dayElement.classList.add(CssClassNames.emptyDay);
     dayElement.style.height = `${vm.dayWidth}px`;
     dayElement.style.minWidth = `${vm.dayWidth}px`;
     dayElement.style.fontSize = `${parseInt(vm.dayWidth / 2.1, 10)}px`;
@@ -339,7 +339,7 @@ export default class Dom {
   _createMonthNameElement = monthIndex => {
     const vm = this.viewModel;
     const monthNameElement = document.createElement("div");
-    monthNameElement.className = CSS_CLASS_NAMES.MONTH_NAME;
+    monthNameElement.className = CssClassNames.monthName;
     monthNameElement.style.display = "table-cell";
     monthNameElement.style.verticalAlign = "middle";
     monthNameElement.innerHTML = this.viewModel.monthNames[monthIndex];
@@ -363,7 +363,7 @@ export default class Dom {
 
     // Container that will be on top of the Months names
     const monthNameContainer = document.createElement("div");
-    monthNameContainer.className = CSS_CLASS_NAMES.MONTH_NAME;
+    monthNameContainer.className = CssClassNames.mainContainer;
     monthNameContainer.style.float = "left";
     monthNameContainer.style.minWidth = `${vm.getMonthNameWidth()}px`;
     // Needs an empty space so that the container actual grows.
@@ -371,7 +371,7 @@ export default class Dom {
 
     // Container that will actually have the Week days names
     const monthContainer = document.createElement("div");
-    monthContainer.className = CSS_CLASS_NAMES.MONTH_ROW_DAY_NAMES;
+    monthContainer.className = CssClassNames.monthRowDayNames;
     monthContainer.style.float = "left";
     // Adds the week days name container to the month container
     const weekDayNamesContainer = this._createWeekDayNamesElement(false);
@@ -399,37 +399,37 @@ export default class Dom {
   _addNavigationToolBar = () => {
     // Main container for the toolbar controls
     const navToolbarWrapper = document.createElement("div");
-    navToolbarWrapper.className = CSS_CLASS_NAMES.NAV_TOOLBAR_WRAPPER;
+    navToolbarWrapper.className = CssClassNames.navToolbarWrapper;
 
     // Previous year button navigation
     const divBlockNavLeftButton = document.createElement("div");
-    divBlockNavLeftButton.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
+    divBlockNavLeftButton.className = CssClassNames.navToolbarContainer;
     const btnPreviousYear = document.createElement("button");
-    btnPreviousYear.className = CSS_CLASS_NAMES.NAV_BUTTON_PREVIOUS_YEAR;
+    btnPreviousYear.className = CssClassNames.navButtonPreviousYear;
     btnPreviousYear.innerText = this.viewModel.captionNavButtonPreviousYear;
     const iconPreviousYear = document.createElement("i");
-    iconPreviousYear.className = CSS_CLASS_NAMES.NAV_ICON_PREVIOUS_YEAR;
+    iconPreviousYear.className = CssClassNames.navIconPreviousYear;
     btnPreviousYear.prepend(iconPreviousYear);
     this.buttonNavPreviousYear = btnPreviousYear;
     divBlockNavLeftButton.appendChild(btnPreviousYear);
 
     // Current year span
     const divBlockNavCurrentYear = document.createElement("div");
-    divBlockNavCurrentYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
+    divBlockNavCurrentYear.className = CssClassNames.navToolbarContainer;
     const spanCurrentYear = document.createElement("span");
-    spanCurrentYear.className = CSS_CLASS_NAMES.NAV_TOOLBAR_SELECTED_YEAR;
+    spanCurrentYear.className = CssClassNames.navToolbarSelectedYear;
     // Stores the year span
     this.spanCurrentYear = spanCurrentYear;
     divBlockNavCurrentYear.appendChild(spanCurrentYear);
 
     // Next year button navigation
     const divBlockNavRightButton = document.createElement("div");
-    divBlockNavRightButton.className = CSS_CLASS_NAMES.NAV_TOOLBAR_CONTAINER;
+    divBlockNavRightButton.className = CssClassNames.navToolbarContainer;
     const btnNextYear = document.createElement("button");
-    btnNextYear.className = CSS_CLASS_NAMES.NAV_BUTTON_NEXT_YEAR;
+    btnNextYear.className = CssClassNames.navButtonNextYear;
     btnNextYear.innerText = this.viewModel.captionNavButtonNextYear;
     const iconNextYear = document.createElement("i");
-    iconNextYear.className = CSS_CLASS_NAMES.NAV_ICON_NEXT_YEAR;
+    iconNextYear.className = CssClassNames.navIconNextYear;
     btnNextYear.appendChild(iconNextYear);
     this.buttonNavNextYear = btnNextYear;
     divBlockNavRightButton.appendChild(btnNextYear);
@@ -453,7 +453,7 @@ export default class Dom {
     if (this.viewModel.showLegend !== true) return;
 
     const legendContainer = document.createElement("div");
-    legendContainer.className = CSS_CLASS_NAMES.LEGEND_CONTAINER;
+    legendContainer.className = CssClassNames.legendContainer;
     this.legendContainer = legendContainer;
 
     DomUtils.addElement(this.mainContainer, legendContainer);
@@ -485,8 +485,7 @@ export default class Dom {
 
       // Default Day container
       const divPropertyDefaultDayContainer = document.createElement("div");
-      divPropertyDefaultDayContainer.className =
-        CSS_CLASS_NAMES.LEGEND_PROPERTY_DAY;
+      divPropertyDefaultDayContainer.className = CssClassNames.legendPropertyDay;
       divPropertyDefaultDayContainer.style.display = "table-cell";
 
       DomUtils.addElement(
@@ -497,7 +496,7 @@ export default class Dom {
 
       // Property caption
       const divPropertyCaption = document.createElement("div");
-      divPropertyCaption.className = CSS_CLASS_NAMES.LEGEND_PROPERTY_CAPTION;
+      divPropertyCaption.className = CssClassNames.legendPropertyCaption;
 
       if (
         vm.customDates &&
@@ -516,7 +515,7 @@ export default class Dom {
 
       if (vm.legendStyle === "Block") {
         const divClearBoth = document.createElement("div");
-        divClearBoth.className = CSS_CLASS_NAMES.LEGEND_VERTICAL_CLEAR;
+        divClearBoth.className = CssClassNames.legendVerticalClear;
         divClearBoth.style.clear = "both";
 
         DomUtils.addElement(this.legendContainer, divClearBoth);
@@ -774,9 +773,9 @@ export default class Dom {
       return;
     }
     if (selected) {
-      dayElement.classList.add(CSS_CLASS_NAMES.SELECTED_DAY);
+      dayElement.classList.add(CssClassNames.selectedDay);
     } else {
-      dayElement.classList.remove(CSS_CLASS_NAMES.SELECTED_DAY);
+      dayElement.classList.remove(CssClassNames.selectedDay);
     }
   };
 
@@ -793,9 +792,9 @@ export default class Dom {
       return;
     }
     if (multiSelected) {
-      dayElement.classList.add(CSS_CLASS_NAMES.MULTI_SELECTION);
+      dayElement.classList.add(CssClassNames.multiSelection);
     } else {
-      dayElement.classList.remove(CSS_CLASS_NAMES.MULTI_SELECTION);
+      dayElement.classList.remove(CssClassNames.multiSelection);
     }
   };
 
@@ -815,7 +814,7 @@ export default class Dom {
       while (classList && classList.length > 0) {
         classList.remove(classList.item(0));
       }
-      dayElement.classList.add(CSS_CLASS_NAMES.EMPTY_DAY);
+      dayElement.classList.add(CssClassNames.emptyDay);
     });
   };
 
