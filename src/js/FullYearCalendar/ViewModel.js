@@ -32,24 +32,27 @@ export default class ViewModel extends EventSource {
   // #region Getters and Setters
 
   /**
-   * Width in pixels that will be applied to each day cell.
+   * Gets or sets the width in pixels of each day cell.
    *
    * @type {number}
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @default 25
    */
   get dayWidth() {
     return this._dayWidth;
   }
 
   set dayWidth(value) {
-    this._dayWidth = value || 25;
+    this._dayWidth = value;
   }
 
   /**
-   *  When set to `true` the week day names container will be shown for each one of the months.
+   * Gets or sets a value that indicates if the week day names container 
+   * is shown for each of the months.
    *
    * @type {boolean}
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @default false
    */
   get showWeekDaysNameEachMonth() {
     return this._showWeekDaysNameEachMonth;
@@ -60,26 +63,29 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   *  When set to `true` the week day names container will be shown for each one of the months.
+   * Gets or sets the locale used to display month names.
    *
-   * @type {boolean}
-   * @memberof ViewModel
+   * Defaults to the browser's current locale.
+   * 
+   * @type {string}
+   * @memberof ViewModel#
    */
   get locale() {
     return this._locale;
   }
 
   set locale(value) {
-    this._locale =
-      value || window.navigator.language || window.navigator.userLanguage;
+    this._locale = value || window.navigator.language || window.navigator.userLanguage;
   }
 
   /**
-   * Sets the alignement of the calendar inside it's container.
-   * Possible values: `left`, `center` and `right`.
+   * Gets or sets the alignement of the calendar inside it's container.
+   * 
+   * Possible values: `"left"`, `"center"` and `"right"`.
    *
    * @type {string}
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @default "center"
    */
   get alignInContainer() {
     return this.__alignInContainer;
@@ -90,18 +96,19 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Sets the initial visible year.
+   * Gets or sets the current year.
+   * 
+   * Defaults to the current calendar year.
    *
    * @type {number}
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
   get currentYear() {
     return this._currentYear;
   }
 
   set currentYear(value) {
-    const newCurrentYear =
-      typeof value === "number" && value > 1900
+    const newCurrentYear = (value != null && value > 1900)
         ? value
         : new Date().getFullYear();
 
@@ -110,11 +117,13 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Sets the starting day of the week.
+   * Gets or sets the index of the week day which starts weeks.
+   * 
    * Possible values: 0 - Sunday to 6 - Saturday.
    *
    * @type {number}
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @default 0
    */
   get weekStartDay() {
     return this._weekStartDay;
@@ -125,11 +134,14 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Array with the days that should be recognized as weekend.
+   * Gets or sets the indexes of the week days that are 
+   * recognized as weekend.
+   *
    * Ex: `[0, 6]`.
    *
-   * @type {Array}
-   * @memberof ViewModel
+   * @type {Array.<number>}
+   * @memberof ViewModel#
+   * @default []
    */
   get weekendDays() {
     return this._weekendDays;
@@ -140,10 +152,13 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * When set to `true` shows a legend with all the attributes defined on the CustomDates object.
+   * Gets or sets a value that indicates if the legend is displayed.
+   * 
+   * The legend displays the attributes defined on the CustomDates object.
    *
    * @type {boolean}
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @default false
    */
   get showLegend() {
     return this._showLegend;
@@ -154,11 +169,13 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Changes the style of the legend between inline or listed.
-   * Possible values: `Inline` and `Block`.
+   * Gets or sets the style of the legend. 
+   * 
+   * The possible style values are `"Inline"` and `"Block"`.
    *
    * @type {string}
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @default "Inline"
    */
   get legendStyle() {
     return this._legendStyle;
@@ -169,10 +186,14 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * When set to `true` shows a toolbar with the current selected year and buttons to navigate between years.
+   * Gets or sets a value that indicates if the calendar navigation toolbar is visible.
+   * 
+   * The calendar navigation toolbar shows the current selected year and 
+   * buttons which allow navigating between years.
    *
    * @type {boolean}
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @default false
    */
   get showNavigationToolBar() {
     return this._showNavigationToolBar;
@@ -183,10 +204,10 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Text to be added to the `Previous` button.
+   * Gets or sets the caption of the Previous button.
    *
    * @type {string}
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
   get captionNavButtonPreviousYear() {
     return this._captionNavButtonPreviousYear;
@@ -197,10 +218,10 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Text to be added to the `Next` button.
+   * Gets or sets the caption of the Next button.
    *
    * @type {string}
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
   get captionNavButtonNextYear() {
     return this._captionNavButtonNextYear;
@@ -211,10 +232,11 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Stores all the custom dates that should be displayed on the calendar.
+   * Gets the custom dates that are displayed on the calendar.
    *
-   * @type {Array}
-   * @memberof ViewModel
+   * @type {Array.<Date>}
+   * @memberof ViewModel#
+   * @readonly
    */
   get customDates() {
     return this._customDates;
@@ -225,19 +247,21 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Stores all the selected dates.
+   * Gets or sets the selected dates.
    *
-   * @type {Array}
-   * @memberof ViewModel
+   * @type {Array.<Date>}
+   * @memberof ViewModel#
    */
   get selectedDates() {
     return this._selectedDates;
   }
 
   set selectedDates(value) {
+
     const datesToSelect = value || [];
+
     const newSelectedDates = Array.isArray(this._selectedDates)
-      ? Array.from(this._selectedDates)
+      ? this._selectedDates
       : [];
 
     datesToSelect.forEach(date => {
@@ -253,19 +277,15 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Stores all the dates shown in the calendar for the currently visible year.
+   * Gets the dates of the current year.
    *
-   * @type {Array}
-   * @memberof ViewModel
+   * @type {Array.<Date>}
+   * @memberof ViewModel#
+   * @readonly
    */
   get dates() {
     return this._dates;
   }
-
-  set dates(value) {
-    this._dates = value || [];
-  }
-
   // #endregion  Getters and Setters
 
   // #region Private methods
@@ -273,20 +293,24 @@ export default class ViewModel extends EventSource {
   /**
    * Updates the fixed / calculated properties of the viewModel.
    *
-   * @memberof ViewModel
+   * @memberof ViewModel#
+   * @private
    */
-  _updateFixedProperties = () => {
+  _updateFixedProperties() {
     this.monthNames = utils.getMonthNamesList(
       this.locale,
       RepresentationValues.long
     );
+
     this.weekDayNames = utils.getWeekdayNamesList(
       this.locale,
       RepresentationValues.narrow
     );
-    this.dates = this._createDatesArray();
+    
+    this._updateDatesArray();
+
     this._selectedDates = [];
-  };
+  }
 
   /**
    * Normalizes the customDate object.
@@ -295,9 +319,13 @@ export default class ViewModel extends EventSource {
    * @returns {Object} - Normalized customDates object.
    *
    * @private
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  _normalizeCustomDates = customDates => {
+  // eslint-disable-next-line class-methods-use-this
+  _normalizeCustomDates(customDates) {
+
+    // TODO: should this be moved to utils?
+
     const normalizedCustomDates = {};
 
     if (!customDates) return normalizedCustomDates;
@@ -380,18 +408,21 @@ export default class ViewModel extends EventSource {
     });
 
     return normalizedCustomDates;
-  };
+  }
 
   /**
    * Creates the array of dates to be displayed on the calendar in the currently selected year.
    *
    * @private
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  _createDatesArray = () => {
+  _createDatesArray() {
     const updatedDates = [];
 
     for (let currentMonth = 0; currentMonth < 12; currentMonth += 1) {
+      
+      // TODO: firstDayOfMonth is not being used?
+
       // Gets the first day of the month so we know in which cell the month should start
       const firstDayOfMonth = utils.getMonthFirstDay(
         this.currentYear,
@@ -411,45 +442,43 @@ export default class ViewModel extends EventSource {
     }
 
     return updatedDates;
-  };
+  }
 
   /**
    * Updates the array of dates to be displayed on the calendar in the currently selected year.
    *
    * @private
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  _updateDatesArray = () => {
-    this.dates = this._createDatesArray();
-  };
+  _updateDatesArray() {
+    this._dates = this._createDatesArray();
+  }
 
   /**
    * Updates the customDates property with the new values.
    *
    * @param {Object} newCustomDates - New customDates object.
    * @private
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  _updateCustomDates = newCustomDates => {
+  _updateCustomDates(newCustomDates) {
+    
     const normalizedCustomDates = this._normalizeCustomDates(newCustomDates);
+    
     Object.keys(normalizedCustomDates).forEach(property => {
-      if (
-        Object.prototype.hasOwnProperty.call(normalizedCustomDates, property)
-      ) {
-        this.customDates[property] = normalizedCustomDates[property];
-      }
+      this._customDates[property] = normalizedCustomDates[property];
     });
-  };
+  }
 
   /**
    * Replaces the existing customDates object with the new one.
    *
    * @param {Object} newCustomDates - The customDate objects.
    * @private
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  _replaceCustomDates = newCustomDates => {
-    this.customDates = this._normalizeCustomDates(newCustomDates);
+  _replaceCustomDates(newCustomDates) {
+    this._customDates = this._normalizeCustomDates(newCustomDates);
   }
 
   /**
@@ -462,7 +491,7 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel#
    * @private
    */
-  _setProp = (propName, newValue, onChangeDidCallback) => {
+  _setProp(propName, newValue, onChangeDidCallback) {
     
     const oldValue = this[propName];
 
@@ -502,7 +531,7 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel#
    * @private
    */
-  _dispatchAction = (subject, action, event, doAction) => {
+  _dispatchAction(subject, action, event, doAction) {
 
     this.dispatch(`${subject}::Will${action}`, event);
 
@@ -520,99 +549,114 @@ export default class ViewModel extends EventSource {
     } else {
       this.dispatch(`${subject}::Did${action}`, event);
     }
-  };
+  }
 
   // #endregion Private methods
 
   // #region Public methods
 
+  // TODO: this *might be* dependent on layout and a private concern of the `Calendar` class.
   /**
    * Returns the total number of days
    * It's set to 42 to fill gaps on mobile view because it's the maximum possible value to attain with the gap
    * between starting and end of days in the month, however on normal view only 38 days will be visible.
    *
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  getTotalNumberOfDays = () => 42;
+  // eslint-disable-next-line class-methods-use-this
+  getTotalNumberOfDays() {
+    return 42;
+  }
 
+  // TODO: this is totally dependent on layout and a private concern of the `Calendar` class.
   /**
    * The width of the month container. This is based on the day width times 4.
    *
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  getMonthNameWidth = () => this.dayWidth * 4;
+  getMonthNameWidth() {
+    return this.dayWidth * 4;
+  }
 
+  // TODO: this is totally dependent on layout and a private concern of the `Calendar` class.
   /**
    * Returns the total calendar width.
    *
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  getTotalCalendarWidth = () =>
-    this.getMonthNameWidth() +
-    this.dayWidth * (this.getTotalNumberOfDays() - 4);
+  getTotalCalendarWidth() {
+    return this.getMonthNameWidth() + 
+      this.dayWidth * (this.getTotalNumberOfDays() - 4);
+  }
 
   /**
    * Increments one to the current year.
    *
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  incrementCurrentYear = () => {
+  incrementCurrentYear() {
     this.currentYear += 1;
-  };
+  }
 
   /**
    * Decrements one to the current year.
    *
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  decrementCurrentYear = () => {
+  decrementCurrentYear() {
     this.currentYear -= 1;
-  };
+  }
 
   /**
    * Updates the properties of the calendar with the new ones received as a parameter.
    *
    * @param {Object} settings - Object with the properties that should be updated on the calendar.
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  changeSettings = settings => {
+  changeSettings(settings) {
+    // TODO: Not using normal action dispatch.
+
     Object.keys(settings).forEach(property => {
-      if (
-        Object.prototype.hasOwnProperty.call(settings, property) &&
-        this[property] !== undefined &&
-        settings[property] !== this[property]
-      ) {
+      if (this[property] !== undefined && 
+          settings[property] !== this[property]) {
         this[property] = settings[property];
       }
     });
+
     this._updateFixedProperties();
 
     this.dispatch("settings::DidChange", null);
-  };
+  }
 
+  // TODO: can this be replaced by the customDates setter? 
   /**
    * Refreshes the CustomDates object.
    *
    * @param {Object} customDates
    * @param {boolean} [keepPrevious=true]
-   * @memberof Calendar
+   * @memberof ViewModel#
    */
-  changeCustomDates = (customDates, keepPrevious = true) => {
+  changeCustomDates(customDates, keepPrevious = true) {
+    // TODO: Not using normal action dispatch.
+
     if (keepPrevious) {
       this._updateCustomDates(customDates);
     } else {
       this._replaceCustomDates(customDates);
     }
+
     this.dispatch("customDates::DidChange", null);
-  };
+  }
 
   /**
    * Triggers an event informing the received day is being pointed at. This can be used to add a custom tooltip at the
    * day location.
    *
-   * @memberof ViewModel
+   * @memberof ViewModel#
    */
-  changeDayPointed = (date, x, y) => {
+  pointDay(date, x, y) {
+    // TODO: date, x and y are required or throw.
+    // Also, they should respect the documented data types, or throw (or just assume these are respected).
     if (date && !Number.isNaN(x) && !Number.isNaN(y)) {
 
       const event = new PointEvent(date, x, y);
@@ -621,7 +665,7 @@ export default class ViewModel extends EventSource {
     } else {
       console.warn(`Something went wrong while pointed at the day`);
     }
-  };
+  }
 
   // #endregion Public methods
 }
