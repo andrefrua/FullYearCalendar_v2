@@ -76,19 +76,19 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.on("selectedDates::WillChange", eventData => {
-  const date = eventData.newValue.slice(-1)[0];
+fullYearCalendar.viewModel.on("selectedDates::WillChange", event => {
+  const date = event.newValue.slice(-1)[0];
   if (date) {
     inputLastSelectedDay.value = date.toISOString().slice(0, 10);
   }
 });
 
-fullYearCalendar.viewModel.on("dayPointed::DidChange", eventData => {
-  const { date } = eventData.newValue;
+fullYearCalendar.viewModel.on("dayPointed::DidChange", event => {
+  const { date } = event.newValue;
   inputLastHoveredDay.value = date.toISOString().slice(0, 10);
 });
 
-fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
+fullYearCalendar.viewModel.on("currentYear::WillChange", event => {
   inputYearChanged.innerText = !Number.isNaN(inputYearChanged.innerText)
     ? parseInt(inputYearChanged.innerText, 10) + 1
     : 0;
