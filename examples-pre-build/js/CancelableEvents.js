@@ -115,7 +115,7 @@ fullYearCalendar.viewModel.on("selectedDates::RejectedChange", event => {
   inputYearChangedInfo.innerText = event.cancelReason.message;
 });
 
-fullYearCalendar.viewModel.on("dayPointed::WillChange", event => {
+fullYearCalendar.viewModel.on("day::WillPoint", event => {
   console.warn("No tooltip for you :)");
 
   event.cancel();

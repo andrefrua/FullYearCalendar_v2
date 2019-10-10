@@ -83,9 +83,8 @@ fullYearCalendar.viewModel.on("selectedDates::WillChange", event => {
   }
 });
 
-fullYearCalendar.viewModel.on("dayPointed::DidChange", event => {
-  const { date } = event.newValue;
-  inputLastHoveredDay.value = date.toISOString().slice(0, 10);
+fullYearCalendar.viewModel.on("day::DidPoint", event => {
+  inputLastHoveredDay.value = event.day.toISOString().slice(0, 10);
 });
 
 fullYearCalendar.viewModel.on("currentYear::WillChange", event => {
