@@ -4,6 +4,9 @@ import EventSource from "./events/EventSource.js";
 import ChangeEvent from "./events/ChangeEvent.js";
 import PointEvent from "./events/PointEvent.js";
 
+// TODO: need to find a different way to manage properties.
+// For most setters, when called, the settings changed event is not being called.
+
 /**
  * ViewModel class for the FullYearCalendar.
  *
@@ -19,6 +22,7 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel
    */
   constructor(settings) {
+    
     super();
 
     // Initializes all the necessary properties in order to have the calendar working as intended.
@@ -297,11 +301,14 @@ export default class ViewModel extends EventSource {
    * @private
    */
   _updateFixedProperties() {
+
+    // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
     this.monthNames = utils.getMonthNamesList(
       this.locale,
       RepresentationValues.long
     );
 
+    // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
     this.weekDayNames = utils.getWeekdayNamesList(
       this.locale,
       RepresentationValues.narrow
@@ -555,7 +562,7 @@ export default class ViewModel extends EventSource {
 
   // #region Public methods
 
-  // TODO: this *might be* dependent on layout and a private concern of the `Calendar` class.
+  // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
   /**
    * Returns the total number of days
    * It's set to 42 to fill gaps on mobile view because it's the maximum possible value to attain with the gap
@@ -568,7 +575,7 @@ export default class ViewModel extends EventSource {
     return 42;
   }
 
-  // TODO: this is totally dependent on layout and a private concern of the `Calendar` class.
+  // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
   /**
    * The width of the month container. This is based on the day width times 4.
    *
@@ -578,7 +585,7 @@ export default class ViewModel extends EventSource {
     return this.dayWidth * 4;
   }
 
-  // TODO: this is totally dependent on layout and a private concern of the `Calendar` class.
+  // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
   /**
    * Returns the total calendar width.
    *
