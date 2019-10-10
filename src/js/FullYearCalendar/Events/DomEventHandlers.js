@@ -1,4 +1,4 @@
-export default class EventHandlers {
+export default class DomEventHandlers {
   constructor() {
     this.__handlers = [];
   }
