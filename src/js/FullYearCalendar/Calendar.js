@@ -11,7 +11,7 @@
 
 import ViewModel from "./ViewModel.js";
 import * as utils from "./utils.js";
-import CalendarDom from "./Dom.js";
+import CalendarDom from "./CalendarDom.js";
 import { CssClassNames } from "./enums.js";
 import ResourceManager from "./ResourceManager.js";
 
