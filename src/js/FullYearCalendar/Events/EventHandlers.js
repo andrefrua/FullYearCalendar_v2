@@ -3,7 +3,7 @@ export default class EventHandlers {
     this.__handlers = [];
   }
 
-  createAndAddListener = (element, type, handler) => {
+  addListener = (element, type, handler) => {
     element.addEventListener(type, handler);
     this.__handlers.push({
       element,
