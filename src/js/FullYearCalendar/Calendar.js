@@ -205,11 +205,9 @@ export default class Calendar {
 
     // Re-apply the selected days style in case the year is changed.
     this.viewModel.selectedDates.forEach(selectedDate => {
-      const newDate = selectedDate;
-
       // Validates if the value is an actual date
-      if (!Number.isNaN(newDate.valueOf())) {
-        if (selectedDate.setHours(0, 0, 0, 0) === newDate.setHours(0, 0, 0, 0)) {
+      if (!Number.isNaN(selectedDate.valueOf())) {
+        if (date.setHours(0, 0, 0, 0) === selectedDate.setHours(0, 0, 0, 0)) {
           cssClassToApply += ` ${CSS_CLASS_NAMES.SELECTED_DAY}`;
         }
       }

@@ -1,4 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
+import * as Utils from "../../src/js/FullYearCalendar/Utils.js";
 
 const inputLastSelectedDay = document.getElementById("inputLastSelectedDay");
 const inputLastHoveredDay = document.getElementById("inputLastHoveredDay");
@@ -79,13 +80,15 @@ const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 fullYearCalendar.viewModel.on("selectedDates::WillChange", eventData => {
   const date = eventData.newValue.slice(-1)[0];
   if (date) {
-    inputLastSelectedDay.value = date.toISOString().slice(0, 10);
+    inputLastSelectedDay.value = Utils.convertDateToISOWihoutTimezone(date);
+  } else {
+    inputLastSelectedDay.value = "";
   }
 });
 
 fullYearCalendar.viewModel.on("dayPointed::DidChange", eventData => {
   const { date } = eventData.newValue;
-  inputLastHoveredDay.value = date.toISOString().slice(0, 10);
+  inputLastHoveredDay.value = Utils.convertDateToISOWihoutTimezone(date);
 });
 
 fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
