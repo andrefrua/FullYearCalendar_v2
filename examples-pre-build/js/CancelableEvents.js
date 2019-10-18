@@ -1,5 +1,5 @@
 import Calendar from "../../src/js/FullYearCalendar/Calendar.js";
-import { findIndexArray } from "../../src/js/FullYearCalendar/Utils.js";
+import { findIndexArray } from "../../src/js/FullYearCalendar/utils.js";
 
 const inputYearChangedInfo = document.getElementById("inputYearChangedInfo");
 const btnGoToYear = document.getElementById("btnGoToYear");
@@ -67,59 +67,58 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
+fullYearCalendar.viewModel.on("currentYear::WillChange", event => {
   inputYearChangedInfo.innerText = "";
-  if (eventData.newValue < new Date().getFullYear()) {
+  if (event.newValue < new Date().getFullYear()) {
     inputYearChangedInfo.innerText =
       "Year can't be inferior to the current year";
-    eventData.cancel();
+    event.cancel();
   }
 });
 
-fullYearCalendar.viewModel.on("selectedDates::WillChange", eventData => {
+fullYearCalendar.viewModel.on("selectedDates::WillChange", event => {
   inputYearChangedInfo.innerText = "";
 
-  if (eventData.newValue.length > 20) {
-    eventData.cancel("Can't select more than 20 days at a time.");
+  if (event.newValue.length > 20) {
+    event.cancel("Can't select more than 20 days at a time.");
+    return;
   }
+  
+  event.newValue.forEach(date => {
+    const weekDay = date.getDay();
+    const dateIndex = findIndexArray(event.newValue, date);
 
-  if (!eventData.isCanceled) {
-    eventData.newValue.forEach(date => {
-      const weekDay = date.getDay();
-      const dateIndex = findIndexArray(eventData.newValue, date);
+    switch (weekDay) {
+      case 0:
+      case 6:
+        event.info = "Weekends can't be selected";
+        event.newValue.splice(dateIndex, 1);
+        break;
+      case 3:
+        if (event.newValue.length - event.oldValue.length > 1) {
+          event.info = "Can't select Wednesdays with multiselect";
+          event.newValue.splice(dateIndex, 1);
+        }
+        break;
+      default:
+    }
+  });
+});
 
-      switch (weekDay) {
-        case 0:
-        case 6:
-          eventData.info = "Weekends can't be selected";
-          eventData.newValue.splice(dateIndex, 1);
-          break;
-        case 3:
-          if (eventData.newValue.length - eventData.oldValue.length > 1) {
-            eventData.info = "Can't select Wednesdays with multiselect";
-            eventData.newValue.splice(dateIndex, 1);
-          }
-          break;
-        default:
-      }
-    });
+fullYearCalendar.viewModel.on("selectedDates::DidChange", event => {
+  if (event.info !== "") {
+    inputYearChangedInfo.innerText += event.info;
   }
 });
 
-fullYearCalendar.viewModel.on("selectedDates::DidChange", eventData => {
-  if (eventData.info !== "") {
-    inputYearChangedInfo.innerText += eventData.info;
-  }
+fullYearCalendar.viewModel.on("selectedDates::RejectedChange", event => {
+  inputYearChangedInfo.innerText = event.cancelReason.message;
 });
 
-fullYearCalendar.viewModel.on("selectedDates::RejectedChange", eventData => {
-  inputYearChangedInfo.innerText = eventData.cancelReason.message;
-});
-
-fullYearCalendar.viewModel.on("dayPointed::WillChange", eventData => {
+fullYearCalendar.viewModel.on("day::WillPoint", event => {
   console.warn("No tooltip for you :)");
 
-  eventData.cancel();
+  event.cancel();
 });
 
 /** Outside controls */

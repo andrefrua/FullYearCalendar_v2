@@ -181,17 +181,17 @@
  * Navigation icon button.
  */
 
-.fyc-icon-previous-year, .fyc-icon-next-year {
+.fyc-nav-icon-previous-year, .fyc-nav-icon-next-year {
     padding: 2px;
     margin: 0 3px;
 }
 
-.fyc-icon-previous-year:before {
+.fyc-nav-icon-previous-year:before {
     content: "\003c";
     font-weight: 700;
 }
 
-.fyc-icon-next-year:before {
+.fyc-nav-icon-next-year:before {
     content: "\003e";
     font-weight: 700;
 }

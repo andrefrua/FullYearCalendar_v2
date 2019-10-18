@@ -35,3 +35,13 @@ export const updateElementsStylePropertyBySelector = (
     elements[i].style[styleProperty] = value;
   }
 };
+
+/**
+ * Clears an element by removing all of its child nodes.
+ * @param {HTMLElement} domElement - The element to clear.
+ */
+export const clearElement = (domElement) => {
+  while (domElement.firstChild) {
+    domElement.removeChild(domElement.firstChild);
+  }
+};

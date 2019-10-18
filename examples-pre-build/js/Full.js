@@ -77,8 +77,8 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.on("selectedDates::WillChange", eventData => {
-  const date = eventData.newValue.slice(-1)[0];
+fullYearCalendar.viewModel.on("selectedDates::WillChange", event => {
+  const date = event.newValue.slice(-1)[0];
   if (date) {
     inputLastSelectedDay.value = Utils.convertDateToISOWihoutTimezone(date);
   } else {
@@ -86,12 +86,11 @@ fullYearCalendar.viewModel.on("selectedDates::WillChange", eventData => {
   }
 });
 
-fullYearCalendar.viewModel.on("dayPointed::DidChange", eventData => {
-  const { date } = eventData.newValue;
-  inputLastHoveredDay.value = Utils.convertDateToISOWihoutTimezone(date);
+fullYearCalendar.viewModel.on("day::DidPoint", event => {
+  inputLastHoveredDay.value = Utils.convertDateToISOWihoutTimezone(event.day);
 });
 
-fullYearCalendar.viewModel.on("currentYear::WillChange", eventData => {
+fullYearCalendar.viewModel.on("currentYear::WillChange", event => {
   inputYearChanged.innerText = !Number.isNaN(inputYearChanged.innerText)
     ? parseInt(inputYearChanged.innerText, 10) + 1
     : 0;
