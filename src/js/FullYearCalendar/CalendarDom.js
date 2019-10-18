@@ -282,7 +282,8 @@ export default class CalendarDom {
     const vm = this._viewModel;
     const dayElement = document.createElement("div");
 
-    dayElement.setAttribute("fyc-default-day", "true"); // TODO: CHECK IF THIS CAN BE REMOVED
+    // This attribute is used to identify the default days when changing the visualization mode.
+    dayElement.setAttribute("fyc-default-day", "true");
     dayElement.classList.add(CssClassNames.emptyDay);
     dayElement.style.height = `${vm.dayWidth}px`;
     dayElement.style.minWidth = `${vm.dayWidth}px`;

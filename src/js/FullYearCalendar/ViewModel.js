@@ -22,7 +22,7 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel
    */
   constructor(settings) {
-    
+
     super();
 
     // Initializes all the necessary properties in order to have the calendar working as intended.
@@ -51,7 +51,7 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Gets or sets a value that indicates if the week day names container 
+   * Gets or sets a value that indicates if the week day names container
    * is shown for each of the months.
    *
    * @type {boolean}
@@ -70,7 +70,7 @@ export default class ViewModel extends EventSource {
    * Gets or sets the locale used to display month names.
    *
    * Defaults to the browser's current locale.
-   * 
+   *
    * @type {string}
    * @memberof ViewModel#
    */
@@ -84,7 +84,7 @@ export default class ViewModel extends EventSource {
 
   /**
    * Gets or sets the alignement of the calendar inside it's container.
-   * 
+   *
    * Possible values: `"left"`, `"center"` and `"right"`.
    *
    * @type {string}
@@ -101,7 +101,7 @@ export default class ViewModel extends EventSource {
 
   /**
    * Gets or sets the current year.
-   * 
+   *
    * Defaults to the current calendar year.
    *
    * @type {number}
@@ -116,13 +116,13 @@ export default class ViewModel extends EventSource {
         ? value
         : new Date().getFullYear();
 
-    
+
     this._setProp("currentYear", newCurrentYear, this._updateDatesArray.bind(this));
   }
 
   /**
    * Gets or sets the index of the week day which starts weeks.
-   * 
+   *
    * Possible values: 0 - Sunday to 6 - Saturday.
    *
    * @type {number}
@@ -138,7 +138,7 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Gets or sets the indexes of the week days that are 
+   * Gets or sets the indexes of the week days that are
    * recognized as weekend.
    *
    * Ex: `[0, 6]`.
@@ -157,7 +157,7 @@ export default class ViewModel extends EventSource {
 
   /**
    * Gets or sets a value that indicates if the legend is displayed.
-   * 
+   *
    * The legend displays the attributes defined on the CustomDates object.
    *
    * @type {boolean}
@@ -173,8 +173,8 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Gets or sets the style of the legend. 
-   * 
+   * Gets or sets the style of the legend.
+   *
    * The possible style values are `"Inline"` and `"Block"`.
    *
    * @type {string}
@@ -191,8 +191,8 @@ export default class ViewModel extends EventSource {
 
   /**
    * Gets or sets a value that indicates if the calendar navigation toolbar is visible.
-   * 
-   * The calendar navigation toolbar shows the current selected year and 
+   *
+   * The calendar navigation toolbar shows the current selected year and
    * buttons which allow navigating between years.
    *
    * @type {boolean}
@@ -314,7 +314,7 @@ export default class ViewModel extends EventSource {
       this.locale,
       RepresentationValues.narrow
     );
-    
+
     this._updateDatesArray();
 
     this._selectedDates = [];
@@ -428,16 +428,6 @@ export default class ViewModel extends EventSource {
     const updatedDates = [];
 
     for (let currentMonth = 0; currentMonth < 12; currentMonth += 1) {
-      
-      // TODO: firstDayOfMonth is not being used?
-
-      // Gets the first day of the month so we know in which cell the month should start
-      const firstDayOfMonth = utils.getMonthFirstDay(
-        this.currentYear,
-        currentMonth,
-        this.weekStartDay
-      );
-
       // Calculate the last day of the month
       const lastDayOfMonth = utils.getMonthLastDay(
         this.currentYear,
@@ -470,9 +460,9 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel#
    */
   _updateCustomDates(newCustomDates) {
-    
+
     const normalizedCustomDates = this._normalizeCustomDates(newCustomDates);
-    
+
     Object.keys(normalizedCustomDates).forEach(property => {
       this._customDates[property] = normalizedCustomDates[property];
     });
@@ -494,25 +484,25 @@ export default class ViewModel extends EventSource {
    *
    * @param {string} propName - The name of the property to be updated.
    * @param {*} newValue - The new value of the property.
-   * @param {?function} [onChangeDidCallback] - A handler to call after the property has been changed, 
+   * @param {?function} [onChangeDidCallback] - A handler to call after the property has been changed,
    *  yet before dispatching the `<propName>::DidChange` event.
    * @memberof ViewModel#
    * @private
    */
   _setProp(propName, newValue, onChangeDidCallback) {
-    
+
     const oldValue = this[propName];
 
     if(newValue !== oldValue) {
       const event = new ChangeEvent(newValue, oldValue);
-    
+
       this._dispatchAction(propName, "Change", event, () => {
 
         if(event.newValue === oldValue) {
           event.cancel("No Change.");
         } else {
           this[`_${propName}`] = event.newValue;
-          
+
           if(onChangeDidCallback != null) {
             try {
               onChangeDidCallback();
@@ -528,7 +518,7 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Dispatches a `<subject>::Will<Action>` event and, if the event is not canceled, 
+   * Dispatches a `<subject>::Will<Action>` event and, if the event is not canceled,
    * then the action is commited and a `<subject>::Did<Action>` event is dispatched.
    * Otherwise, a `<subject>::Rejected<Action>` event is dispatched.
    *
@@ -593,7 +583,7 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel#
    */
   getTotalCalendarWidth() {
-    return this.getMonthNameWidth() + 
+    return this.getMonthNameWidth() +
       this.dayWidth * (this.getTotalNumberOfDays() - 4);
   }
 
@@ -625,7 +615,7 @@ export default class ViewModel extends EventSource {
     // TODO: Not using normal action dispatch.
 
     Object.keys(settings).forEach(property => {
-      if (this[property] !== undefined && 
+      if (this[property] !== undefined &&
           settings[property] !== this[property]) {
         this[property] = settings[property];
       }
@@ -636,7 +626,7 @@ export default class ViewModel extends EventSource {
     this.dispatch("settings::DidChange", null);
   }
 
-  // TODO: can this be replaced by the customDates setter? 
+  // TODO: can this be replaced by the customDates setter?
   /**
    * Refreshes the CustomDates object.
    *

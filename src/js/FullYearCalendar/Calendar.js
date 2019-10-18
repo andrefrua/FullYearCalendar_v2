@@ -47,7 +47,7 @@ export default class Calendar {
     };
 
     this._init();
-    this._render();
+    this._refresh();
   }
 
   // #region Getters and Setters
@@ -83,8 +83,8 @@ export default class Calendar {
 
     this.viewModel.on("selectedDates::DidChange", this._selectedDatesDidChangeHandler.bind(this));
     this.viewModel.on("currentYear::DidChange", this._currentYearDidChangeHandler.bind(this));
-    this.viewModel.on("settings::DidChange", this._refresh.bind(this));
-    this.viewModel.on("customDates::DidChange", this._render.bind(this));
+    this.viewModel.on("settings::DidChange", this._redraw.bind(this));
+    this.viewModel.on("customDates::DidChange", this._refresh.bind(this));
     this.viewModel.on("day::DidPoint", this._dayDidPointHandler.bind(this));
   }
 
@@ -111,11 +111,11 @@ export default class Calendar {
   }
 
   /**
-   * Refreshes the Calendar when the ViewModel object is changed.
+   * Redraws the entire Calendar structure when the ViewModel object is changed.
    *
    * @memberof Calendar#
    */
-  _refresh() {
+  _redraw() {
     // Removes all event handlers
     this.__resourceMgr.disposeAll();
 
@@ -126,16 +126,16 @@ export default class Calendar {
     // Adds the EventListeners again
     this._addEventListeners();
     // Renders the calendar
-    this._render();
+    this._refresh();
   }
 
   /**
-   * Renders the days and other needed parts of the dom.
+   * Refreshes the calendar days and other needed parts of the dom.
    *
    * @private
    * @memberof Calendar#
    */
-  _render() {
+  _refresh() {
     this._renderDays();
 
     this._dom.updateYear();
@@ -310,7 +310,7 @@ export default class Calendar {
    */
   // eslint-disable-next-line no-unused-vars
   _currentYearDidChangeHandler(event) {
-    this._render();
+    this._refresh();
   }
 
   /**
