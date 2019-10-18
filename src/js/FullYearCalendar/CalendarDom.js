@@ -7,7 +7,7 @@ export default class CalendarDom {
    * @export
    * @class CalendarDom
    * @classdesc Stores all the information related to the actual DOM needed to represent the Calendar.
-   * 
+   *
    * @description Creates an instance of CalendarDom.
    * @param {HtmlElement} domElement
    * @param {ViewModel} viewModel
@@ -18,7 +18,7 @@ export default class CalendarDom {
      *
      * @type {HtmlElement}
      * @memberof CalendarDom#
-     */  
+     */
     this.element = domElement;
 
     /**
@@ -335,7 +335,7 @@ export default class CalendarDom {
 
     // Container that will be on top of the Months names
     const monthNameContainer = document.createElement("div");
-    monthNameContainer.className = CssClassNames.mainContainer;
+    monthNameContainer.className = CssClassNames.monthName;
     monthNameContainer.style.float = "left";
     monthNameContainer.style.minWidth = `${vm.getMonthNameWidth()}px`;
     // Needs an empty space so that the container actual grows.
@@ -444,7 +444,7 @@ export default class CalendarDom {
     const vm = this._viewModel;
 
     domUtils.clearElement(this._legendContainer);
-    
+
     Object.keys(vm.customDates).forEach(property => {
       // DefaultDay container that will look similar to the Day cell on the calendar
       const divPropertyDefaultDay = document.createElement("div");
@@ -818,7 +818,7 @@ export default class CalendarDom {
   dispose = () => {
     // Removes all the dom elements from the main container
     domUtils.clearElement(this._mainContainer);
-    
+
     // Deletes all the properties from the instance.
     Object.keys(this).forEach(property => {
       if (property !== "element") {

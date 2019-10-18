@@ -225,7 +225,7 @@ export default class Calendar {
       // Validates if the value is an actual date
       if (!Number.isNaN(selectedDate.valueOf())) {
         if (date.setHours(0, 0, 0, 0) === selectedDate.setHours(0, 0, 0, 0)) {
-          cssClassToApply += ` ${CssClassNames.SELECTED_DAY}`;
+          cssClassToApply += ` ${CssClassNames.selectedDay}`;
         }
       }
     }, this);
