@@ -31,7 +31,6 @@ export default class Calendar {
    * @memberof Calendar
    */
   constructor(domElement, settings = {}) {
-
     this.viewModel = new ViewModel(settings);
 
     // Object that stores the DOM elements needed by the Calendar.
@@ -81,11 +80,28 @@ export default class Calendar {
 
     this._addEventListeners();
 
-    this.viewModel.on("selectedDates::DidChange", this._selectedDatesDidChangeHandler.bind(this));
-    this.viewModel.on("currentYear::DidChange", this._currentYearDidChangeHandler.bind(this));
-    this.viewModel.on("settings::DidChange", this._redraw.bind(this));
-    this.viewModel.on("customDates::DidChange", this._refresh.bind(this));
-    this.viewModel.on("day::DidPoint", this._dayDidPointHandler.bind(this));
+    this.viewModel.on("didChange", event => {
+      switch (event.propName) {
+        case "selectedDates":
+          this._selectedDatesDidChangeHandler(event);
+          break;
+        case "currentYear":
+          this._currentYearDidChangeHandler();
+          break;
+        case "customDates":
+          this._refresh();
+          break;
+        default:
+          this._redraw();
+          break;
+      }
+    });
+
+    this.viewModel.on("didPoint", event => {
+      if (event.propName === "day") {
+        this._dayDidPointHandler(event.day);
+      }
+    });
   }
 
   /**
@@ -100,7 +116,6 @@ export default class Calendar {
    * @private
    */
   __addDomEventListener(node, type, listener) {
-
     node.addEventListener(type, listener);
 
     this.__resourceMgr.add({
@@ -221,14 +236,16 @@ export default class Calendar {
     });
 
     // Re-apply the selected days style in case the year is changed.
-    this.viewModel.selectedDates.forEach(selectedDate => {
-      // Validates if the value is an actual date
-      if (!Number.isNaN(selectedDate.valueOf())) {
-        if (date.setHours(0, 0, 0, 0) === selectedDate.setHours(0, 0, 0, 0)) {
-          cssClassToApply += ` ${CssClassNames.selectedDay}`;
+    if (this.viewModel.selectedDates) {
+      this.viewModel.selectedDates.forEach(selectedDate => {
+        // Validates if the value is an actual date
+        if (!Number.isNaN(selectedDate.valueOf())) {
+          if (date.setHours(0, 0, 0, 0) === selectedDate.setHours(0, 0, 0, 0)) {
+            cssClassToApply += ` ${CssClassNames.selectedDay}`;
+          }
         }
-      }
-    }, this);
+      }, this);
+    }
 
     // Apply the style to the weekend days.
     if (this.viewModel.weekendDays && this.viewModel.weekendDays.length > 0) {
@@ -256,23 +273,27 @@ export default class Calendar {
     // Calendar container listeners, essencially for days elements
     const domElement = this._dom.element;
 
-    this.__addDomEventListener(domElement, "click", e => this._onCalendarEvent(e));
-    this.__addDomEventListener(domElement, "mouseover", e => this._onCalendarEvent(e));
-    this.__addDomEventListener(domElement, "mousedown", e => this._onCalendarEvent(e));
-    this.__addDomEventListener(domElement, "mouseup", e => this._onCalendarEvent(e));
+    this.__addDomEventListener(domElement, "click", e =>
+      this._onCalendarEvent(e)
+    );
+    this.__addDomEventListener(domElement, "mouseover", e =>
+      this._onCalendarEvent(e)
+    );
+    this.__addDomEventListener(domElement, "mousedown", e =>
+      this._onCalendarEvent(e)
+    );
+    this.__addDomEventListener(domElement, "mouseup", e =>
+      this._onCalendarEvent(e)
+    );
 
     // Other elements
     if (this.viewModel.showNavigationToolBar) {
-      this.__addDomEventListener(
-        this._dom.buttonNavPreviousYear,
-        "click",
-        e => this.viewModel.decrementCurrentYear(e)
+      this.__addDomEventListener(this._dom.buttonNavPreviousYear, "click", e =>
+        this.viewModel.decrementCurrentYear(e)
       );
 
-      this.__addDomEventListener(
-        this._dom.buttonNavNextYear,
-        "click",
-        e => this.viewModel.incrementCurrentYear(e)
+      this.__addDomEventListener(this._dom.buttonNavNextYear, "click", e =>
+        this.viewModel.incrementCurrentYear(e)
       );
     }
   }
@@ -289,11 +310,13 @@ export default class Calendar {
     const { newValue: newSelectedDates, oldValue: oldSelectedDates } = event;
 
     // Removes the selection for the days that are not selected anymore
-    oldSelectedDates.forEach(date => {
-      if (utils.findIndexArray(newSelectedDates, date) === -1) {
-        this._dom.setDaySelection(date, false);
-      }
-    });
+    if (oldSelectedDates) {
+      oldSelectedDates.forEach(date => {
+        if (utils.findIndexArray(newSelectedDates, date) === -1) {
+          this._dom.setDaySelection(date, false);
+        }
+      });
+    }
 
     // Adds the selection for the new selected days
     this.viewModel.selectedDates.forEach(date => {
@@ -304,12 +327,10 @@ export default class Calendar {
   /**
    * Handler triggered when the `viewModel.currentYear` property is changed.
    *
-   * @param {ChangeEvent} event - The event object with the information about the ViewModel change.
    * @private
    * @memberof Calendar
    */
-  // eslint-disable-next-line no-unused-vars
-  _currentYearDidChangeHandler(event) {
+  _currentYearDidChangeHandler() {
     this._refresh();
   }
 
@@ -319,16 +340,17 @@ export default class Calendar {
    * @private
    * @memberof Calendar#
    */
-  _dayDidPointHandler(event) {
-    const {day} = event;
-
+  _dayDidPointHandler(day) {
     // Get the dom element for day
     const dayDomElement = this._dom.getDayElement(day);
     if (!dayDomElement) {
       return;
     }
 
-    dayDomElement.setAttribute("title", utils.convertDateToISOWihoutTimezone(day));
+    dayDomElement.setAttribute(
+      "title",
+      utils.convertDateToISOWihoutTimezone(day)
+    );
   }
 
   /**
@@ -341,7 +363,6 @@ export default class Calendar {
    * @memberof Calendar#
    */
   _onCalendarEvent(event) {
-
     event.preventDefault();
 
     const { srcElement } = event;

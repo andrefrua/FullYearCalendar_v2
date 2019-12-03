@@ -1,10 +1,8 @@
-import CancelableEvent  from "./CancelableEvent.js";
+import CancelableEvent from "./CancelableEvent.js";
 
 export default class PointEvent extends CancelableEvent {
-  
-  constructor(day, x, y) {
-
-    super();
+  constructor(propName, day, x, y) {
+    super(propName);
 
     this.day = day;
     this.x = x;

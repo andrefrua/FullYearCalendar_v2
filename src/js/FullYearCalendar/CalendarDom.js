@@ -1,6 +1,16 @@
-import * as domUtils from "./domUtils.js";
-import { getMonthFirstDay } from "./utils.js";
-import { CssClassNames } from "./enums.js";
+import {
+  calendarDomSettings,
+  addElement,
+  addElementOnTop,
+  clearElement,
+  updateElementsStylePropertyBySelector
+} from "./domUtils.js";
+import {
+  getMonthFirstDay,
+  getMonthNamesList,
+  getWeekdayNamesList
+} from "./utils.js";
+import { CssClassNames, RepresentationValues } from "./enums.js";
 
 export default class CalendarDom {
   /**
@@ -20,24 +30,32 @@ export default class CalendarDom {
      * @memberof CalendarDom#
      */
     this.element = domElement;
+    this._setPrivateProperties(viewModel);
+  }
 
-    /**
-     * The calendar view model.
-     *
-     * @type {ViewModel}
-     * @memberof CalendarDom#
-     * @private
-     */
-    this._viewModel = viewModel;
+  /**
+   * Initializes the private properties needed by the Dom to work correctly.
+   *
+   * @param {ViewModel} vm - The view model object.
+   * @memberof CalendarDom
+   */
+  _setPrivateProperties = vm => {
+    this._viewModel = vm;
+    this._weekdayNames = getWeekdayNamesList(
+      vm.locale,
+      RepresentationValues.narrow
+    );
+    this._monthNames = getMonthNamesList(vm.locale, RepresentationValues.long);
 
     this._buttonNavPreviousYear = null;
     this._buttonNavNextYear = null;
     this._spanCurrentYear = null;
     this._legendContainer = null;
     this._mainContainer = null;
-  }
+  };
 
   // #region Getters and Setters
+
   /**
    * Button to navigate to the previous year.
    *
@@ -62,6 +80,27 @@ export default class CalendarDom {
   // #region Private methods
 
   /**
+   * Returns the total calendar width.
+   *
+   * @memberof CalendarDom#
+   */
+  _getTotalCalendarWidth() {
+    return (
+      this._getMonthNameWidth() +
+      this.dayWidth * (calendarDomSettings.totalNumberOfDays - 4)
+    );
+  }
+
+  /**
+   * The width of the month container. This is based on the day width times 4.
+   *
+   * @memberof CalendarDom#
+   */
+  _getMonthNameWidth() {
+    return this._viewModel.dayWidth * 4;
+  }
+
+  /**
    * Creates the main container for the calendar and adds it to the received DOM element object.
    *
    * @private
@@ -74,7 +113,7 @@ export default class CalendarDom {
     this.element.appendChild(this._mainContainer);
     this.element.style.textAlign = this._viewModel.alignInContainer;
     this.element.className = CssClassNames.mainContainer;
-  }
+  };
 
   /**
    * Adds a row for each month with all the elements needed for a correct display.
@@ -94,19 +133,16 @@ export default class CalendarDom {
       // Adds the week days name container if `showWeekDaysNameEachMonth` is set to true
       const weekDayNamesContainer = this._createWeekDayNamesElement(true);
       this._addDayName(weekDayNamesContainer);
-      domUtils.addElement(monthContainer, weekDayNamesContainer);
+      addElement(monthContainer, weekDayNamesContainer);
 
       // Adds the days elements to the month container
       this._addDay(iMonth, monthContainer);
 
-      domUtils.addElement(
-        monthNameContainer,
-        this._createMonthNameElement(iMonth)
-      );
-      domUtils.addElement(this._mainContainer, monthNameContainer);
+      addElement(monthNameContainer, this._createMonthNameElement(iMonth));
+      addElement(this._mainContainer, monthNameContainer);
 
-      domUtils.addElement(this._mainContainer, monthContainer);
-      domUtils.addElement(this._mainContainer, clearFixElement);
+      addElement(this._mainContainer, monthContainer);
+      addElement(this._mainContainer, clearFixElement);
     }
     if (!this._viewModel.showWeekDaysNameEachMonth) {
       this._addWeekDayNameOnTop();
@@ -177,7 +213,7 @@ export default class CalendarDom {
     // Add an element for each day.
     for (
       let iDay = 0;
-      iDay < this._viewModel.getTotalNumberOfDays();
+      iDay < calendarDomSettings.totalNumberOfDays;
       iDay += 1
     ) {
       // Creates a new container at the start of each week
@@ -185,8 +221,8 @@ export default class CalendarDom {
         weekElement = this._createWeekElement(true);
       }
 
-      domUtils.addElement(weekElement, this._createDayNameElement(iDay));
-      domUtils.addElement(monthContainer, weekElement);
+      addElement(weekElement, this._createDayNameElement(iDay));
+      addElement(monthContainer, weekElement);
     }
   };
 
@@ -218,8 +254,9 @@ export default class CalendarDom {
     const vm = this._viewModel;
     const dayNameElement = document.createElement("div");
 
-    dayNameElement.innerText =
-      vm.weekDayNames[(dayIndex + vm.weekStartDay) % 7];
+    dayNameElement.innerText = this._weekdayNames[
+      (dayIndex + vm.weekStartDay) % 7
+    ];
     dayNameElement.className = CssClassNames.weekDayName;
     dayNameElement.setAttribute("fyc-week-day-name", "true");
     dayNameElement.style.height = `${vm.dayWidth}px`;
@@ -253,7 +290,7 @@ export default class CalendarDom {
     // Add an element for each day.
     for (
       let iDay = 0;
-      iDay < this._viewModel.getTotalNumberOfDays();
+      iDay < calendarDomSettings.totalNumberOfDays;
       iDay += 1
     ) {
       // Creates a new container at the start of each week
@@ -261,11 +298,8 @@ export default class CalendarDom {
         weekElement = this._createWeekElement();
       }
 
-      domUtils.addElement(
-        weekElement,
-        this._createDayElement(monthIndex, iDay)
-      );
-      domUtils.addElement(monthContainer, weekElement);
+      addElement(weekElement, this._createDayElement(monthIndex, iDay));
+      addElement(monthContainer, weekElement);
     }
   };
 
@@ -315,10 +349,10 @@ export default class CalendarDom {
     monthNameElement.className = CssClassNames.monthName;
     monthNameElement.style.display = "table-cell";
     monthNameElement.style.verticalAlign = "middle";
-    monthNameElement.innerHTML = this._viewModel.monthNames[monthIndex];
+    monthNameElement.innerHTML = this._monthNames[monthIndex];
     monthNameElement.style.fontSize = `${parseInt(vm.dayWidth / 2, 10)}px`;
     monthNameElement.style.height = `${vm.dayWidth}px`;
-    monthNameElement.style.minWidth = `${vm.getMonthNameWidth()}px`;
+    monthNameElement.style.minWidth = `${this._getMonthNameWidth()}px`;
 
     return monthNameElement;
   };
@@ -330,7 +364,6 @@ export default class CalendarDom {
    * @memberof CalendarDom#
    */
   _addWeekDayNameOnTop = () => {
-    const vm = this._viewModel;
     // Creates one container to be placed at the top of the calendar
     const weekDayNamesOnTopContainer = document.createElement("div");
 
@@ -338,7 +371,7 @@ export default class CalendarDom {
     const monthNameContainer = document.createElement("div");
     monthNameContainer.className = CssClassNames.monthName;
     monthNameContainer.style.float = "left";
-    monthNameContainer.style.minWidth = `${vm.getMonthNameWidth()}px`;
+    monthNameContainer.style.minWidth = `${this._getMonthNameWidth()}px`;
     // Needs an empty space so that the container actual grows.
     monthNameContainer.innerHTML = "&nbsp;";
 
@@ -351,16 +384,13 @@ export default class CalendarDom {
     this._addDayName(weekDayNamesContainer);
 
     // Adding the actual elements to the dom
-    domUtils.addElement(monthContainer, weekDayNamesContainer);
-    domUtils.addElement(weekDayNamesOnTopContainer, monthNameContainer);
-    domUtils.addElement(weekDayNamesOnTopContainer, monthContainer);
-    domUtils.addElement(
-      weekDayNamesOnTopContainer,
-      this._createClearFixElement()
-    );
+    addElement(monthContainer, weekDayNamesContainer);
+    addElement(weekDayNamesOnTopContainer, monthNameContainer);
+    addElement(weekDayNamesOnTopContainer, monthContainer);
+    addElement(weekDayNamesOnTopContainer, this._createClearFixElement());
 
     // Adds the names to the top of the main Calendar container
-    domUtils.addElementOnTop(this._mainContainer, weekDayNamesOnTopContainer);
+    addElementOnTop(this._mainContainer, weekDayNamesOnTopContainer);
   };
 
   /**
@@ -412,7 +442,7 @@ export default class CalendarDom {
     navToolbarWrapper.appendChild(divBlockNavRightButton);
 
     // Add the toolbar to the top of the main container
-    domUtils.addElementOnTop(this._mainContainer, navToolbarWrapper);
+    addElementOnTop(this._mainContainer, navToolbarWrapper);
   };
 
   /**
@@ -429,7 +459,7 @@ export default class CalendarDom {
     legendContainer.className = CssClassNames.legendContainer;
     this._legendContainer = legendContainer;
 
-    domUtils.addElement(this._mainContainer, legendContainer);
+    addElement(this._mainContainer, legendContainer);
 
     this.updateLegendElements();
   };
@@ -444,7 +474,7 @@ export default class CalendarDom {
   updateLegendElements = () => {
     const vm = this._viewModel;
 
-    domUtils.clearElement(this._legendContainer);
+    clearElement(this._legendContainer);
 
     Object.keys(vm.customDates).forEach(property => {
       // DefaultDay container that will look similar to the Day cell on the calendar
@@ -456,14 +486,12 @@ export default class CalendarDom {
 
       // Default Day container
       const divPropertyDefaultDayContainer = document.createElement("div");
-      divPropertyDefaultDayContainer.className = CssClassNames.legendPropertyDay;
+      divPropertyDefaultDayContainer.className =
+        CssClassNames.legendPropertyDay;
       divPropertyDefaultDayContainer.style.display = "table-cell";
 
-      domUtils.addElement(
-        divPropertyDefaultDayContainer,
-        divPropertyDefaultDay
-      );
-      domUtils.addElement(this._legendContainer, divPropertyDefaultDayContainer);
+      addElement(divPropertyDefaultDayContainer, divPropertyDefaultDay);
+      addElement(this._legendContainer, divPropertyDefaultDayContainer);
 
       // Property caption
       const divPropertyCaption = document.createElement("div");
@@ -482,17 +510,17 @@ export default class CalendarDom {
       divPropertyCaption.style.display = "table-cell";
       divPropertyCaption.style.verticalAlign = "middle";
 
-      domUtils.addElement(this._legendContainer, divPropertyCaption);
+      addElement(this._legendContainer, divPropertyCaption);
 
       if (vm.legendStyle === "Block") {
         const divClearBoth = document.createElement("div");
         divClearBoth.className = CssClassNames.legendVerticalClear;
         divClearBoth.style.clear = "both";
 
-        domUtils.addElement(this._legendContainer, divClearBoth);
+        addElement(this._legendContainer, divClearBoth);
       }
     });
-  }
+  };
 
   /**
    * Applies all styles that might be needed to be applied after all the elements have been added to the dom.
@@ -505,7 +533,7 @@ export default class CalendarDom {
     for (let i = 0; i < childNodes.length; i += 1) {
       childNodes[i].style.boxSizing = "border-box";
     }
-  }
+  };
 
   /**
    * Change the view mode to Normal view.
@@ -515,19 +543,19 @@ export default class CalendarDom {
   _changeToNormalView = () => {
     const vm = this._viewModel;
 
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       "[fyc-default-day], .has-fyc-default-day",
       "width",
       `${vm.dayWidth}px`
     );
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       "[fyc-week-day-name], .has-fyc-week-day-name",
       "width",
       `${vm.dayWidth}px`
     );
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".weekContainer.weekDay:nth-child(n+2)",
       "display",
@@ -536,13 +564,13 @@ export default class CalendarDom {
 
     // Hides the dummy days because on big format they aren"t needed.
     // NOTE: The order between the hideInMobile and fyc_isdummyday can"t be changed or it won"t work
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".hideInMobile",
       "display",
       "table-cell"
     );
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       "[fyc_isdummyday], .has-fyc_isdummyday",
       "display",
@@ -551,7 +579,7 @@ export default class CalendarDom {
 
     // WeekDays names handling
     if (!this._viewModel.showWeekDaysNameEachMonth) {
-      domUtils.updateElementsStylePropertyBySelector(
+      updateElementsStylePropertyBySelector(
         this._mainContainer,
         ".divWeekDayNamesMonthly",
         "display",
@@ -559,13 +587,13 @@ export default class CalendarDom {
       );
     }
 
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".divWeekDayNamesYearly",
       "display",
       "block"
     );
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".monthName",
       "text-align",
@@ -579,7 +607,7 @@ export default class CalendarDom {
     weekContainers.forEach(weekContainer => {
       weekContainer.style.display = "block";
     });
-  }
+  };
 
   /**
    * Change the view mode to Mobile view.
@@ -590,20 +618,20 @@ export default class CalendarDom {
     const currentContainerWidth = this._mainContainer.offsetWidth;
 
     // Total width divided by six because the month container can have up to 6 weeks
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       "[fyc-default-day], .has-fyc-default-day",
       "width",
       `${currentContainerWidth / 6}px`
     );
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       "[fyc-week-day-name], .has-fyc-week-day-name",
       "width",
       `${currentContainerWidth / 6}px`
     );
 
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".weekContainer.weekDay:nth-child(n+2)",
       "display",
@@ -612,14 +640,14 @@ export default class CalendarDom {
 
     // Shows the dummy days because on small format they are needed -
     // NOTE: The order between the hideInMobile and fyc_isdummyday can"t be changed or it won"t work
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       "[fyc_isdummyday], .has-fyc_isdummyday",
       "display",
       "table-cell"
     );
 
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".hideInMobile",
       "display",
@@ -627,19 +655,19 @@ export default class CalendarDom {
     );
 
     // WeekDays names handling
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".divWeekDayNamesMonthly",
       "display",
       "block"
     );
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".divWeekDayNamesYearly",
       "display",
       "none"
     );
-    domUtils.updateElementsStylePropertyBySelector(
+    updateElementsStylePropertyBySelector(
       this._mainContainer,
       ".monthName",
       "text-align",
@@ -662,7 +690,7 @@ export default class CalendarDom {
         dayDomElement.parentElement.nextElementSibling.style.display = "none";
       }
     }
-  }
+  };
 
   // #endregion Private methods
 
@@ -675,7 +703,7 @@ export default class CalendarDom {
    */
   createStructure = () => {
     const vm = this._viewModel;
-
+    this._setPrivateProperties(vm);
     this._createMainContainer();
 
     this._addMonthRows();
@@ -685,7 +713,7 @@ export default class CalendarDom {
 
     this._applyStyling();
     this.fitToContainer();
-  }
+  };
 
   /**
    * Fits the calendar to the parent container size. If the calendar is too large then it will change
@@ -696,12 +724,12 @@ export default class CalendarDom {
   fitToContainer = () => {
     const { offsetWidth } = this._mainContainer;
 
-    if (offsetWidth < this._viewModel.getTotalCalendarWidth()) {
+    if (offsetWidth < this._getTotalCalendarWidth()) {
       this._changeToMobileView();
     } else {
       this._changeToNormalView();
     }
-  }
+  };
 
   /**
    * Gets the dom element that represent the day with the received month and day indexes.
@@ -711,9 +739,9 @@ export default class CalendarDom {
    * @memberof CalendarDom#
    */
   getDayElement = date => {
-    const monthElement = this.element.getElementsByClassName(
-      "fyc-month-row"
-    )[date.getMonth()];
+    const monthElement = this.element.getElementsByClassName("fyc-month-row")[
+      date.getMonth()
+    ];
 
     // Gets the first day of the month so we know in which cell the month should start
     const firstDayOfMonth = getMonthFirstDay(
@@ -730,7 +758,7 @@ export default class CalendarDom {
 
     return dayElement;
     //    const monthElement = this.element.querySelectorAll(`[m="${monthIndex}"][d="${dayIndex}"]`);
-  }
+  };
 
   /**
    * Adds or removed the `selectedDay` css class to the Day dom element.
@@ -749,7 +777,7 @@ export default class CalendarDom {
     } else {
       dayElement.classList.remove(CssClassNames.selectedDay);
     }
-  }
+  };
 
   /**
    * Adds or removed the `multiSelection` css class to the Day dom element.
@@ -768,7 +796,7 @@ export default class CalendarDom {
     } else {
       dayElement.classList.remove(CssClassNames.multiSelection);
     }
-  }
+  };
 
   /**
    * Clears all the day elements.
@@ -788,7 +816,7 @@ export default class CalendarDom {
       }
       dayElement.classList.add(CssClassNames.emptyDay);
     });
-  }
+  };
 
   /**
    * Clears all the dom element inside the main container.
@@ -796,9 +824,8 @@ export default class CalendarDom {
    * @memberof CalendarDom#
    */
   clear = () => {
-    domUtils.clearElement(this._mainContainer);
-  }
-
+    clearElement(this.element);
+  };
 
   /**
    * Updates the year element with the current selected year.
@@ -809,7 +836,7 @@ export default class CalendarDom {
     if (this._viewModel.showNavigationToolBar) {
       this._spanCurrentYear.innerText = this._viewModel.currentYear;
     }
-  }
+  };
 
   /**
    * Destroys all the objects in the current instance of the Dom class.
@@ -818,7 +845,7 @@ export default class CalendarDom {
    */
   dispose = () => {
     // Removes all the dom elements from the main container
-    domUtils.clearElement(this._mainContainer);
+    clearElement(this.element);
 
     // Deletes all the properties from the instance.
     Object.keys(this).forEach(property => {
@@ -826,7 +853,7 @@ export default class CalendarDom {
         delete this[property];
       }
     });
-  }
+  };
 
   // #endregion Public methods
 }

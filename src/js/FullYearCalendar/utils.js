@@ -179,3 +179,96 @@ export const findIndexArray = (array, toFind) => {
   console.warn("Unsupported type");
   return -1;
 };
+
+/**
+ * Normalizes the customDate object.
+ * TODO: describe this argument in JsDocs
+ * @param {Object} customDates - The customDates object to be normalized.
+ * @returns {Object} - Normalized customDates object.
+ *
+ * @memberof ViewModel#
+ */
+export const normalizeCustomDates = customDates => {
+  const normalizedCustomDates = {};
+
+  if (!customDates) return normalizedCustomDates;
+
+  // Loops through all the the properties in the CustomDates object.
+  Object.keys(customDates).forEach(property => {
+    // Checks that the property actually exists in the object and has a values property inside.
+    if (
+      objectHasProperty(customDates, property) &&
+      customDates[property].values
+    ) {
+      // We need to check the 3 possible ways to create a CustomDate.
+
+      const { values } = customDates[property];
+
+      // 1 - If the values property is an Object then we should check for the start and end properties (Range).
+      if (
+        values.constructor === Object &&
+        objectHasProperty(values, "start") &&
+        objectHasProperty(values, "end")
+      ) {
+        const startDate = new Date(values.start);
+        const endDate = new Date(values.end);
+
+        const recurring =
+          values.recurring || customDates[property].recurring || false;
+
+        normalizedCustomDates[property] = {
+          caption: customDates[property].caption,
+          cssClass: customDates[property].cssClass,
+          values: [{ start: startDate, end: endDate, recurring }]
+        };
+      }
+
+      // 2 - If it's an array of Dates we must add one position on the values array for each one.
+      if (values.constructor === Array) {
+        normalizedCustomDates[property] = {
+          caption: customDates[property].caption,
+          cssClass: customDates[property].cssClass,
+          values: []
+        };
+        // Checks if the current date exists in the Array
+        values.forEach(auxDate => {
+          const newDate = new Date(auxDate);
+          const recurring = customDates[property].recurring || false;
+          normalizedCustomDates[property].values.push({
+            start: newDate,
+            end: newDate,
+            recurring
+          });
+        });
+      }
+
+      // 3 - If it's an array of periods for the same property, for example several periods of vacations
+      if (
+        values.constructor === Array &&
+        values.length > 0 &&
+        values[0].constructor === Object
+      ) {
+        normalizedCustomDates[property] = {
+          caption: customDates[property].caption,
+          cssClass: customDates[property].cssClass,
+          values: []
+        };
+        // Checks if the current date exists in the Array
+        values.forEach(auxPeriod => {
+          const startDate = new Date(auxPeriod.start);
+          const endDate = new Date(auxPeriod.end);
+          const recurring =
+            auxPeriod.recurring || customDates[property].recurring || false;
+
+          normalizedCustomDates[property].values.push({
+            start: startDate,
+            end: endDate,
+            recurring
+          });
+        });
+      }
+    }
+  });
+
+  return normalizedCustomDates;
+};

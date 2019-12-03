@@ -1,5 +1,6 @@
 export default class CancelableEvent {
-  constructor() {
+  constructor(propName) {
+    this.propName = propName;
     this.__isCanceled = false;
     this.__cancelReason = null;
     this.info = "";
