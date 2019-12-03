@@ -1,3 +1,11 @@
+export const calendarDomSettings = {
+  /**
+   * It's set to 42 to fill gaps on mobile view because it's the maximum possible value to attain with the gap
+   * between starting and end of days in the month, however on normal view only 38 days will be visible.
+   */
+  totalNumberOfDays: 42
+};
+
 /**
  * Adds a child DOM element to a parent DOM element.
  *
@@ -40,7 +48,7 @@ export const updateElementsStylePropertyBySelector = (
  * Clears an element by removing all of its child nodes.
  * @param {HTMLElement} domElement - The element to clear.
  */
-export const clearElement = (domElement) => {
+export const clearElement = domElement => {
   while (domElement.firstChild) {
     domElement.removeChild(domElement.firstChild);
   }

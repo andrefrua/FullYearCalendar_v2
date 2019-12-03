@@ -77,23 +77,37 @@ const configObj = {
 
 const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
 
-fullYearCalendar.viewModel.on("selectedDates::WillChange", event => {
-  const date = event.newValue.slice(-1)[0];
+const updateYearChanged = () => {
+  inputYearChanged.innerText = !Number.isNaN(inputYearChanged.innerText)
+    ? parseInt(inputYearChanged.innerText, 10) + 1
+    : 0;
+};
+
+const updateLastSelectedDate = date => {
   if (date) {
     inputLastSelectedDay.value = Utils.convertDateToISOWihoutTimezone(date);
   } else {
     inputLastSelectedDay.value = "";
   }
+};
+
+fullYearCalendar.viewModel.on("didPoint", event => {
+  if (event.propName === "day") {
+    inputLastHoveredDay.value = Utils.convertDateToISOWihoutTimezone(event.day);
+  }
 });
 
-fullYearCalendar.viewModel.on("day::DidPoint", event => {
-  inputLastHoveredDay.value = Utils.convertDateToISOWihoutTimezone(event.day);
-});
-
-fullYearCalendar.viewModel.on("currentYear::WillChange", event => {
-  inputYearChanged.innerText = !Number.isNaN(inputYearChanged.innerText)
-    ? parseInt(inputYearChanged.innerText, 10) + 1
-    : 0;
+fullYearCalendar.viewModel.on("willChange", event => {
+  switch (event.propName) {
+    case "currentYear":
+      updateYearChanged();
+      break;
+    case "selectedDates":
+      updateLastSelectedDate(event.newValue.slice(-1)[0]);
+      break;
+    default:
+      break;
+  }
 });
 
 /** Outside controls */
@@ -122,27 +136,22 @@ btnGoToCurrentYear.onclick = event => {
 };
 
 inputDayWidth.onchange = event => {
-  fullYearCalendar.viewModel.changeSettings({
-    dayWidth: event.srcElement.value
-  });
+  fullYearCalendar.viewModel.dayWidth = event.srcElement.value;
 };
 
 chkShowWeekDaysNameEachMonth.onchange = event => {
-  fullYearCalendar.viewModel.changeSettings({
-    showWeekDaysNameEachMonth: event.srcElement.checked
-  });
+  fullYearCalendar.viewModel.showWeekDaysNameEachMonth = event.srcElement.checked;
 };
 
 selectChangeWeekStartDay.onchange = event => {
-  fullYearCalendar.viewModel.changeSettings({
-    weekStartDay: parseInt(event.srcElement.value, 10)
-  });
+  fullYearCalendar.viewModel.weekStartDay = parseInt(
+    event.srcElement.value,
+    10
+  );
 };
 
 selectLocale.onchange = event => {
-  fullYearCalendar.viewModel.changeSettings({
-    locale: event.srcElement.value
-  });
+  fullYearCalendar.viewModel.locale = event.srcElement.value;
 };
 
 btnAddNewCustomDates.onclick = event => {

@@ -65,25 +65,23 @@ const configObj = {
   }
 };
 
-const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
-
-fullYearCalendar.viewModel.on("currentYear::WillChange", event => {
+const currentYearWillChangeHandler = event => {
   inputYearChangedInfo.innerText = "";
   if (event.newValue < new Date().getFullYear()) {
     inputYearChangedInfo.innerText =
       "Year can't be inferior to the current year";
     event.cancel();
   }
-});
+};
 
-fullYearCalendar.viewModel.on("selectedDates::WillChange", event => {
+const selectedDatesWillChangeHandler = event => {
   inputYearChangedInfo.innerText = "";
 
   if (event.newValue.length > 20) {
     event.cancel("Can't select more than 20 days at a time.");
     return;
   }
-  
+
   event.newValue.forEach(date => {
     const weekDay = date.getDay();
     const dateIndex = findIndexArray(event.newValue, date);
@@ -103,22 +101,43 @@ fullYearCalendar.viewModel.on("selectedDates::WillChange", event => {
       default:
     }
   });
-});
+};
 
-fullYearCalendar.viewModel.on("selectedDates::DidChange", event => {
-  if (event.info !== "") {
-    inputYearChangedInfo.innerText += event.info;
+const fullYearCalendar = new Calendar(divFullYearCalendar, configObj);
+
+fullYearCalendar.viewModel.on("willChange", event => {
+  switch (event.propName) {
+    case "currentYear":
+      currentYearWillChangeHandler(event);
+      break;
+    case "selectedDates":
+      selectedDatesWillChangeHandler(event);
+      break;
+    default:
+      break;
   }
 });
 
-fullYearCalendar.viewModel.on("selectedDates::RejectedChange", event => {
-  inputYearChangedInfo.innerText = event.cancelReason.message;
+fullYearCalendar.viewModel.on("didChange", event => {
+  if (event.propName === "selectedDates") {
+    if (event.info !== "") {
+      inputYearChangedInfo.innerText += event.info;
+    }
+  }
 });
 
-fullYearCalendar.viewModel.on("day::WillPoint", event => {
-  console.warn("No tooltip for you :)");
+fullYearCalendar.viewModel.on("rejectedChange", event => {
+  if (event.propName === "selectedDates") {
+    inputYearChangedInfo.innerText = event.cancelReason.message;
+  }
+});
 
-  event.cancel();
+fullYearCalendar.viewModel.on("willPoint", event => {
+  if (event.propName === "day") {
+    console.warn("No tooltip for you :)");
+
+    event.cancel();
+  }
 });
 
 /** Outside controls */

@@ -1,11 +1,12 @@
-import { PropertyNames, RepresentationValues } from "./enums.js";
-import * as utils from "./utils.js";
+import { PropertyNames } from "./enums.js";
+import {
+  findIndexArray,
+  getMonthLastDay,
+  normalizeCustomDates
+} from "./utils.js";
 import EventSource from "./events/EventSource.js";
 import ChangeEvent from "./events/ChangeEvent.js";
 import PointEvent from "./events/PointEvent.js";
-
-// TODO: need to find a different way to manage properties.
-// For most setters, when called, the settings changed event is not being called.
 
 /**
  * ViewModel class for the FullYearCalendar.
@@ -22,15 +23,12 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel
    */
   constructor(settings) {
-
     super();
 
     // Initializes all the necessary properties in order to have the calendar working as intended.
     PropertyNames.forEach(propName => {
       this[propName] = settings && settings[propName];
     });
-
-    this._updateFixedProperties();
   }
 
   // #region Getters and Setters
@@ -47,7 +45,7 @@ export default class ViewModel extends EventSource {
   }
 
   set dayWidth(value) {
-    this._dayWidth = value;
+    this._setProp("dayWidth", value || 25);
   }
 
   /**
@@ -63,7 +61,7 @@ export default class ViewModel extends EventSource {
   }
 
   set showWeekDaysNameEachMonth(value) {
-    this._showWeekDaysNameEachMonth = value || false;
+    this._setProp("showWeekDaysNameEachMonth", value || false);
   }
 
   /**
@@ -79,7 +77,10 @@ export default class ViewModel extends EventSource {
   }
 
   set locale(value) {
-    this._locale = value || window.navigator.language || window.navigator.userLanguage;
+    this._setProp(
+      "locale",
+      value || window.navigator.language || window.navigator.userLanguage
+    );
   }
 
   /**
@@ -92,11 +93,11 @@ export default class ViewModel extends EventSource {
    * @default "center"
    */
   get alignInContainer() {
-    return this.__alignInContainer;
+    return this._alignInContainer;
   }
 
   set alignInContainer(value) {
-    this.__alignInContainer = value || "center";
+    this._setProp("alignInContainer", value || "center");
   }
 
   /**
@@ -112,12 +113,15 @@ export default class ViewModel extends EventSource {
   }
 
   set currentYear(value) {
-    const newCurrentYear = (value != null && value > 1900)
-        ? value
-        : new Date().getFullYear();
+    console.log("EXECUTED SETTER: currentYear");
+    const newCurrentYear =
+      value != null && value > 1900 ? value : new Date().getFullYear();
 
-
-    this._setProp("currentYear", newCurrentYear, this._updateDatesArray.bind(this));
+    this._setProp(
+      "currentYear",
+      newCurrentYear,
+      this._updateDatesArray.bind(this)
+    );
   }
 
   /**
@@ -134,7 +138,7 @@ export default class ViewModel extends EventSource {
   }
 
   set weekStartDay(value) {
-    this._weekStartDay = value || 0;
+    this._setProp("weekStartDay", value || 0);
   }
 
   /**
@@ -152,7 +156,7 @@ export default class ViewModel extends EventSource {
   }
 
   set weekendDays(value) {
-    this._weekendDays = value || [];
+    this._setProp("weekendDays", value || []);
   }
 
   /**
@@ -169,7 +173,7 @@ export default class ViewModel extends EventSource {
   }
 
   set showLegend(value) {
-    this._showLegend = value || false;
+    this._setProp("showLegend", value || false);
   }
 
   /**
@@ -186,7 +190,7 @@ export default class ViewModel extends EventSource {
   }
 
   set legendStyle(value) {
-    this._legendStyle = value || "Inline";
+    this._setProp("legendStyle", value || "Inline");
   }
 
   /**
@@ -204,7 +208,7 @@ export default class ViewModel extends EventSource {
   }
 
   set showNavigationToolBar(value) {
-    this._showNavigationToolBar = value || false;
+    this._setProp("showNavigationToolBar", value || false);
   }
 
   /**
@@ -218,7 +222,7 @@ export default class ViewModel extends EventSource {
   }
 
   set captionNavButtonPreviousYear(value) {
-    this._captionNavButtonPreviousYear = value || "";
+    this._setProp("captionNavButtonPreviousYear", value || "");
   }
 
   /**
@@ -232,7 +236,7 @@ export default class ViewModel extends EventSource {
   }
 
   set captionNavButtonNextYear(value) {
-    this._captionNavButtonNextYear = value || "";
+    this._setProp("captionNavButtonNextYear", value || "");
   }
 
   /**
@@ -247,7 +251,7 @@ export default class ViewModel extends EventSource {
   }
 
   set customDates(value) {
-    this._customDates = this._normalizeCustomDates(value);
+    this._setProp("customDates", normalizeCustomDates(value));
   }
 
   /**
@@ -261,7 +265,6 @@ export default class ViewModel extends EventSource {
   }
 
   set selectedDates(value) {
-
     const datesToSelect = value || [];
 
     // Create a copy of the currently selected dates.
@@ -270,7 +273,7 @@ export default class ViewModel extends EventSource {
       : [];
 
     datesToSelect.forEach(date => {
-      const dateIndex = utils.findIndexArray(newSelectedDates, date);
+      const dateIndex = findIndexArray(newSelectedDates, date);
       if (dateIndex === -1) {
         newSelectedDates.push(date);
       } else {
@@ -296,129 +299,6 @@ export default class ViewModel extends EventSource {
   // #region Private methods
 
   /**
-   * Updates the fixed / calculated properties of the viewModel.
-   *
-   * @memberof ViewModel#
-   * @private
-   */
-  _updateFixedProperties() {
-
-    // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
-    this.monthNames = utils.getMonthNamesList(
-      this.locale,
-      RepresentationValues.long
-    );
-
-    // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
-    this.weekDayNames = utils.getWeekdayNamesList(
-      this.locale,
-      RepresentationValues.narrow
-    );
-
-    this._updateDatesArray();
-
-    this._selectedDates = [];
-  }
-
-  /**
-   * Normalizes the customDate object.
-   *
-   * @param {Object} customDates
-   * @returns {Object} - Normalized customDates object.
-   *
-   * @private
-   * @memberof ViewModel#
-   */
-  // eslint-disable-next-line class-methods-use-this
-  _normalizeCustomDates(customDates) {
-
-    // TODO: should this be moved to utils?
-
-    const normalizedCustomDates = {};
-
-    if (!customDates) return normalizedCustomDates;
-
-    // Loops through all the the properties in the CustomDates object.
-    Object.keys(customDates).forEach(property => {
-      // Checks that the property actually exists in the object and has a values property inside.
-      if (
-        utils.objectHasProperty(customDates, property) &&
-        customDates[property].values
-      ) {
-        // We need to check the 3 possible ways to create a CustomDate.
-
-        const { values } = customDates[property];
-
-        // 1 - If the values property is an Object then we should check for the start and end properties (Range).
-        if (
-          values.constructor === Object &&
-          utils.objectHasProperty(values, "start") &&
-          utils.objectHasProperty(values, "end")
-        ) {
-          const startDate = new Date(values.start);
-          const endDate = new Date(values.end);
-
-          const recurring =
-            values.recurring || customDates[property].recurring || false;
-
-          normalizedCustomDates[property] = {
-            caption: customDates[property].caption,
-            cssClass: customDates[property].cssClass,
-            values: [{ start: startDate, end: endDate, recurring }]
-          };
-        }
-
-        // 2 - If it's an array of Dates we must add one position on the values array for each one.
-        if (values.constructor === Array) {
-          normalizedCustomDates[property] = {
-            caption: customDates[property].caption,
-            cssClass: customDates[property].cssClass,
-            values: []
-          };
-          // Checks if the current date exists in the Array
-          values.forEach(auxDate => {
-            const newDate = new Date(auxDate);
-            const recurring = customDates[property].recurring || false;
-            normalizedCustomDates[property].values.push({
-              start: newDate,
-              end: newDate,
-              recurring
-            });
-          });
-        }
-
-        // 3 - If it's an array of periods for the same property, for example several periods of vacations
-        if (
-          values.constructor === Array &&
-          values.length > 0 &&
-          values[0].constructor === Object
-        ) {
-          normalizedCustomDates[property] = {
-            caption: customDates[property].caption,
-            cssClass: customDates[property].cssClass,
-            values: []
-          };
-          // Checks if the current date exists in the Array
-          values.forEach(auxPeriod => {
-            const startDate = new Date(auxPeriod.start);
-            const endDate = new Date(auxPeriod.end);
-            const recurring =
-              auxPeriod.recurring || customDates[property].recurring || false;
-
-            normalizedCustomDates[property].values.push({
-              start: startDate,
-              end: endDate,
-              recurring
-            });
-          });
-        }
-      }
-    });
-
-    return normalizedCustomDates;
-  }
-
-  /**
    * Creates the array of dates to be displayed on the calendar in the currently selected year.
    *
    * @private
@@ -429,10 +309,7 @@ export default class ViewModel extends EventSource {
 
     for (let currentMonth = 0; currentMonth < 12; currentMonth += 1) {
       // Calculate the last day of the month
-      const lastDayOfMonth = utils.getMonthLastDay(
-        this.currentYear,
-        currentMonth
-      );
+      const lastDayOfMonth = getMonthLastDay(this.currentYear, currentMonth);
 
       for (let iDay = 0; iDay < lastDayOfMonth; iDay += 1) {
         updatedDates.push(new Date(this.currentYear, currentMonth, iDay + 1));
@@ -460,23 +337,14 @@ export default class ViewModel extends EventSource {
    * @memberof ViewModel#
    */
   _updateCustomDates(newCustomDates) {
-
-    const normalizedCustomDates = this._normalizeCustomDates(newCustomDates);
+    const updatedCustomDates = { ...this._customDates };
+    const normalizedCustomDates = normalizeCustomDates(newCustomDates);
 
     Object.keys(normalizedCustomDates).forEach(property => {
-      this._customDates[property] = normalizedCustomDates[property];
+      updatedCustomDates[property] = normalizedCustomDates[property];
     });
-  }
 
-  /**
-   * Replaces the existing customDates object with the new one.
-   *
-   * @param {Object} newCustomDates - The customDate objects.
-   * @private
-   * @memberof ViewModel#
-   */
-  _replaceCustomDates(newCustomDates) {
-    this._customDates = this._normalizeCustomDates(newCustomDates);
+    return updatedCustomDates;
   }
 
   /**
@@ -485,28 +353,26 @@ export default class ViewModel extends EventSource {
    * @param {string} propName - The name of the property to be updated.
    * @param {*} newValue - The new value of the property.
    * @param {?function} [onChangeDidCallback] - A handler to call after the property has been changed,
-   *  yet before dispatching the `<propName>::DidChange` event.
+   *  yet before dispatching the `didChange` event.
    * @memberof ViewModel#
    * @private
    */
   _setProp(propName, newValue, onChangeDidCallback) {
-
     const oldValue = this[propName];
 
-    if(newValue !== oldValue) {
-      const event = new ChangeEvent(newValue, oldValue);
+    if (newValue !== oldValue) {
+      const event = new ChangeEvent(propName, newValue, oldValue);
 
-      this._dispatchAction(propName, "Change", event, () => {
-
-        if(event.newValue === oldValue) {
+      this._dispatchAction("Change", event, () => {
+        if (event.newValue === oldValue) {
           event.cancel("No Change.");
         } else {
           this[`_${propName}`] = event.newValue;
 
-          if(onChangeDidCallback != null) {
+          if (onChangeDidCallback != null) {
             try {
               onChangeDidCallback();
-            } catch(ex) {
+            } catch (ex) {
               // Rolback.
               this[`_${propName}`] = oldValue;
               throw ex;
@@ -518,74 +384,38 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Dispatches a `<subject>::Will<Action>` event and, if the event is not canceled,
-   * then the action is commited and a `<subject>::Did<Action>` event is dispatched.
-   * Otherwise, a `<subject>::Rejected<Action>` event is dispatched.
+   * Dispatches a `will<Action>` event and, if the event is not canceled,
+   * then the action is commited and a `did<Action>` event is dispatched.
+   * Otherwise, a `rejected<Action>` event is dispatched.
    *
-   * @param {string} subject - The name of the subject, in camel Case, to be acted upon.
    * @param {string} action - The name of the action, in Pascal Case.
    * @param {Object} event - The event information.
    * @param {?function(Event)} [doAction] - A function that performs the action.
    * @memberof ViewModel#
    * @private
    */
-  _dispatchAction(subject, action, event, doAction) {
-
-    this.dispatch(`${subject}::Will${action}`, event);
+  _dispatchAction(action, event, doAction) {
+    this.dispatch(`will${action}`, event);
 
     if (doAction && !event.isCanceled) {
       try {
         doAction();
         // May have been canceled.
-      } catch(ex) {
+      } catch (ex) {
         event.cancel(ex);
       }
     }
 
     if (event.isCanceled) {
-      this.dispatch(`${subject}::Rejected${action}`, event);
+      this.dispatch(`rejected${action}`, event);
     } else {
-      this.dispatch(`${subject}::Did${action}`, event);
+      this.dispatch(`did${action}`, event);
     }
   }
 
   // #endregion Private methods
 
   // #region Public methods
-
-  // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
-  /**
-   * Returns the total number of days
-   * It's set to 42 to fill gaps on mobile view because it's the maximum possible value to attain with the gap
-   * between starting and end of days in the month, however on normal view only 38 days will be visible.
-   *
-   * @memberof ViewModel#
-   */
-  // eslint-disable-next-line class-methods-use-this
-  getTotalNumberOfDays() {
-    return 42;
-  }
-
-  // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
-  /**
-   * The width of the month container. This is based on the day width times 4.
-   *
-   * @memberof ViewModel#
-   */
-  getMonthNameWidth() {
-    return this.dayWidth * 4;
-  }
-
-  // TODO: this is representation dependent and could be a private concern of the `Calendar` class.
-  /**
-   * Returns the total calendar width.
-   *
-   * @memberof ViewModel#
-   */
-  getTotalCalendarWidth() {
-    return this.getMonthNameWidth() +
-      this.dayWidth * (this.getTotalNumberOfDays() - 4);
-  }
 
   /**
    * Increments one to the current year.
@@ -606,62 +436,37 @@ export default class ViewModel extends EventSource {
   }
 
   /**
-   * Updates the properties of the calendar with the new ones received as a parameter.
-   *
-   * @param {Object} settings - Object with the properties that should be updated on the calendar.
-   * @memberof ViewModel#
-   */
-  changeSettings(settings) {
-    // TODO: Not using normal action dispatch.
-
-    Object.keys(settings).forEach(property => {
-      if (this[property] !== undefined &&
-          settings[property] !== this[property]) {
-        this[property] = settings[property];
-      }
-    });
-
-    this._updateFixedProperties();
-
-    this.dispatch("settings::DidChange", null);
-  }
-
-  // TODO: can this be replaced by the customDates setter?
-  /**
-   * Refreshes the CustomDates object.
+   * Refreshes the CustomDates object according to the received information.
    *
    * @param {Object} customDates
    * @param {boolean} [keepPrevious=true]
    * @memberof ViewModel#
    */
   changeCustomDates(customDates, keepPrevious = true) {
-    // TODO: Not using normal action dispatch.
-
     if (keepPrevious) {
-      this._updateCustomDates(customDates);
+      this.customDates = this._updateCustomDates(customDates);
     } else {
-      this._replaceCustomDates(customDates);
+      this.customDates = normalizeCustomDates(customDates);
     }
-
-    this.dispatch("customDates::DidChange", null);
   }
 
   /**
    * Triggers an event informing the received day is being pointed at. This can be used to add a custom tooltip at the
    * day location.
    *
+   * @param {date} date - The date value of the day being pointed at.
+   * @param {number} x - The X coordinate of the day being pointed at.
+   * @param {number} y - The Y coordinate of the day being pointed at.
    * @memberof ViewModel#
    */
   pointDay(date, x, y) {
-    // TODO: date, x and y are required or throw.
     // Also, they should respect the documented data types, or throw (or just assume these are respected).
     if (date && !Number.isNaN(x) && !Number.isNaN(y)) {
+      const event = new PointEvent("day", date, x, y);
 
-      const event = new PointEvent(date, x, y);
-
-      this._dispatchAction("day", "Point", event);
+      this._dispatchAction("Point", event);
     } else {
-      console.warn(`Something went wrong while pointed at the day`);
+      throw new Error("Something went wrong while pointed at the day");
     }
   }
 

@@ -1,11 +1,9 @@
-import CancelableEvent  from "./CancelableEvent.js";
+import CancelableEvent from "./CancelableEvent.js";
 
 export default class ChangeEvent extends CancelableEvent {
+  constructor(propName, newValue, oldValue) {
+    super(propName);
 
-  constructor(newValue, oldValue) {
-    
-    super();
-    
     this.newValue = newValue;
     this.oldValue = oldValue;
   }
