@@ -1,2 +1,2 @@
 # FullYearCalendar
-Yearly calendar to show import days for the selected year. Like vacations, holidays, etc...
+A calendar that shows dates in yearly view
